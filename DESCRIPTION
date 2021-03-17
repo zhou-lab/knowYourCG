@@ -1,0 +1,23 @@
+Package: KnowYourCpG
+Type: Package
+Title: KnowYourCpG
+Version: 1.0.0
+Authors@R: c(person("Moyer", "Ethan", role = c("aut","cre"),
+             email = "ethan.jacob.moyer@gmail.com"))
+Depends: R (>= 3.6.2),
+          sesameData,
+          methods
+License: file LICENSE
+RoxygenNote: 7.1.1
+Imports: sesameData,
+Suggests: 
+    knitr,
+    rmarkdown
+Encoding: UTF-8
+VignetteBuilder: knitr
+URL: 
+BugReports: 
+biocViews: 
+Collate: 
+    'editTree.R'
+LazyData: true

@@ -1,0 +1,1290 @@
+\documentclass[a4paper]{book}
+\usepackage[times,inconsolata,hyper]{Rd}
+\usepackage{makeidx}
+\usepackage[latin1]{inputenc} % @SET ENCODING@
+% \usepackage{graphicx} % @USE GRAPHICX@
+\makeindex{}
+\begin{document}
+\chapter*{}
+\begin{center}
+{\textbf{\huge \R{} documentation}} \par\bigskip{{\Large of \file{add\_data.Rd} etc.}}
+\par\bigskip{\large \today}
+\end{center}
+\inputencoding{utf8}
+\HeaderA{add\_data}{Add to probe-node matrix at a new node}{add.Rul.data}
+%
+\begin{Description}\relax
+At a given node, this function adds data to the probe-node matrix at node 
+n\_new. Make sure that the sizes of data and the probe-node matrix are 
+compatible before calling this function.
+\end{Description}
+%
+\begin{Usage}
+\begin{verbatim}
+add_data(probe_node_matrix, n_new., data)
+\end{verbatim}
+\end{Usage}
+%
+\begin{Arguments}
+\begin{ldescription}
+\item[\code{probe\_node\_matrix}] matrix storing the methylation status across all
+probes and nodes on a tree
+
+\item[\code{data}] column matrix of methylation status for a node across many 
+probes
+
+\item[\code{n\_new}] node number
+\end{ldescription}
+\end{Arguments}
+%
+\begin{Value}
+probe-node matrix with data stored at node n\_new
+\end{Value}
+%
+\begin{Examples}
+\begin{ExampleCode}
+tree <- add_data(probe_node_matrix, 12, probe_node_matrix['6'])
+... some visualization 
+\end{ExampleCode}
+\end{Examples}
+\inputencoding{utf8}
+\HeaderA{betas\_to\_consensus\_vector}{Converts betas matrix to consensus vectors of probes for each group  VALIDATED}{betas.Rul.to.Rul.consensus.Rul.vector}
+%
+\begin{Description}\relax
+This function creates a consensus vector for each group using the betas 
+matrix
+\end{Description}
+%
+\begin{Usage}
+\begin{verbatim}
+betas_to_consensus_vector(
+  reference_file,
+  series_matrix_file,
+  betas,
+  group_names,
+  remove_names
+)
+\end{verbatim}
+\end{Usage}
+%
+\begin{Arguments}
+\begin{ldescription}
+\item[\code{reference\_file}] directory location of where given IDAT file is located
+
+\item[\code{series\_matrix\_file}] directory location of where given series matrix 
+file is located
+
+\item[\code{betas}] matrix (rows are cell names, columns are probe names)
+
+\item[\code{group\_names}] list of cell names in betas
+
+\item[\code{remove\_names}] list of cell names in betas
+\end{ldescription}
+\end{Arguments}
+%
+\begin{Value}
+consensus vector data frame for each cell in group names
+\end{Value}
+%
+\begin{Examples}
+\begin{ExampleCode}
+consensus_vector <- betas_to_consensus_vector('~/references/
+EPIC.hg38.manifest.rds', 'GSE110554/samples_GEOLoadSeriesMatrix.rds', 
+betas, c('NK', "Monocytes", ...), c('A.mix', 'B.mix', ...))
+... some visualization 
+\end{ExampleCode}
+\end{Examples}
+\inputencoding{utf8}
+\HeaderA{create\_consensus\_vector}{Create consensus vector of probes for each group VALIDATED}{create.Rul.consensus.Rul.vector}
+%
+\begin{Description}\relax
+This function creates consensus vector for each group using majority ruling:
+across all probes, whichever category (methylated/unmethylated) is 
+represented in more than 2/3's of the sample will saved. Otherwise, -1 for 
+ambiguous is saved. A probabilistic model will supplement this in the future.
+\end{Description}
+%
+\begin{Usage}
+\begin{verbatim}
+create_consensus_vector(betas, group_names)
+\end{verbatim}
+\end{Usage}
+%
+\begin{Arguments}
+\begin{ldescription}
+\item[\code{betas}] matrix (rows are cell names, columns are probe names)
+
+\item[\code{group\_names}] list of cell names in betas
+\end{ldescription}
+\end{Arguments}
+%
+\begin{Value}
+consensus vector for each cell in group names
+\end{Value}
+%
+\begin{Examples}
+\begin{ExampleCode}
+consensus_vector <- create_consensus_vector(betas, c('NK', "Monocytes", 
+...))
+... some visualization 
+\end{ExampleCode}
+\end{Examples}
+\inputencoding{utf8}
+\HeaderA{create\_node\_matrix}{Node matrix used for tree walking VALIDATED}{create.Rul.node.Rul.matrix}
+%
+\begin{Description}\relax
+Returns a matrix which tracks where recursive functions are in a tree 
+structure. This is past to most recursive functions in the pipeline.
+\end{Description}
+%
+\begin{Usage}
+\begin{verbatim}
+create_node_matrix(tree)
+\end{verbatim}
+\end{Usage}
+%
+\begin{Arguments}
+\begin{ldescription}
+\item[\code{tree}] ape::phylo tree
+\end{ldescription}
+\end{Arguments}
+%
+\begin{Value}
+node matrix with one column for ancestors and another for 
+descendants
+\end{Value}
+%
+\begin{Examples}
+\begin{ExampleCode}
+node_matrix <- create_node_matrix(tree)
+... some visualization 
+\end{ExampleCode}
+\end{Examples}
+\inputencoding{utf8}
+\HeaderA{cut\_tree}{Recursively walk through tree and remove descendants.}{cut.Rul.tree}
+%
+\begin{Description}\relax
+This function will recursively walk through a given tree and remove all of 
+node n's descendants, making node n a new leaf.
+\end{Description}
+%
+\begin{Usage}
+\begin{verbatim}
+cut_tree(node, root, node_matrix, i)
+\end{verbatim}
+\end{Usage}
+%
+\begin{Arguments}
+\begin{ldescription}
+\item[\code{node}] node number
+
+\item[\code{root}] root of non-proper subtree
+
+\item[\code{node\_matrix}] matrix obtained from create\_node\_matrix function
+
+\item[\code{i}] row in node matrix, start at 1
+\end{ldescription}
+\end{Arguments}
+%
+\begin{Value}
+None
+\end{Value}
+%
+\begin{Examples}
+\begin{ExampleCode}
+cut_tree(node, get_root(tree), node_matrix, 1)
+... some visualization 
+\end{ExampleCode}
+\end{Examples}
+\inputencoding{utf8}
+\HeaderA{fit\_betas\_to\_distribution}{Categorize betas based on bimodal distribution VALIDATED}{fit.Rul.betas.Rul.to.Rul.distribution}
+%
+\begin{Description}\relax
+This function uses a given bimodal distribution generated within cells
+in order to categorize betas as either methylated (1), unmethylated (0), or 
+ambiguous (-1).
+\end{Description}
+%
+\begin{Usage}
+\begin{verbatim}
+fit_betas_to_distribution(betas, bi)
+\end{verbatim}
+\end{Usage}
+%
+\begin{Arguments}
+\begin{ldescription}
+\item[\code{betas}] matrix (rows are cell names, columns are probe names)
+
+\item[\code{bi}] matrix specifying mu0, mu1, sigma0, sigma1 across all cell types
+\end{ldescription}
+\end{Arguments}
+%
+\begin{Value}
+betas categorized based on bimodal distribution
+\end{Value}
+%
+\begin{Examples}
+\begin{ExampleCode}
+betas <- fit_betas_to_distribution(betas, bi)
+... some visualization 
+\end{ExampleCode}
+\end{Examples}
+\inputencoding{utf8}
+\HeaderA{generate\_bimodal\_distribution}{Generate bimodal distribution VALIDATED}{generate.Rul.bimodal.Rul.distribution}
+%
+\begin{Description}\relax
+This function generates a bimodal distribution on the betas matrix data 
+within cells
+\end{Description}
+%
+\begin{Usage}
+\begin{verbatim}
+generate_bimodal_distribution(betas)
+\end{verbatim}
+\end{Usage}
+%
+\begin{Arguments}
+\begin{ldescription}
+\item[\code{betas}] matrix (rows are cell names, columns are probe names)
+\end{ldescription}
+\end{Arguments}
+%
+\begin{Value}
+matrix specifying mu0, mu1, sigma0, sigma1 across all cell types
+\end{Value}
+%
+\begin{Examples}
+\begin{ExampleCode}
+bi <- generate_bimodal_distribution(betas)
+... some visualization 
+\end{ExampleCode}
+\end{Examples}
+\inputencoding{utf8}
+\HeaderA{generate\_branch\_changes}{Relevant probes for gain, loss, and change in methylation status VALIDATED}{generate.Rul.branch.Rul.changes}
+%
+\begin{Description}\relax
+This function returns relevant probe lists for each node that exhibit a 
+gain or loss in methylation status. It also returns three sets of branch 
+labels: number of methylation changes, number of methylation gains, and 
+number of methylation losses.
+\end{Description}
+%
+\begin{Usage}
+\begin{verbatim}
+generate_branch_changes(tree, probe_node_matrix)
+\end{verbatim}
+\end{Usage}
+%
+\begin{Arguments}
+\begin{ldescription}
+\item[\code{tree}] ape::phylo tree
+
+\item[\code{probe\_node\_matrix}] matrix storing the methylation status across all
+probes and nodes on a tree
+\end{ldescription}
+\end{Arguments}
+%
+\begin{Value}
+a structure containing a list of probes with differentially 
+methylated probes for each node, a list of branch labels for the number of
+total changes  in methylation, a list of branch labels for the number of 
+gains in methylation, a list of branch labels for the number of losses in 
+methylation
+\end{Value}
+%
+\begin{Examples}
+\begin{ExampleCode}
+probe_information <- generate_branch_changes(tree, probe_node_matrix)
+relevant_probes <- probe_information$relevant_probes
+total_changes_label <- probe_information$total_changes_label
+meth_gains_label <- probe_information$meth_gains_label
+meth_losses_label <- probe_information$meth_losses_label
+... some visualization 
+\end{ExampleCode}
+\end{Examples}
+\inputencoding{utf8}
+\HeaderA{generate\_probe\_node\_matrix}{Fully generate probe-node matrix with available data VALIDATED}{generate.Rul.probe.Rul.node.Rul.matrix}
+%
+\begin{Description}\relax
+This function fully generates the probe-node matrix with a given 
+tree
+\end{Description}
+%
+\begin{Usage}
+\begin{verbatim}
+generate_probe_node_matrix(consensus_vector, tree)
+\end{verbatim}
+\end{Usage}
+%
+\begin{Arguments}
+\begin{ldescription}
+\item[\code{consensus\_vector}] consensus vector data frame for each cell in group 
+names
+
+\item[\code{tree}] ape::phylo tree
+\end{ldescription}
+\end{Arguments}
+%
+\begin{Value}
+probe\_node\_matrix
+\end{Value}
+%
+\begin{Examples}
+\begin{ExampleCode}
+tree_info <- generate_probe_node_matrix(consensus_vector, 
+upgma_tree(consensus_vector))
+tree <- tree_info[1]
+probe_node_matrix <- tree_info[2]
+... some visualization 
+\end{ExampleCode}
+\end{Examples}
+\inputencoding{utf8}
+\HeaderA{get\_leaves}{Leaves of a tree}{get.Rul.leaves}
+%
+\begin{Description}\relax
+Given a tree, this function returns the leaves
+\end{Description}
+%
+\begin{Usage}
+\begin{verbatim}
+get_leaves(tree)
+\end{verbatim}
+\end{Usage}
+%
+\begin{Arguments}
+\begin{ldescription}
+\item[\code{tree}] ape::phylo tree
+\end{ldescription}
+\end{Arguments}
+%
+\begin{Value}
+leafs on a given tree
+\end{Value}
+%
+\begin{Examples}
+\begin{ExampleCode}
+leaves <- get_leaves(tree)
+... some visualization 
+\end{ExampleCode}
+\end{Examples}
+\inputencoding{utf8}
+\HeaderA{get\_probes\_of\_gene}{Probes along a given gene VALIDATED}{get.Rul.probes.Rul.of.Rul.gene}
+%
+\begin{Description}\relax
+This function returns a list of probes along a particular gene
+\end{Description}
+%
+\begin{Usage}
+\begin{verbatim}
+get_probes_of_gene(reference, gene)
+\end{verbatim}
+\end{Usage}
+%
+\begin{Arguments}
+\begin{ldescription}
+\item[\code{reference}] reference file
+
+\item[\code{gene}] gene name
+\end{ldescription}
+\end{Arguments}
+%
+\begin{Value}
+list of probes along a particular gene
+\end{Value}
+%
+\begin{Examples}
+\begin{ExampleCode}
+gene_probes <- get_probes_of_gene(reference, gene)
+... some visualization 
+\end{ExampleCode}
+\end{Examples}
+\inputencoding{utf8}
+\HeaderA{get\_reference}{Returns reference file VALIDATED}{get.Rul.reference}
+%
+\begin{Description}\relax
+This function returns a reference file given location. Any preprocessing 
+steps for the reference will also be added in this function.
+\end{Description}
+%
+\begin{Usage}
+\begin{verbatim}
+get_reference(reference_file)
+\end{verbatim}
+\end{Usage}
+%
+\begin{Arguments}
+\begin{ldescription}
+\item[\code{reference\_file}] directory location of where given IDAT file is located
+\end{ldescription}
+\end{Arguments}
+%
+\begin{Value}
+beta matrix without probes located on sex chromosomes.
+\end{Value}
+%
+\begin{Examples}
+\begin{ExampleCode}
+reference <- get_reference('~/references/hg38/annotation/R/
+EPIC.hg38.manifest.rds')
+... some visualization 
+\end{ExampleCode}
+\end{Examples}
+\inputencoding{utf8}
+\HeaderA{get\_relevant\_genes}{Relevant genes for gain and loss of methylation VALIDATED}{get.Rul.relevant.Rul.genes}
+%
+\begin{Description}\relax
+This function returns relevant gene lists for each node that exhibit a 
+gain or loss in methylation status.
+\end{Description}
+%
+\begin{Usage}
+\begin{verbatim}
+get_relevant_genes(tree, relevant_probes, reference)
+\end{verbatim}
+\end{Usage}
+%
+\begin{Arguments}
+\begin{ldescription}
+\item[\code{tree}] ape::phylo tree
+
+\item[\code{relevant\_probes}] list of differentially methylated probes for each 
+node
+
+\item[\code{reference}] reference file
+\end{ldescription}
+\end{Arguments}
+%
+\begin{Value}
+list of differentially methylated genes for each node
+\end{Value}
+%
+\begin{Examples}
+\begin{ExampleCode}
+relevant_genes <- get_relevant_genes(tree, relevant_probes, reference)
+... some visualization 
+\end{ExampleCode}
+\end{Examples}
+\inputencoding{utf8}
+\HeaderA{get\_root}{Root of a tree VALIDATED}{get.Rul.root}
+%
+\begin{Description}\relax
+Returns the root of a tree structure.
+\end{Description}
+%
+\begin{Usage}
+\begin{verbatim}
+get_root(tree)
+\end{verbatim}
+\end{Usage}
+%
+\begin{Arguments}
+\begin{ldescription}
+\item[\code{tree}] ape::phylo tree
+\end{ldescription}
+\end{Arguments}
+%
+\begin{Value}
+node corresponding the the root of the tree
+\end{Value}
+%
+\begin{Examples}
+\begin{ExampleCode}
+root <- get_root(tree)
+... some visualization 
+\end{ExampleCode}
+\end{Examples}
+\inputencoding{utf8}
+\HeaderA{grow\_off\_leaf}{Grow a tree at a given leaf node}{grow.Rul.off.Rul.leaf}
+%
+\begin{Description}\relax
+Add a pair of leaves branching off of the given leaf node for the tree. 
+Asigns the two newly added leaves labels from node\_names the old leaf where 
+the two branches were add as an internal node.
+\end{Description}
+%
+\begin{Usage}
+\begin{verbatim}
+grow_off_leaf(tree, leaf, node_names)
+\end{verbatim}
+\end{Usage}
+%
+\begin{Arguments}
+\begin{ldescription}
+\item[\code{tree}] ape::phylo tree
+
+\item[\code{leaf}] node number
+
+\item[\code{node\_names}] list of two node names
+\end{ldescription}
+\end{Arguments}
+%
+\begin{Value}
+new tree topology--two branches added to given leaf and labeled 
+accordingly
+\end{Value}
+%
+\begin{Examples}
+\begin{ExampleCode}
+tree <- grow_off_leaf(tree, 1, c('Fibroblasts', 'Fibrocytes'))
+... some visualization 
+\end{ExampleCode}
+\end{Examples}
+\inputencoding{utf8}
+\HeaderA{inherit\_parental\_state}{Inherit parental states to ambiguous nodes VALIDATED}{inherit.Rul.parental.Rul.state}
+%
+\begin{Description}\relax
+This function will recursively walk through a given tree and assigns 
+parental states to ambiguous children nodes
+\end{Description}
+%
+\begin{Usage}
+\begin{verbatim}
+inherit_parental_state(root, node_matrix, i)
+\end{verbatim}
+\end{Usage}
+%
+\begin{Arguments}
+\begin{ldescription}
+\item[\code{root}] root of non-proper subtree
+
+\item[\code{node\_matrix}] matrix obtained from create\_node\_matrix function
+
+\item[\code{i}] row in node matrix, start at 1
+\end{ldescription}
+\end{Arguments}
+%
+\begin{Value}
+None
+\end{Value}
+%
+\begin{Examples}
+\begin{ExampleCode}
+inherit_parental_state(get_root(tree), node_matrix, 1)
+... some visualization 
+\end{ExampleCode}
+\end{Examples}
+\inputencoding{utf8}
+\HeaderA{initialize\_probe\_node\_matrix}{Initialize the probe-node matrix VALIDATED}{initialize.Rul.probe.Rul.node.Rul.matrix}
+%
+\begin{Description}\relax
+This function simply initializes a probe-node matrix across given nodes and 
+probes with zeros.
+\end{Description}
+%
+\begin{Usage}
+\begin{verbatim}
+initialize_probe_node_matrix(consensus_vector, tree)
+\end{verbatim}
+\end{Usage}
+%
+\begin{Arguments}
+\begin{ldescription}
+\item[\code{consensus\_vector}] consensus vector data frame for each cell in group 
+names
+
+\item[\code{tree}] ape::phylo tree
+\end{ldescription}
+\end{Arguments}
+%
+\begin{Value}
+initialized probe\_node\_matrix
+\end{Value}
+%
+\begin{Examples}
+\begin{ExampleCode}
+probe_node_matrix <- initialize_probe_node_matrix(consensus_vector, 
+upgma_tree(consensus_vector))
+... some visualization 
+\end{ExampleCode}
+\end{Examples}
+\inputencoding{utf8}
+\HeaderA{ninternal\_nodes}{Number of internal nodes on a tree VALIDATED}{ninternal.Rul.nodes}
+%
+\begin{Description}\relax
+Given a tree, this function returns the number of internal nodes on tree.
+\end{Description}
+%
+\begin{Usage}
+\begin{verbatim}
+ninternal_nodes(tree)
+\end{verbatim}
+\end{Usage}
+%
+\begin{Arguments}
+\begin{ldescription}
+\item[\code{tree}] ape::phylo tree
+\end{ldescription}
+\end{Arguments}
+%
+\begin{Value}
+number of internal nodes on a given tree
+\end{Value}
+%
+\begin{Examples}
+\begin{ExampleCode}
+number_of_internal_nodes = ninternal_nodes(tree)
+... some visualization 
+\end{ExampleCode}
+\end{Examples}
+\inputencoding{utf8}
+\HeaderA{nleaves}{Number of leaves of a tree}{nleaves}
+%
+\begin{Description}\relax
+Given a tree, this function returns the number of leaves on a tree.
+\end{Description}
+%
+\begin{Usage}
+\begin{verbatim}
+nleaves(tree)
+\end{verbatim}
+\end{Usage}
+%
+\begin{Arguments}
+\begin{ldescription}
+\item[\code{tree}] ape::phylo tree
+\end{ldescription}
+\end{Arguments}
+%
+\begin{Value}
+number of leafs of a given tree
+\end{Value}
+%
+\begin{Examples}
+\begin{ExampleCode}
+number_of_leaves = nleaves(tree)
+... some visualization 
+\end{ExampleCode}
+\end{Examples}
+\inputencoding{utf8}
+\HeaderA{nnodes}{Total number of nodes on a tree VALIDATED}{nnodes}
+%
+\begin{Description}\relax
+Given a tree, this function returns the number of nodes on a tree.
+\end{Description}
+%
+\begin{Usage}
+\begin{verbatim}
+nnodes(tree)
+\end{verbatim}
+\end{Usage}
+%
+\begin{Arguments}
+\begin{ldescription}
+\item[\code{tree}] ape::phylo tree
+\end{ldescription}
+\end{Arguments}
+%
+\begin{Value}
+number of nodes on a tree
+\end{Value}
+%
+\begin{Examples}
+\begin{ExampleCode}
+number_of_nodes = nnodes(tree)
+... some visualization 
+\end{ExampleCode}
+\end{Examples}
+\inputencoding{utf8}
+\HeaderA{nprobes}{Number of probes in data VALIDATED}{nprobes}
+%
+\begin{Description}\relax
+This function returns the number of probes in the data
+\end{Description}
+%
+\begin{Usage}
+\begin{verbatim}
+nprobes(consensus_vector)
+\end{verbatim}
+\end{Usage}
+%
+\begin{Arguments}
+\begin{ldescription}
+\item[\code{consensus\_vector}] consensus vector data frame for each cell in group 
+names
+\end{ldescription}
+\end{Arguments}
+%
+\begin{Value}
+number of probes
+\end{Value}
+%
+\begin{Examples}
+\begin{ExampleCode}
+number_of_probes <- nprobes(consensus_vector)
+... some visualization 
+\end{ExampleCode}
+\end{Examples}
+\inputencoding{utf8}
+\HeaderA{read\_IDAT}{Load beta data}{read.Rul.IDAT}
+%
+\begin{Description}\relax
+Using sesame and sesame, this function loads beta data using IDAT files 
+stored in a given directory
+\end{Description}
+%
+\begin{Usage}
+\begin{verbatim}
+read_IDAT(IDAT_dir)
+\end{verbatim}
+\end{Usage}
+%
+\begin{Arguments}
+\begin{ldescription}
+\item[\code{IDAT\_dir}] directory location of where given IDAT file is located
+\end{ldescription}
+\end{Arguments}
+%
+\begin{Value}
+beta matrix
+\end{Value}
+%
+\begin{Examples}
+\begin{ExampleCode}
+betas <- read_IDAT('~/20191212_GEO_datasets/GSE110554')
+... some visualization 
+\end{ExampleCode}
+\end{Examples}
+\inputencoding{utf8}
+\HeaderA{reconstruct\_internal\_nodes}{Reconstruct internal nodes VALIDATED}{reconstruct.Rul.internal.Rul.nodes}
+%
+\begin{Description}\relax
+This function will recursively walk through a given tree and reconstruct 
+all of its internal states using Fitch's algorithm
+\end{Description}
+%
+\begin{Usage}
+\begin{verbatim}
+reconstruct_internal_nodes(root, node_matrix, i)
+\end{verbatim}
+\end{Usage}
+%
+\begin{Arguments}
+\begin{ldescription}
+\item[\code{root}] root of non-proper subtree
+
+\item[\code{node\_matrix}] matrix obtained from create\_node\_matrix function
+
+\item[\code{i}] row in node matrix, start at 1
+\end{ldescription}
+\end{Arguments}
+%
+\begin{Value}
+None
+\end{Value}
+%
+\begin{Examples}
+\begin{ExampleCode}
+reconstruct_internal_nodes(get_root(tree), node_matrix, 1)
+... some visualization 
+\end{ExampleCode}
+\end{Examples}
+\inputencoding{utf8}
+\HeaderA{relabel\_node\_matrix}{Relabel node in probe-node matrix}{relabel.Rul.node.Rul.matrix}
+%
+\begin{Description}\relax
+Relabel node label n\_old with node label n\_new in probe-node matrix.
+\end{Description}
+%
+\begin{Usage}
+\begin{verbatim}
+relabel_node_matrix(probe_node_matrix, n_old, n_new)
+\end{verbatim}
+\end{Usage}
+%
+\begin{Arguments}
+\begin{ldescription}
+\item[\code{probe\_node\_matrix}] matrix storing the methylation status across all
+probes and nodes on a tree
+
+\item[\code{n\_old}] node number
+
+\item[\code{n\_new}] node number
+\end{ldescription}
+\end{Arguments}
+%
+\begin{Value}
+relabeled probe\_node\_matrix with node label n\_old with node label
+n\_new
+\end{Value}
+%
+\begin{Examples}
+\begin{ExampleCode}
+probe_node_matrix <- relabel_node_matrix(probe_node_matrix, 7, 10)
+... some visualization 
+\end{ExampleCode}
+\end{Examples}
+\inputencoding{utf8}
+\HeaderA{relabel\_tree}{Relabel node on tree}{relabel.Rul.tree}
+%
+\begin{Description}\relax
+Relabel node label n\_old with node label n\_new on tree.
+\end{Description}
+%
+\begin{Usage}
+\begin{verbatim}
+relabel_tree(tree, n_old, n_new)
+\end{verbatim}
+\end{Usage}
+%
+\begin{Arguments}
+\begin{ldescription}
+\item[\code{tree}] ape::phylo tree
+
+\item[\code{n\_old}] node number
+
+\item[\code{n\_new}] node number
+\end{ldescription}
+\end{Arguments}
+%
+\begin{Value}
+relabeled tree with node label n\_old with node label
+n\_new
+\end{Value}
+%
+\begin{Examples}
+\begin{ExampleCode}
+tree <- relabel_tree(tree, 7, 10)
+... some visualization 
+\end{ExampleCode}
+\end{Examples}
+\inputencoding{utf8}
+\HeaderA{remove\_NA\_probes}{Removes NA probes VALIDATED}{remove.Rul.NA.Rul.probes}
+%
+\begin{Description}\relax
+Selects and removes NA probes from consensus vectors
+\end{Description}
+%
+\begin{Usage}
+\begin{verbatim}
+remove_NA_probes(consensus_vector)
+\end{verbatim}
+\end{Usage}
+%
+\begin{Arguments}
+\begin{ldescription}
+\item[\code{consensus\_vector}] consensus vector data frame for each cell in group 
+names
+\end{ldescription}
+\end{Arguments}
+%
+\begin{Value}
+consensus vector without NA probes
+\end{Value}
+%
+\begin{Examples}
+\begin{ExampleCode}
+consensus_vector <- remove_NA_probes(consensus_vector)
+... some visualization 
+\end{ExampleCode}
+\end{Examples}
+\inputencoding{utf8}
+\HeaderA{remove\_branches\_from\_node}{Cut tree at specified node}{remove.Rul.branches.Rul.from.Rul.node}
+%
+\begin{Description}\relax
+Given a tree and a selected node, this function removes the branches 
+stemming off of that node, thus making that node a leaf. It returns this 
+altered tree.
+\end{Description}
+%
+\begin{Usage}
+\begin{verbatim}
+remove_branches_from_node(tree, node)
+\end{verbatim}
+\end{Usage}
+%
+\begin{Arguments}
+\begin{ldescription}
+\item[\code{tree}] ape::phylo tree
+
+\item[\code{node}] node number
+\end{ldescription}
+\end{Arguments}
+%
+\begin{Value}
+new tree topology--node is now a leaf and all of node's descendants 
+are removed.
+\end{Value}
+%
+\begin{Examples}
+\begin{ExampleCode}
+tree <- remove_branches_from_node(tree, node)
+... some visualization 
+\end{ExampleCode}
+\end{Examples}
+\inputencoding{utf8}
+\HeaderA{remove\_cell\_types}{Remove specific cell types from betas matrix VALIDATED}{remove.Rul.cell.Rul.types}
+%
+\begin{Description}\relax
+This function removes specified group names. Common names include MIX or 
+are typically heterogeneous mixtures of cells.
+\end{Description}
+%
+\begin{Usage}
+\begin{verbatim}
+remove_cell_types(betas, remove_names)
+\end{verbatim}
+\end{Usage}
+%
+\begin{Arguments}
+\begin{ldescription}
+\item[\code{betas}] matrix (rows are cell names, columns are probe names)
+
+\item[\code{remove\_names}] list of cell names in betas
+\end{ldescription}
+\end{Arguments}
+%
+\begin{Value}
+beta matrix without specified cell names
+\end{Value}
+%
+\begin{Examples}
+\begin{ExampleCode}
+betas <- remove_cell_types(betas, c('A.mix', 'B.mix', ...))
+... some visualization 
+\end{ExampleCode}
+\end{Examples}
+\inputencoding{utf8}
+\HeaderA{remove\_intermediate\_probes}{Removes intermediate probes VALIDATED}{remove.Rul.intermediate.Rul.probes}
+%
+\begin{Description}\relax
+Selects and removes intermediate probes from consensus vectors
+\end{Description}
+%
+\begin{Usage}
+\begin{verbatim}
+remove_intermediate_probes(consensus_vector)
+\end{verbatim}
+\end{Usage}
+%
+\begin{Arguments}
+\begin{ldescription}
+\item[\code{consensus\_vector}] consensus vector data frame for each cell in group 
+names
+\end{ldescription}
+\end{Arguments}
+%
+\begin{Value}
+consensus vector without intermediate probes
+\end{Value}
+%
+\begin{Examples}
+\begin{ExampleCode}
+consensus_vector <- remove_intermediate_probes(consensus_vector)
+... some visualization 
+\end{ExampleCode}
+\end{Examples}
+\inputencoding{utf8}
+\HeaderA{remove\_sex\_chr}{Remove probes on sex chromosomes VALIDATED}{remove.Rul.sex.Rul.chr}
+%
+\begin{Description}\relax
+This function removes probes located on sex chromosomes because these 
+probes have a disproportionate global methylation status
+\end{Description}
+%
+\begin{Usage}
+\begin{verbatim}
+remove_sex_chr(reference, betas)
+\end{verbatim}
+\end{Usage}
+%
+\begin{Arguments}
+\begin{ldescription}
+\item[\code{reference}] reference file
+
+\item[\code{betas}] matrix (rows are probe names, columns are cell names)
+\end{ldescription}
+\end{Arguments}
+%
+\begin{Value}
+beta matrix without probes located on sex chromosomes.
+\end{Value}
+%
+\begin{Examples}
+\begin{ExampleCode}
+betas <- remove_sex_chr(reference, betas)
+... some visualization 
+\end{ExampleCode}
+\end{Examples}
+\inputencoding{utf8}
+\HeaderA{remove\_unapplicable\_probes}{Removes all inapplicable probes VALIDATED}{remove.Rul.unapplicable.Rul.probes}
+%
+\begin{Description}\relax
+Selects and removes NA, intermediate, and zero parsimony probes from 
+consensus vectors
+\end{Description}
+%
+\begin{Usage}
+\begin{verbatim}
+remove_unapplicable_probes(consensus_vector)
+\end{verbatim}
+\end{Usage}
+%
+\begin{Arguments}
+\begin{ldescription}
+\item[\code{consensus\_vector}] consensus vector data frame for each cell in group 
+names
+\end{ldescription}
+\end{Arguments}
+%
+\begin{Value}
+consensus vector without inapplicable probes
+\end{Value}
+%
+\begin{Examples}
+\begin{ExampleCode}
+consensus_vector <- remove_unapplicable_probes(consensus_vector)
+... some visualization 
+\end{ExampleCode}
+\end{Examples}
+\inputencoding{utf8}
+\HeaderA{remove\_zero\_parsimony\_probes}{Removes zero parsimony probes VALIDATED}{remove.Rul.zero.Rul.parsimony.Rul.probes}
+%
+\begin{Description}\relax
+Selects and removes zero parsimony probes from consensus vectors
+\end{Description}
+%
+\begin{Usage}
+\begin{verbatim}
+remove_zero_parsimony_probes(consensus_vector)
+\end{verbatim}
+\end{Usage}
+%
+\begin{Arguments}
+\begin{ldescription}
+\item[\code{consensus\_vector}] consensus vector data frame for each cell in group 
+names
+\end{ldescription}
+\end{Arguments}
+%
+\begin{Value}
+consensus vector without zero parsimony probes
+\end{Value}
+%
+\begin{Examples}
+\begin{ExampleCode}
+consensus_vector <- remove_zero_parsimony_probes(consensus_vector)
+... some visualization 
+\end{ExampleCode}
+\end{Examples}
+\inputencoding{utf8}
+\HeaderA{save\_data}{Saves specified data with variable name to working directory VALIDATED}{save.Rul.data}
+%
+\begin{Description}\relax
+Given data, a variable name, and a location for that data to be stored, 
+this function simply saves data.
+\end{Description}
+%
+\begin{Usage}
+\begin{verbatim}
+save_data(data, variable_name, dir)
+\end{verbatim}
+\end{Usage}
+%
+\begin{Arguments}
+\begin{ldescription}
+\item[\code{data}] data structure
+
+\item[\code{variable\_name}] name of variable/file
+
+\item[\code{dir}] directory to which the data should be saved
+\end{ldescription}
+\end{Arguments}
+%
+\begin{Value}
+None
+\end{Value}
+%
+\begin{Examples}
+\begin{ExampleCode}
+save_data(betas, 'betas', getwd())
+... some visualization 
+\end{ExampleCode}
+\end{Examples}
+\inputencoding{utf8}
+\HeaderA{show\_gene\_track}{Track the single probe resolution change of a gene}{show.Rul.gene.Rul.track}
+%
+\begin{Description}\relax
+Displays constructed tree with node labels for the proportion of each probe 
+state for a selected gene. This is saved at the given filename
+\end{Description}
+%
+\begin{Usage}
+\begin{verbatim}
+show_gene_track(
+  filename,
+  tree,
+  gene,
+  thermo_prop_internal_nodes,
+  thermo_prop_leaves
+)
+\end{verbatim}
+\end{Usage}
+%
+\begin{Arguments}
+\begin{ldescription}
+\item[\code{filename}] filename to which the plot will be saved
+
+\item[\code{tree}] ape::phylo tree
+
+\item[\code{gene}] gene name
+
+\item[\code{thermo\_prop\_leaves}] thermo proportion plot for leaves of all of
+the probe states
+
+\item[\code{thermo\_prop\_node}] thermo proportion plot for internal nodes of all of 
+the probe states
+\end{ldescription}
+\end{Arguments}
+%
+\begin{Value}
+None
+\end{Value}
+%
+\begin{Examples}
+\begin{ExampleCode}
+show_gene_track('tree_CD81', tree, 'CD81', thermo_prop_internal_nodes, 
+thermo_prop_leaves)
+... some visualization 
+\end{ExampleCode}
+\end{Examples}
+\inputencoding{utf8}
+\HeaderA{show\_heatmap}{Relabel node in probe-node matrix}{show.Rul.heatmap}
+%
+\begin{Description}\relax
+Relabel node label n\_old with node label n\_new in probe-node matrix.
+\end{Description}
+%
+\begin{Usage}
+\begin{verbatim}
+show_heatmap()
+\end{verbatim}
+\end{Usage}
+%
+\begin{Arguments}
+\begin{ldescription}
+\item[\code{probe\_node\_matrix}] matrix storing the methylation status across all
+probes and nodes on a tree
+
+\item[\code{n\_old}] node number
+
+\item[\code{n\_new}] node number
+\end{ldescription}
+\end{Arguments}
+%
+\begin{Value}
+relabeled probe\_node\_matrix with node label n\_old with node label
+n\_new
+\end{Value}
+%
+\begin{Examples}
+\begin{ExampleCode}
+probe_node_matrix <- relabel_node_matrix(probe_node_matrix, 7, 10)
+... some visualization 
+\end{ExampleCode}
+\end{Examples}
+\inputencoding{utf8}
+\HeaderA{show\_tree}{Display tree VALIDATED}{show.Rul.tree}
+%
+\begin{Description}\relax
+Displays constructed tree and saves it at the given filename.
+\end{Description}
+%
+\begin{Usage}
+\begin{verbatim}
+show_tree(filename, tree, title, edge_labels)
+\end{verbatim}
+\end{Usage}
+%
+\begin{Arguments}
+\begin{ldescription}
+\item[\code{filename}] filename to which the plot will be saved
+
+\item[\code{tree}] ape::phylo tree
+
+\item[\code{title}] title name
+
+\item[\code{edge\_labels}] optional labels for each branch
+\end{ldescription}
+\end{Arguments}
+%
+\begin{Value}
+None
+\end{Value}
+%
+\begin{Examples}
+\begin{ExampleCode}
+show_tree('tree.pdf', tree, 'Hematopoietic Tree')
+... some visualization 
+\end{ExampleCode}
+\end{Examples}
+\inputencoding{utf8}
+\HeaderA{track\_gene}{Proportion of probes methylated, unmethylated, ambiguous at each node  across a tree VALIDATED}{track.Rul.gene}
+%
+\begin{Description}\relax
+This function returns the proportion of each probes that are methylated, 
+unmethylated, ambiguous at each node across a tree.
+\end{Description}
+%
+\begin{Usage}
+\begin{verbatim}
+track_gene(tree, probe_node_matrix, reference, gene)
+\end{verbatim}
+\end{Usage}
+%
+\begin{Arguments}
+\begin{ldescription}
+\item[\code{tree}] ape::phylo tree
+
+\item[\code{probe\_node\_matrix}] matrix storing the methylation status across all
+probes and nodes on a tree
+
+\item[\code{reference}] reference file
+
+\item[\code{gene}] gene name
+\end{ldescription}
+\end{Arguments}
+%
+\begin{Value}
+a structure composed of two lists that contain methylation state 
+proportions for internal nodes and methylation state proportions for leaves
+\end{Value}
+%
+\begin{Examples}
+\begin{ExampleCode}
+gene_information <- track_gene(tree, probe_node_matrix, reference, 'CD81')
+thermo_prop_internal_nodes = gene_information$thermo_prop_internal_nodes
+thermo_prop_leaves = gene_information$thermo_prop_leaves
+... some visualization 
+\end{ExampleCode}
+\end{Examples}
+\inputencoding{utf8}
+\HeaderA{upgma\_tree}{UPGMA tree construction VALIDATED}{upgma.Rul.tree}
+%
+\begin{Description}\relax
+This function uses the UPGMA algorithm to construct a phylogenetic tree 
+using methylation data
+\end{Description}
+%
+\begin{Usage}
+\begin{verbatim}
+upgma_tree(consensus_vector)
+\end{verbatim}
+\end{Usage}
+%
+\begin{Arguments}
+\begin{ldescription}
+\item[\code{consensus\_vector}] consensus vector data frame for each cell in group 
+names
+\end{ldescription}
+\end{Arguments}
+%
+\begin{Value}
+ape::phylo tree constructed using UPGMA algorithm
+\end{Value}
+%
+\begin{Examples}
+\begin{ExampleCode}
+tree <- upgma_tree(consensus_vector)
+... some visualization 
+\end{ExampleCode}
+\end{Examples}
