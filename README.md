@@ -28,7 +28,10 @@ scanAllBiology(target_set, background = "EPIC")
 ## PMDs 5-fold enrichment, pval=0.00012
 ## repeat 4-fold enrichment, pval=0.004
 
+
 ```
+
+## bit-wise masking quick calculation
 
 ## Background set
 - Infinium EPIC probes
@@ -48,6 +51,8 @@ scanAllBiology(target_set, background = "EPIC")
 - Ancestry-associated CpGs
 - specific genes
 - Polycomb target (H3K27me3 marked)
+- TFBS
+- chromatin accessibility, tumor biology
 - PMDs
 - solo-WCGWs
 - CpG island
@@ -55,6 +60,11 @@ scanAllBiology(target_set, background = "EPIC")
 - CTCF CpGs
 - repetitive elements
 - genes on specific pathway
+- sequence conservation
+- imprinting
+- X/Y
+- tissue-specific methylation signature
+- age-associated methylation
 
 
 
