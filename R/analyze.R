@@ -1,3 +1,14 @@
+
+#' test whether query is significantly enriched in database
+enrichmentTest1 = function(querySet, databaseSet, universeSet) {
+} 
+
+#' test all databaseSet and return a list ranked by enrichment (odds-ratio)
+enrichmentTest = function() {
+}
+
+
+
 #' Generate list of relevant probes for gain, loss, and change in methylation 
 #' status 
 #'
