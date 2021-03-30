@@ -33,12 +33,12 @@ scanAllBiology(target_set, background = "EPIC")
 
 ## bit-wise masking quick calculation
 
-## Background set
-- Infinium EPIC probes
+## Universe set
+- Infinium EPIC probes - 850k
 - HM450 probes
-- All CpGs in the human genome
+- All CpGs in the human genome - WGBS 28M
 
-## Reference set
+## Database set
 
 ### technical
 - Probes with measurement artifact
@@ -66,8 +66,12 @@ scanAllBiology(target_set, background = "EPIC")
 - tissue-specific methylation signature
 - age-associated methylation
 
+### Query sets
 
+## Notes
 
+- Look for manifest files here 
 
+https://zwdzwd.github.io/InfiniumAnnotation
 
 
