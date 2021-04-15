@@ -14,8 +14,14 @@ testEnrichment = function(setQ, setD, setU) {
 }
 
 #' test all databaseSet and return a list ranked by enrichment (odds-ratio)
-testEnrichmentAll = function() {
-	
+testEnrichmentAll = function(experiment, databaseSets = NULL, percTop = 25, sig.threshold = 1e-8) {
+	# prioritize database sets by proportion of probes in dataset that overlap with significant hits
+    
+    # take top percTop % database sets
+    
+    # apply enrichment tests and get scores
+    
+    # continuous variable stuff
 }
 
 
