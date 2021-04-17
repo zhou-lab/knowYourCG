@@ -13,9 +13,22 @@ testEnrichment = function(setQ, setD, setU) {
     list(mtx = mtx, test = fisher.test(mtx))
 }
 # ****how should the test be set up? test for each category (I/II, each CpG island?) something else?
-testCategoricalFisher <- function(database, ProbeIDs, sigProbes) {
-    categories <- unique(database)
-    categories <- categories[!is.na(categories)]
+testCategoricalFisher <- function(database, probeIDs, sigProbes) {
+    out <- list()
+    # get unique categories for database. Filter out ones with no overlap with significant probes
+    categories <- unique(database[!is.na(database)])
+    print(paste0('number of categories: ', length(categories)))
+    # count number of overlaps with sig probes per category
+    categories <- sapply(
+        categories, 
+        function(category) {
+            length(intersect(sigProbes, names(database)[database == category]))
+        }
+    )
+    # keep only categories with non-zero overlap
+    categories <- names(categories)[categories > 0]
+    
+    # perform test for each category
     result <- sapply(
         categories,
         function(category) {
@@ -34,34 +47,49 @@ testCategoricalFisher <- function(database, ProbeIDs, sigProbes) {
 }
 
 #' test all databaseSet and return a list ranked by enrichment (odds-ratio)
-testEnrichmentAll = function(probeIDs, pVals, databaseSets = NULL, percTop = 25, sig.threshold = 1e-6) {
+testEnrichmentAll = function(probeIDs, pVals, databaseSets = NULL, sig.threshold = 1e-6) {
     # assume same index for results and databases
+    # master list of databaseSets. Probably shouldn't load this in the function
+    suppressMessages(library(readxl))
+    databaseMaster <- read_xlsx('~/Dropbox/Ongoing_knowYourCpG/20210329_MM285_databaseSets.xlsx')
+    # TODO: get list of core database sets if not none given. For now, use temporary list
+    if (is.null(databaseSets)) {
+        # coredatabaseSets <- getCoreDatabaseSets()
+        coreDatabaseSets <- c('20210410_MM285_CpG_island', '20210409_Infinium_Type', '20210416_cpg_density')
+        databaseInfo <- databaseMaster[databaseMaster$FileAccession %in% coreDatabaseSets, ]
+    }
+    
     # get significant probes. probes and pVals must be in same order
     sigProbes <- probeIDs[pVals <= sig.threshold]
-    # if databaseSets is a single vector and not a matrix, turn it into a matrix
-    if (is.null(dim(databaseSets))) databaseSets <- matrix(databaseSets, ncol = 1, dimnames = list(probeIDs))
-    # calculate number of databases to keep
-    nDatabases <- ceiling((percTop/100)*ncol(databaseSets))
-	# prioritize database sets by proportion of probes in dataset that have a feature
-    # and that overlap with significant hits
-    # then take top percTop % database sets
-    topDatabaseSelection <- order(
-        apply(
-            databaseSets, 
-            2, 
-            function(database) {
-              length(intersect(sigProbes, probeIDs[!is.na(database)]))
-            }
-            ),
-        decreasing = TRUE
-    )[1:nDatabases]
+
+    # calculate number of databases to keep if there are too many? Not sure if we need this if we have core list
+#     nDatabases <- ceiling((percTop/100)*ncol(databaseSets))
+# 	# prioritize database sets by proportion of probes in dataset that have a feature
+#     # and that overlap with significant hits
+#     # then take top percTop % database sets
+#     topDatabaseSelection <- order(
+#         apply(
+#             databaseSets, 
+#             2, 
+#             function(database) {
+#               length(intersect(sigProbes, probeIDs[!is.na(database)]))
+#             }
+#             ),
+#         decreasing = TRUE
+#     )[1:nDatabases]
     
-    topDatabases <- databaseSets[, topDatabaseSelection]
-    if (is.null(dim(topDatabases))) topDatabases <- matrix(topDatabases, ncol = 1, dimnames = list(probeIDs))
+    # topDatabases <- databaseSets[, topDatabaseSelection]
     
     # apply enrichment tests and get test results
-    # TODO: need to name database list with database names? Otherwise can't know which is which
-    results <- unlist(apply(topDatabases, 2, testCategoricalFisher, ProbeIDs = ProbeIDs, sigProbes = sigProbes))
+    results <- list(categorical = list(), continuous = list())
+    # categorical first
+    for (db in databaseInfo$FileAccession[databaseInfo$Format == 'Categorical']) {
+        database <- tbk_data(
+            idx_fname = '~/Dropbox/Ongoing_knowYourCpG/TBK_INDICES/MM285.idx.gz',
+            tbk_fnames = file.path('~/Dropbox/Ongoing_knowYourCpG/DATABASE_SETS/MM285/', paste0(db, '.tbk'))
+        )
+        results$categorical[[db]] <- testCategoricalFisher(database = database, probeIDs = probeIDs, sigProbes = sigProbes)
+    }
     
     # sort results by output
     results <- sort(results, decreasing = TRUE)
