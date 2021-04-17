@@ -26,7 +26,6 @@ testCategoricalFisher <- function(database, probeIDs, sigProbes, dbName) {
             length(intersect(sigProbes, names(database)[database == category]))
         }
     )
-    print(categories)
     # keep only categories with non-zero overlap
     categories <- names(categories)[categories > 0]
     
@@ -40,8 +39,6 @@ testCategoricalFisher <- function(database, probeIDs, sigProbes, dbName) {
                 setD = setD,
                 setU = probeIDs
             )
-            print(category)
-            print(fishertest)
             result <- list(
                 DatabaseAccession = dbName,
                 Category = category,
@@ -55,7 +52,6 @@ testCategoricalFisher <- function(database, probeIDs, sigProbes, dbName) {
     )
     
     names(out) <- categories
-    print(out)
     return(out)
 }
 
