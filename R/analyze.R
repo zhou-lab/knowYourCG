@@ -12,9 +12,10 @@ testEnrichment = function(setQ, setD, setU) {
             Database = c("D_in","D_out")))
     list(mtx = mtx, test = fisher.test(mtx))
 }
-
+# ****how should the test be set up? test for each category (I/II, each CpG island?) something else?
 testCategoricalFisher <- function(database, ProbeIDs, sigProbes) {
     categories <- unique(database)
+    categories <- categories[!is.na(categories)]
     result <- sapply(
         categories,
         function(category) {
@@ -33,28 +34,33 @@ testCategoricalFisher <- function(database, ProbeIDs, sigProbes) {
 }
 
 #' test all databaseSet and return a list ranked by enrichment (odds-ratio)
-testEnrichmentAll = function(probeIDs, pVals, databaseSets = NULL, percTop = 25, sig.threshold = 1e-8) {
+testEnrichmentAll = function(probeIDs, pVals, databaseSets = NULL, percTop = 25, sig.threshold = 1e-6) {
     # assume same index for results and databases
     # get significant probes. probes and pVals must be in same order
-    sigProbes <- probeIDs[pvals <= sig.threshold]
+    sigProbes <- probeIDs[pVals <= sig.threshold]
+    # if databaseSets is a single vector and not a matrix, turn it into a matrix
+    if (is.null(dim(databaseSets))) databaseSets <- matrix(databaseSets, ncol = 1, dimnames = list(probeIDs))
     # calculate number of databases to keep
-    nDatabases <- ceiling((percTop/100)*length(databaseSets))
-	# prioritize database sets by proportion of probes in dataset that overlap with significant hits
+    nDatabases <- ceiling((percTop/100)*ncol(databaseSets))
+	# prioritize database sets by proportion of probes in dataset that have a feature
+    # and that overlap with significant hits
     # then take top percTop % database sets
-    # note: databases read in from tbk files are named vectors
-    topDatabases <- databases[
-        order(
-            lapply(
-                names(databases),
-                function(dbName) sum(sigProbes %in% databases[[dbName]]$ProbeID)
+    topDatabaseSelection <- order(
+        apply(
+            databases, 
+            2, 
+            function(database) {
+              length(intersect(sigProbes, probeIDs[!is.na(database)]))
+            }
             ),
-            decreasing = TRUE
-        )
-    ][1:nDatabases]
+        decreasing = TRUE
+    )[1:nDatabases]
+    
+    topDatabases <- databases[, topDatabaseSelection]
     
     # apply enrichment tests and get test results
     # TODO: need to name database list with database names? Otherwise can't know which is which
-    results <- unlist(lapply(topDatabases, testCategoricalFisher, ProbeIDs = ProbeIDs, sigProbes = sigProbes))
+    results <- unlist(apply(topDatabases, 2, testCategoricalFisher, ProbeIDs = ProbeIDs, sigProbes = sigProbes))
     
     # sort results by output
     results <- sort(results, decreasing = TRUE)
