@@ -26,6 +26,7 @@ testCategoricalFisher <- function(database, probeIDs, sigProbes, dbName) {
             length(intersect(sigProbes, names(database)[database == category]))
         }
     )
+    print(categories)
     # keep only categories with non-zero overlap
     categories <- names(categories)[categories > 0]
     
@@ -39,6 +40,8 @@ testCategoricalFisher <- function(database, probeIDs, sigProbes, dbName) {
                 setD = setD,
                 setU = probeIDs
             )
+            print(category)
+            print(fishertest)
             result <- list(
                 DatabaseAccession = dbName,
                 Category = category,
@@ -52,11 +55,12 @@ testCategoricalFisher <- function(database, probeIDs, sigProbes, dbName) {
     )
     
     names(out) <- categories
+    print(out)
     return(out)
 }
 
 #' test all databaseSet and return a list ranked by enrichment (odds-ratio)
-testEnrichmentAll = function(probeIDs, pVals, databaseSets = NULL, sig.threshold = 1e-6) {
+testEnrichmentAll = function(probeIDs, pVals, databaseSets = NULL, sig.threshold = .05) {
     # assume same index for results and databases
     # master list of databaseSets. Probably shouldn't load this in the function
     suppressMessages(library(readxl))
@@ -70,6 +74,10 @@ testEnrichmentAll = function(probeIDs, pVals, databaseSets = NULL, sig.threshold
     
     # get significant probes. probes and pVals must be in same order
     sigProbes <- probeIDs[pVals <= sig.threshold]
+    if (length(sigProbes) == 0) {
+        print('No significant probes')
+        return(NULL)
+    }
 
     # calculate number of databases to keep if there are too many? Not sure if we need this if we have core list
 #     nDatabases <- ceiling((percTop/100)*ncol(databaseSets))
@@ -93,19 +101,21 @@ testEnrichmentAll = function(probeIDs, pVals, databaseSets = NULL, sig.threshold
     results <- list(categorical = list(), continuous = list())
     # categorical first
     for (db in databaseInfo$FileAccession[databaseInfo$Format == 'Categorical']) {
+        print(db)
         database <- tbk_data(
             idx_fname = '~/Dropbox/Ongoing_knowYourCpG/TBK_INDICES/MM285.idx.gz',
             tbk_fnames = file.path('~/Dropbox/Ongoing_knowYourCpG/DATABASE_SETS/MM285/', paste0(db, '.tbk'))
         )
         results$categorical[[db]] <- testCategoricalFisher(database = database, probeIDs = probeIDs, 
                                                            sigProbes = sigProbes, dbName = db)
-        rum(database)
+        rm(database)
     }
     
     # sort results by output
-    results <- sort(results, decreasing = TRUE)
+    # results <- sort(results, decreasing = TRUE)
     
     # TODO: handle continuous value databases
+    return(results)
 }
 
 
