@@ -12,8 +12,9 @@ testEnrichment = function(setQ, setD, setU) {
             Database = c("D_in","D_out")))
     list(mtx = mtx, test = fisher.test(mtx))
 }
-# ****how should the test be set up? test for each category (I/II, each CpG island?) something else?
-testCategoricalFisher <- function(database, probeIDs, sigProbes) {
+
+testCategoricalFisher <- function(database, probeIDs, sigProbes, dbName) {
+    # function to get unique database categories, filter by overlap with query probes, and call testEnrichment
     out <- list()
     # get unique categories for database. Filter out ones with no overlap with significant probes
     categories <- unique(database[!is.na(database)])
@@ -29,7 +30,7 @@ testCategoricalFisher <- function(database, probeIDs, sigProbes) {
     categories <- names(categories)[categories > 0]
     
     # perform test for each category
-    result <- sapply(
+    out <- lapply(
         categories,
         function(category) {
             setD <- probeIDs[database == category]
@@ -38,12 +39,20 @@ testCategoricalFisher <- function(database, probeIDs, sigProbes) {
                 setD = setD,
                 setU = probeIDs
             )
-            OR <- c(fishertest$test$estimate)
-            names(OR) <- category
-            return(OR)
+            result <- list(
+                DatabaseAccession = dbName,
+                Category = category,
+                TestMatrix = fishertest$mtx,
+                Fisher.Test = fishertest$test,
+                OddsRatio = fishertest$test$estimate,
+                P.Value = fishertest$test$p.value
+            )
+            return(result)
         }
     )
-    return(result)
+    
+    names(out) <- categories
+    return(out)
 }
 
 #' test all databaseSet and return a list ranked by enrichment (odds-ratio)
@@ -55,7 +64,7 @@ testEnrichmentAll = function(probeIDs, pVals, databaseSets = NULL, sig.threshold
     # TODO: get list of core database sets if not none given. For now, use temporary list
     if (is.null(databaseSets)) {
         # coredatabaseSets <- getCoreDatabaseSets()
-        coreDatabaseSets <- c('20210410_MM285_CpG_island', '20210409_Infinium_Type', '20210416_cpg_density')
+        coreDatabaseSets <- c('20210409_Infinium_Type', '20210416_cpg_density')
         databaseInfo <- databaseMaster[databaseMaster$FileAccession %in% coreDatabaseSets, ]
     }
     
@@ -88,7 +97,9 @@ testEnrichmentAll = function(probeIDs, pVals, databaseSets = NULL, sig.threshold
             idx_fname = '~/Dropbox/Ongoing_knowYourCpG/TBK_INDICES/MM285.idx.gz',
             tbk_fnames = file.path('~/Dropbox/Ongoing_knowYourCpG/DATABASE_SETS/MM285/', paste0(db, '.tbk'))
         )
-        results$categorical[[db]] <- testCategoricalFisher(database = database, probeIDs = probeIDs, sigProbes = sigProbes)
+        results$categorical[[db]] <- testCategoricalFisher(database = database, probeIDs = probeIDs, 
+                                                           sigProbes = sigProbes, dbName = db)
+        rum(database)
     }
     
     # sort results by output
