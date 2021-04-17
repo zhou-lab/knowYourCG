@@ -26,7 +26,7 @@ testCategoricalFisher <- function(database, ProbeIDs, sigProbes) {
                 setU = probeIDs
             )
             OR <- c(fishertest$test$estimate)
-            names(OR) <- NULL
+            names(OR) <- category
             return(OR)
         }
     )
@@ -47,7 +47,7 @@ testEnrichmentAll = function(probeIDs, pVals, databaseSets = NULL, percTop = 25,
     # then take top percTop % database sets
     topDatabaseSelection <- order(
         apply(
-            databases, 
+            databaseSets, 
             2, 
             function(database) {
               length(intersect(sigProbes, probeIDs[!is.na(database)]))
@@ -56,7 +56,8 @@ testEnrichmentAll = function(probeIDs, pVals, databaseSets = NULL, percTop = 25,
         decreasing = TRUE
     )[1:nDatabases]
     
-    topDatabases <- databases[, topDatabaseSelection]
+    topDatabases <- databaseSets[, topDatabaseSelection]
+    if (is.null(dim(topDatabases))) topDatabases <- matrix(topDatabases, ncol = 1, dimnames = list(probeIDs))
     
     # apply enrichment tests and get test results
     # TODO: need to name database list with database names? Otherwise can't know which is which
