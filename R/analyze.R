@@ -28,6 +28,7 @@ testCategoricalFisher <- function(database, probeIDs, sigProbes, dbName) {
     )
     # keep only categories with non-zero overlap
     categories <- names(categories)[categories > 0]
+    if (length(categories) == 0) stop('no categories with overlapping probes')
     
     # perform test for each category
     out <- lapply(
@@ -56,10 +57,14 @@ testCategoricalFisher <- function(database, probeIDs, sigProbes, dbName) {
 }
 
 #' test all databaseSet and return a list ranked by enrichment (odds-ratio)
-testEnrichmentAll = function(probeIDs, pVals, databaseSets = NULL, sig.threshold = .05) {
+testEnrichmentAll = function(probeIDs, sigProbes, databaseSets = NULL, sig.threshold = .05) {
+    # probeIDs: list of all probes
+    # sigProbes: list of significant probes
     # assume same index for results and databases
     # master list of databaseSets. Probably shouldn't load this in the function
     suppressMessages(library(readxl))
+    suppressMessages(library(dplyr))
+    suppressMessages(library(fgsea))
     databaseMaster <- read_xlsx('~/Dropbox/Ongoing_knowYourCpG/20210329_MM285_databaseSets.xlsx')
     # TODO: get list of core database sets if not none given. For now, use temporary list
     if (is.null(databaseSets)) {
@@ -67,31 +72,6 @@ testEnrichmentAll = function(probeIDs, pVals, databaseSets = NULL, sig.threshold
         coreDatabaseSets <- c('20210409_Infinium_Type', '20210416_cpg_density')
         databaseInfo <- databaseMaster[databaseMaster$FileAccession %in% coreDatabaseSets, ]
     }
-    
-    # get significant probes. probes and pVals must be in same order
-    sigProbes <- probeIDs[pVals <= sig.threshold]
-    if (length(sigProbes) == 0) {
-        print('No significant probes')
-        return(NULL)
-    }
-
-    # calculate number of databases to keep if there are too many? Not sure if we need this if we have core list
-#     nDatabases <- ceiling((percTop/100)*ncol(databaseSets))
-# 	# prioritize database sets by proportion of probes in dataset that have a feature
-#     # and that overlap with significant hits
-#     # then take top percTop % database sets
-#     topDatabaseSelection <- order(
-#         apply(
-#             databaseSets, 
-#             2, 
-#             function(database) {
-#               length(intersect(sigProbes, probeIDs[!is.na(database)]))
-#             }
-#             ),
-#         decreasing = TRUE
-#     )[1:nDatabases]
-    
-    # topDatabases <- databaseSets[, topDatabaseSelection]
     
     # apply enrichment tests and get test results
     results <- list(categorical = list(), continuous = list())
@@ -110,7 +90,22 @@ testEnrichmentAll = function(probeIDs, pVals, databaseSets = NULL, sig.threshold
     # sort results by output
     # results <- sort(results, decreasing = TRUE)
     
-    # TODO: handle continuous value databases
+    # continuous value databases
+    results$continuous <- lapply(
+        databaseInfo$FileAccession[databaseInfo$Format == 'Continuous'],
+        function(db) {
+            print(db)
+            database <- tbk_data(
+                idx_fname = '~/Dropbox/Ongoing_knowYourCpG/TBK_INDICES/MM285.idx.gz',
+                tbk_fnames = file.path('~/Dropbox/Ongoing_knowYourCpG/DATABASE_SETS/MM285/', paste0(db, '.tbk'))
+            )
+            result <- fgsea(pathways = list(sigProbes = sigProbes), stats = database)
+            result$pathway <- db
+            return(result)
+        }
+    ) %>%
+        bind_rows()
+    
     return(results)
 }
 
