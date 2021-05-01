@@ -90,7 +90,7 @@ testEnrichmentAll = function(probeIDs, sigProbes, databaseSets = NULL, sig.thres
     }
     
     # sort results by output
-    # results <- sort(results, decreasing = TRUE)
+    results$categorical <- results$categorical[order(results$categorical$OddsRatio), ]
     
     # continuous value databases
     results$continuous <- lapply(

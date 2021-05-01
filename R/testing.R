@@ -25,7 +25,7 @@ cpgdensity <- c("/Users/Fred/Dropbox/Ongoing_knowYourCpG/DATABASE_SETS/MM285/202
 cpgdensityDB <- tbk_data(tbk_fnames = cpgdensity, idx_fname = mm285index)
 
 # should be enriched for high cpg density
-densityList <- sample(names(sort(cpgdensityDB, decreasing = TRUE))[1:1000], 300)
+densityList <- sample(names(sort(cpgdensityDB, decreasing = FALSE))[1:1000], 300)
 
 # generate test results
 randomTest <- testEnrichmentAll(probeIDs = probeIDs, sigProbes = randomList)
