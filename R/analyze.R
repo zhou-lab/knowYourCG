@@ -14,6 +14,7 @@ testEnrichment = function(setQ, setD, setU) {
 }
 
 testCategoricalFisher <- function(database, probeIDs, sigProbes, dbName) {
+    suppressMessages(library(dplyr))
     # function to get unique database categories, filter by overlap with query probes, and call testEnrichment
     out <- list()
     # get unique categories for database. Filter out ones with no overlap with significant probes
@@ -40,19 +41,17 @@ testCategoricalFisher <- function(database, probeIDs, sigProbes, dbName) {
                 setD = setD,
                 setU = probeIDs
             )
-            result <- list(
+            result <- data.frame(
                 DatabaseAccession = dbName,
                 Category = category,
-                TestMatrix = fishertest$mtx,
-                Fisher.Test = fishertest$test,
                 OddsRatio = fishertest$test$estimate,
                 P.Value = fishertest$test$p.value
             )
             return(result)
         }
-    )
+    ) %>%
+        bind_rows()
     
-    names(out) <- categories
     return(out)
 }
 
@@ -74,7 +73,7 @@ testEnrichmentAll = function(probeIDs, sigProbes, databaseSets = NULL, sig.thres
     }
     
     # apply enrichment tests and get test results
-    results <- list(categorical = list(), continuous = list())
+    results <- list(categorical = data.frame(), continuous = data.frame())
     # categorical first
     for (db in databaseInfo$FileAccession[databaseInfo$Format == 'Categorical']) {
         print(db)
@@ -82,8 +81,11 @@ testEnrichmentAll = function(probeIDs, sigProbes, databaseSets = NULL, sig.thres
             idx_fname = '~/Dropbox/Ongoing_knowYourCpG/TBK_INDICES/MM285.idx.gz',
             tbk_fnames = file.path('~/Dropbox/Ongoing_knowYourCpG/DATABASE_SETS/MM285/', paste0(db, '.tbk'))
         )
-        results$categorical[[db]] <- testCategoricalFisher(database = database, probeIDs = probeIDs, 
+        results$categorical <- bind_rows(
+            results$categorical,
+            testCategoricalFisher(database = database, probeIDs = probeIDs, 
                                                            sigProbes = sigProbes, dbName = db)
+        )
         rm(database)
     }
     

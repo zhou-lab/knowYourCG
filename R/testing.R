@@ -34,6 +34,7 @@ print(randomTest$continuous)
 
 infiniumTest <- testEnrichmentAll(probeIDs = probeIDs, sigProbes = infiniumList)
 print(infiniumTest$categorical$`20210409_Infinium_Type`$I$Fisher.Test)
+print(infiniumTest$categorical$`20210409_Infinium_Type`$II$Fisher.Test)
 print(infiniumTest$continuous)
 
 densityTest <- testEnrichmentAll(probeIDs = probeIDs, sigProbes = densityList)
