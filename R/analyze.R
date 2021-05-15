@@ -56,11 +56,13 @@ testCategoricalFisher <- function(database, probeIDs, sigProbes, dbName) {
 }
 
 #' test all databaseSet and return a list ranked by enrichment (odds-ratio)
-testEnrichmentAll = function(probeIDs, sigProbes, databaseSets = NULL, sig.threshold = .05) {
+testEnrichmentAll = function(probeIDs, sigProbes, sigProbesRank = NULL, databaseSets = NULL) {
     # probeIDs: list of all probes
     # sigProbes: list of significant probes
+    # sigProbesRank: corresponding ranking or other metric of interest for sigProbes, e.g. p values
+    # databaseSets: vector of databaseSets of interest. Overrides default core database sets
+
     # assume same index for results and databases
-    # master list of databaseSets. Probably shouldn't load this in the function
     suppressMessages(library(readxl))
     suppressMessages(library(dplyr))
     suppressMessages(library(fgsea))
@@ -72,41 +74,48 @@ testEnrichmentAll = function(probeIDs, sigProbes, databaseSets = NULL, sig.thres
         databaseInfo <- databaseMaster[databaseMaster$FileAccession %in% coreDatabaseSets, ]
     }
     
-    # apply enrichment tests and get test results
     results <- list(categorical = data.frame(), continuous = data.frame())
-    # categorical first
-    for (db in databaseInfo$FileAccession[databaseInfo$Format == 'Categorical']) {
-        print(db)
-        database <- tbk_data(
-            idx_fname = '~/Dropbox/Ongoing_knowYourCpG/TBK_INDICES/MM285.idx.gz',
-            tbk_fnames = file.path('~/Dropbox/Ongoing_knowYourCpG/DATABASE_SETS/MM285/', paste0(db, '.tbk'))
-        )
-        results$categorical <- bind_rows(
-            results$categorical,
-            testCategoricalFisher(database = database, probeIDs = probeIDs, 
-                                                           sigProbes = sigProbes, dbName = db)
-        )
-        rm(database)
+    
+    categoricalDatabases <- databaseInfo$FileAccession[databaseInfo$Format == 'Categorical']
+    continuousDatabases <- databaseInfo$FileAccession[databaseInfo$Format == 'Continuous']
+    
+    # if only significant probes provided, Fisher (categorical db set) and fgsea (continuous db set)
+    if (is.null(sigProbesRank)) {
+        results$categorical <- lapply(
+            categoricalDatabases,
+            function(db) {
+                print(db)
+                database <- tbk_data(
+                    idx_fname = '~/Dropbox/Ongoing_knowYourCpG/TBK_INDICES/MM285.idx.gz',
+                    tbk_fnames = file.path('~/Dropbox/Ongoing_knowYourCpG/DATABASE_SETS/MM285/', paste0(db, '.tbk'))
+                )
+                
+                testCategoricalFisher(database = database, probeIDs = probeIDs, 
+                                      sigProbes = sigProbes, dbName = db)
+            }
+        ) %>%
+            bind_rows()
+        # sort results by output
+        results$categorical <- results$categorical[order(results$categorical$OddsRatio), ]
+        
+        results$continuous <- lapply(
+            continuousDatabases,
+            function(db) {
+                print(db)
+                database <- tbk_data(
+                    idx_fname = '~/Dropbox/Ongoing_knowYourCpG/TBK_INDICES/MM285.idx.gz',
+                    tbk_fnames = file.path('~/Dropbox/Ongoing_knowYourCpG/DATABASE_SETS/MM285/', paste0(db, '.tbk'))
+                )
+                result <- fgsea(pathways = list(sigProbes = sigProbes), stats = database)
+                result$pathway <- db
+                return(result)
+            }
+        ) %>%
+            bind_rows()
+    } else { # if significant probes AND ranking provided, fgsea (categorical db set) and spearman (continuous db set)
+        
     }
-    
-    # sort results by output
-    results$categorical <- results$categorical[order(results$categorical$OddsRatio), ]
-    
-    # continuous value databases
-    results$continuous <- lapply(
-        databaseInfo$FileAccession[databaseInfo$Format == 'Continuous'],
-        function(db) {
-            print(db)
-            database <- tbk_data(
-                idx_fname = '~/Dropbox/Ongoing_knowYourCpG/TBK_INDICES/MM285.idx.gz',
-                tbk_fnames = file.path('~/Dropbox/Ongoing_knowYourCpG/DATABASE_SETS/MM285/', paste0(db, '.tbk'))
-            )
-            result <- fgsea(pathways = list(sigProbes = sigProbes), stats = database)
-            result$pathway <- db
-            return(result)
-        }
-    ) %>%
-        bind_rows()
+
     
     return(results)
 }
