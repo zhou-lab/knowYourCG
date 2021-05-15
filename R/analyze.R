@@ -1,6 +1,11 @@
 
 #' test whether query is significantly enriched in database
-testEnrichment = function(setQ, setD, setU) {
+# testEnrichment = function(setQ, setD, setU) {
+testEnrichmentFisher = function(category, probeIDs, database, sigProbes, dbName) {
+    setD <- probeIDs[database == category]
+    setQ = sigProbes
+    setU = probeIDs
+    
     mtx = matrix(c(
         length(intersect(setQ, setD)),
         length(setdiff(setD, setQ)), 
@@ -10,10 +15,44 @@ testEnrichment = function(setQ, setD, setU) {
         dimnames = list(
             Query = c("Q_in","Q_out"),
             Database = c("D_in","D_out")))
-    list(mtx = mtx, test = fisher.test(mtx))
+    
+    test <- fisher.test(mtx)
+    
+    result <- data.frame(
+        DatabaseAccession = dbName,
+        Category = category,
+        OddsRatio = test$estimate,
+        P.Value = test$p.value
+    )
+    return(result)
 }
 
-testCategoricalFisher <- function(database, probeIDs, sigProbes, dbName) {
+testEnrichmentFGSEA <- function(category, probeIDs, database, sigProbes, dbName, sigProbesRank) {
+    pathway <- probeIDs[database == category]
+    
+    names(sigProbesRank) <- sigProbes
+    result <- fgsea(pathways = list(category = pathway), stats = sigProbesRank)
+    result$pathway <- db
+    return(result)
+}
+
+testEnrichmentSpearman <- function(sigProbes, sigProbesRank, database, dbName) {
+    sharedProbes <- intersect(sigProbes, names(database))
+    names(sigProbesRank) <- sigProbes
+    test <- cor.test(
+        sigProbesRank[names(sigProbesRank) %in% sharedProbes], 
+        database[names(database) %in% sharedProbes],
+        method = 'spearman'
+    )
+    result <- data.frame(
+        DatabaseAccession = dbName,
+        rho = test$estimate,
+        P.Value = test$p.value
+    )
+    return(result)
+}
+
+getCategories <- function(database) {
     suppressMessages(library(dplyr))
     # function to get unique database categories, filter by overlap with query probes, and call testEnrichment
     out <- list()
@@ -30,30 +69,8 @@ testCategoricalFisher <- function(database, probeIDs, sigProbes, dbName) {
     # keep only categories with non-zero overlap
     categories <- names(categories)[categories > 0]
     if (length(categories) == 0) stop('no categories with overlapping probes')
-    
-    # perform test for each category
-    out <- lapply(
-        categories,
-        function(category) {
-            setD <- probeIDs[database == category]
-            fishertest <- testEnrichment(
-                setQ = sigProbes,
-                setD = setD,
-                setU = probeIDs
-            )
-            result <- data.frame(
-                DatabaseAccession = dbName,
-                Category = category,
-                OddsRatio = fishertest$test$estimate,
-                P.Value = fishertest$test$p.value
-            )
-            return(result)
-        }
-    ) %>%
-        bind_rows()
-    
-    return(out)
-}
+    return(categories)
+
 
 #' test all databaseSet and return a list ranked by enrichment (odds-ratio)
 testEnrichmentAll = function(probeIDs, sigProbes, sigProbesRank = NULL, databaseSets = NULL) {
@@ -90,8 +107,18 @@ testEnrichmentAll = function(probeIDs, sigProbes, sigProbesRank = NULL, database
                     tbk_fnames = file.path('~/Dropbox/Ongoing_knowYourCpG/DATABASE_SETS/MM285/', paste0(db, '.tbk'))
                 )
                 
-                testCategoricalFisher(database = database, probeIDs = probeIDs, 
-                                      sigProbes = sigProbes, dbName = db)
+                categories <- getCategories(database)
+                
+                fisherResult <- lapply(
+                    categories,
+                    testEnrichmentFisher,
+                    probeIDs = probeIDs,
+                    database = database,
+                    sigProbes = sigProbes,
+                    dbName = db
+                ) %>%
+                    bind_rows()
+                return(fisherResult)
             }
         ) %>%
             bind_rows()
@@ -113,10 +140,54 @@ testEnrichmentAll = function(probeIDs, sigProbes, sigProbesRank = NULL, database
         ) %>%
             bind_rows()
     } else { # if significant probes AND ranking provided, fgsea (categorical db set) and spearman (continuous db set)
+        results$categorical <- lapply(
+            categoricalDatabases,
+            function(db) {
+                print(db)
+                database <- tbk_data(
+                    idx_fname = '~/Dropbox/Ongoing_knowYourCpG/TBK_INDICES/MM285.idx.gz',
+                    tbk_fnames = file.path('~/Dropbox/Ongoing_knowYourCpG/DATABASE_SETS/MM285/', paste0(db, '.tbk'))
+                )
+                
+                categories <- getCategories(database)
+                
+                fgseaResult <- lapply(
+                    categories,
+                    testEnrichmentFGSEA,
+                    probeIDs = probeIDs,
+                    database = database,
+                    sigProbes = sigProbes,
+                    dbName = db,
+                    sigProbesRank = sigProbesRank
+                ) %>%
+                    bind_rows()
+                return(fgseaResult)
+            }
+        ) %>%
+            bind_rows()
+        # sort results by output
+        results$categorical <- results$categorical[order(results$categorical$p.value), ]
         
+        results$continuous <- lapply(
+            continuousDatabases,
+            function(db) {
+                print(db)
+                database <- tbk_data(
+                    idx_fname = '~/Dropbox/Ongoing_knowYourCpG/TBK_INDICES/MM285.idx.gz',
+                    tbk_fnames = file.path('~/Dropbox/Ongoing_knowYourCpG/DATABASE_SETS/MM285/', paste0(db, '.tbk'))
+                )
+                result <- testEnrichmentSpearman(
+                    sigProbes = sigProbes, 
+                    sigProbesRank = sigProbesRank, 
+                    database = database, 
+                    dbName = db
+                )
+                return(result)
+            }
+        ) %>%
+            bind_rows()
     }
 
-    
     return(results)
 }
 
