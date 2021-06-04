@@ -1,25 +1,53 @@
 ---
-title: "ICCE User Guide"
-shorttitle: "sesame guide"
-package: sesame
+title: "KnowYourCpG User Guide"
+shorttitle: "KnowYourCpG guide"
+package: KnowYourCpG
 output: rmarkdown::html_vignette
 fig_width: 8
 fig_height: 6
 vignette: >
   %\VignetteEngine{knitr::rmarkdown}
-  %\VignetteIndexEntry{"0. SeSAMe User Guide"}
+  %\VignetteIndexEntry{"0. KnowYourCpG User Guide"}
   %\VignetteEncoding{UTF-8}
 ---
 
-```{r eval=FALSE, message=FALSE, warning=FALSE, include=FALSE}
-#library(icce)
+KnowYourCpG is a tool for evaluating whether a set of CpGs (represented by Illumina methylation chip probes) is enriched in certain categories or features. These categories or features can be categorical (e.g., CpGs related to tissue-specific transcription factors) or continuous (e.g., CpG Island density).
+
+First, load the package.
+
+```{r, include = TRUE}
+library(KnowYourCpG)
 options(rmarkdown.html_vignette.check_title = FALSE)
 ```
 
 ## Install KnowYourCpG
 
 Development version can be installed from github
-```{r, eval=FALSE}
+```{r, eval=FALSE, include = FALSE}
 BiocManager::install('ethanmoyer/knowyourcpg')
 BiocManager::install('ethanmoyer/knowyourcpgData')
 ```
+
+KnowYourCpG has one main function: testEnrichmentAll. This function has one required argument: sigProbes, which is a vector containing the Illumina Probe IDs of interest. These probe IDs might, for example, be the results of an epigenome-wide association study.
+
+KnowYourCpG includes several sets of test results in the object testResults. Each set contains Illumina Mouse Methylation probes from a tissue hypomethylation experiment. We choose one set:
+```{r, include = TRUE}
+sigProbes <- testResults[[1]]
+print(sigProbes[1:10])
+print(length(sigProbes))
+```
+
+We know wish to assess whether this set of probes is enriched in any of the features. We do so by passing this probe set to testEnrichmentAll:
+
+```{r}
+results <- testEnrichmentAll(sigProbes = sigProbes)
+```
+
+The output is a list of tables, one for the categorical database sets, and one for the continuous. The rows of the table correspond to database sets and are ranked by odds ratio (categorical) or P value (continuous).
+
+```{r}
+head(results$categorical)
+
+head(results$continuous)
+```
+
