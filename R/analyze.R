@@ -13,6 +13,7 @@
 #'
 #' @import dplyr
 #' @import fgsea
+#' @import sesameData
 #'
 #' @export
 testEnrichmentAll = function(sigProbes, sigProbesRank = NULL, databaseSets = NULL) {
@@ -47,7 +48,8 @@ testEnrichmentAll = function(sigProbes, sigProbesRank = NULL, databaseSets = NUL
         ) %>%
             bind_rows()
         # sort results by output
-        results$categorical <- results$categorical[order(results$categorical$OddsRatio), ]
+        results$categorical <- results$categorical[order(results$categorical$OddsRatio, decreasing = TRUE), ]
+        results$categorical <- left_join(results$categorical, databaseSetManifest, by = c('DatabaseAccession' = 'FileAccession'))
 
         # continuous database set
         print('FGSEA for continuous database sets')
