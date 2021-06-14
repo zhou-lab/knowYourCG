@@ -1,23 +1,18 @@
 Package: KnowYourCpG
-Type: Package
-Title: KnowYourCpG
-Version: 1.0.0
-Authors@R: c(person("Moyer", "Ethan", role = c("aut","cre"),
-             email = "ethan.jacob.moyer@gmail.com"))
-Depends: R (>= 3.6.2),
-          sesameData,
-          methods
-License: file LICENSE
-RoxygenNote: 7.1.1
-Imports: sesameData,
-Suggests: 
-    knitr,
-    rmarkdown
+Title: What the Package Does (One Line, Title Case)
+Version: 0.0.0.9000
+Authors@R: 
+    person(given = "First",
+           family = "Last",
+           role = c("aut", "cre"),
+           email = "first.last@example.com",
+           comment = c(ORCID = "YOUR-ORCID-ID"))
+Description: What the package does (one paragraph).
+License: `use_mit_license()`, `use_gpl3_license()` or friends to pick a
+    license
 Encoding: UTF-8
-VignetteBuilder: knitr
-URL: 
-BugReports: 
-biocViews: 
-Collate: 
-    'editTree.R'
 LazyData: true
+Roxygen: list(markdown = TRUE)
+RoxygenNote: 7.1.1
+Depends: 
+    R (>= 2.10)
