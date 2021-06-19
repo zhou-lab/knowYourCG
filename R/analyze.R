@@ -16,107 +16,121 @@
 #' @import sesameData
 #'
 #' @export
-testEnrichmentAll = function(sigProbes, sigProbesRank = NULL, databaseSets = NULL) {
+testEnrichment1 = function(sigProbes, database) { # sigProbesRank = NULL, databaseSets = NULL) {
 
     # probe IDs: mouseMethylation285_probeIDs
-
-    if (!is.null(databaseSets)) {
-        # TODO: support custom lists of databaseSets
-    }
 
     # default database sets: test_defaultDatabaseSets
     # TODO: finalize database sets
 
-    results <- list(categorical = data.frame(), continuous = data.frame())
-
-    # if only significant probes provided, Fisher (categorical db set) and fgsea (continuous db set)
-    if (is.null(sigProbesRank)) {
-        # categorical database sets first
-        print("Fisher's exact test for categorical database sets")
-        results$categorical <- lapply(
-            names(test_defaultDatabaseSets$categorical),
-            function(db) {
-                fisherResult <- testEnrichmentFisher(
-                    probeIDs = mouseMethylation285_probeIDs,
-                    categoryProbes = test_defaultDatabaseSets$categorical[[db]],
-                    sigProbes = sigProbes,
-                    dbName = db
-                )
-
-                return(fisherResult)
-            }
-        ) %>%
-            bind_rows()
-        # sort results by output
-        results$categorical <- results$categorical[order(results$categorical$OddsRatio, decreasing = TRUE), ]
-        results$categorical <- left_join(results$categorical, databaseSetManifest, by = c('DatabaseAccession' = 'FileAccession'))
-
-        # continuous database set
-        print('FGSEA for continuous database sets')
-        results$continuous <- lapply(
-            names(test_defaultDatabaseSets$continuous),
-            function(db) {
-
-                result <- fgsea(
-                    pathways = list(sigProbes = sigProbes),
-                    stats = test_defaultDatabaseSets$continuous[[db]]
-                )
-                result$pathway <- db
-
-                return(result)
-            }
-        ) %>%
-            bind_rows()
-    } else { # if significant probes AND ranking provided, fgsea (categorical db set) and spearman (continuous db set)
-        results$categorical <- lapply(
-            categoricalDatabases,
-            function(db) {
-                print(db)
-                database <- tbk_data(
-                    idx_fname = '~/Dropbox/Ongoing_knowYourCpG/TBK_INDICES/MM285.idx.gz',
-                    tbk_fnames = file.path('~/Dropbox/Ongoing_knowYourCpG/DATABASE_SETS/MM285/', paste0(db, '.tbk'))
-                )
-
-                categories <- getCategories(database)
-
-                fgseaResult <- lapply(
-                    categories,
-                    testEnrichmentFGSEA,
-                    probeIDs = probeIDs,
-                    database = database,
-                    sigProbes = sigProbes,
-                    dbName = db,
-                    sigProbesRank = sigProbesRank
-                ) %>%
-                    bind_rows()
-                return(fgseaResult)
-            }
-        ) %>%
-            bind_rows()
-        # sort results by output
-        results$categorical <- results$categorical[order(results$categorical$p.value), ]
-
-        results$continuous <- lapply(
-            continuousDatabases,
-            function(db) {
-                print(db)
-                database <- tbk_data(
-                    idx_fname = '~/Dropbox/Ongoing_knowYourCpG/TBK_INDICES/MM285.idx.gz',
-                    tbk_fnames = file.path('~/Dropbox/Ongoing_knowYourCpG/DATABASE_SETS/MM285/', paste0(db, '.tbk'))
-                )
-                result <- testEnrichmentSpearman(
-                    sigProbes = sigProbes,
-                    sigProbesRank = sigProbesRank,
-                    database = database,
-                    dbName = db
-                )
-                return(result)
-            }
-        ) %>%
-            bind_rows()
+    if (is.numeric(sigProbes)) { # a named vector of continuous value
+        if(is.numeric(database)) { # numeric db
+            ## do fgsea(switched arguments)
+            ## correlation-based
+            ## spearman
+        } else {
+            print('FGSEA for continuous database sets')
+            
+            ## continuous database set
+            bind_rows(lapply(
+                names(test_defaultDatabaseSets$continuous),
+                function(db) {
+                    cbind(fgsea(
+                        pathways = list(sigProbes = sigProbes),
+                        stats = test_defaultDatabaseSets$continuous[[db]]
+                    ), pathway = db)
+                }
+            ))
+        }
+    } else { # categorical query
+        if(is.numeric(database)) { # numeric db
+            ## do fgsea(switched arguments)
+            
+            print("Fisher's exact test for categorical database sets")
+            database = sesameDataGet("kycg/20210601_TFBS_ENCODE") # instead of test_defaultDatabaseSets
+            ## if only significant probes provided, Fisher (categorical db set) and fgsea (continuous db set)
+                                        # categorical database sets first
+            bind_rows(lapply(
+                names(test_defaultDatabaseSets$categorical),
+                function(db) {
+                    testEnrichmentFisher(
+                        probeIDs = mouseMethylation285_probeIDs,
+                        categoryProbes = test_defaultDatabaseSets$categorical[[db]],
+                        sigProbes = sigProbes,
+                        dbName = db
+                    )
+                    ## add size of the db
+                }
+            ))
+            
+                                        # sort results by output
+            results$categorical <- results$categorical[order(results$categorical$OddsRatio, decreasing = TRUE), ]
+            results$categorical <- left_join(results$categorical, databaseSetManifest, by = c('DatabaseAccession' = 'FileAccession'))
+        } else { # categorical db
+        }
     }
+    ## else { # if significant probes AND ranking provided, fgsea (categorical db set) and spearman (continuous db set)
+    ##     results$categorical <- lapply(
+    ##         categoricalDatabases,
+    ##         function(db) {
+    ##             print(db)
+    ##             database = sesameDataGet("kycg/20210601_TFBS_ENCODE")
+    ##             ## database <- tbk_data(
+    ##             ##     idx_fname = '~/Dropbox/Ongoing_knowYourCpG/TBK_INDICES/MM285.idx.gz',
+    ##             ##     tbk_fnames = file.path('~/Dropbox/Ongoing_knowYourCpG/DATABASE_SETS/MM285/', paste0(db, '.tbk'))
+    ##             ## )
+
+    ##             categories <- getCategories(database)
+
+    ##             fgseaResult <- lapply(
+    ##                 categories,
+    ##                 testEnrichmentFGSEA,
+    ##                 probeIDs = probeIDs,
+    ##                 database = database,
+    ##                 sigProbes = sigProbes,
+    ##                 dbName = db,
+    ##                 sigProbesRank = sigProbesRank
+    ##             ) %>%
+    ##                 bind_rows()
+    ##             return(fgseaResult)
+    ##         }
+    ##     ) %>%
+    ##         bind_rows()
+    ##     # sort results by output
+    ##     results$categorical <- results$categorical[order(results$categorical$p.value), ]
+
+    ##     results$continuous <- lapply(
+    ##         continuousDatabases,
+    ##         function(db) {
+    ##             print(db)
+    ##             database <- tbk_data(
+    ##                 idx_fname = '~/Dropbox/Ongoing_knowYourCpG/TBK_INDICES/MM285.idx.gz',
+    ##                 tbk_fnames = file.path('~/Dropbox/Ongoing_knowYourCpG/DATABASE_SETS/MM285/', paste0(db, '.tbk'))
+    ##             )
+    ##             result <- testEnrichmentSpearman(
+    ##                 sigProbes = sigProbes,
+    ##                 sigProbesRank = sigProbesRank,
+    ##                 database = database,
+    ##                 dbName = db
+    ##             )
+    ##             return(result)
+    ##         }
+    ##     ) %>%
+    ##         bind_rows()
+    ## }
 
     return(results)
+}
+
+
+
+testEnrichmentAll = function(query) {
+    if (!is.null(databaseSets)) {
+        # TODO: support custom lists of databaseSets
+    }
+    databases = sesameDataGet("kycg/20210601_TFBS_ENCODE") # instead of test_defaultDatabaseSets
+    lapply(databases, function(db) testEnrichment1(query=query, db=db))
+    ## apply multi-test correction, BH, FDR
 }
 
 

@@ -3,3 +3,4 @@
 export(testEnrichmentAll)
 import(dplyr)
 import(fgsea)
+import(sesameData)

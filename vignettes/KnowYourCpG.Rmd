@@ -32,6 +32,7 @@ KnowYourCpG has one main function: testEnrichmentAll. This function has one requ
 
 KnowYourCpG includes several sets of test results in the object testResults. Each set contains Illumina Mouse Methylation probes from a tissue hypomethylation experiment. We choose one set:
 ```{r, include = TRUE}
+testResults = sesameDataGet("MM285.hypomethylation50")
 sigProbes <- testResults[[1]]
 print(sigProbes[1:10])
 print(length(sigProbes))
@@ -51,3 +52,6 @@ head(results$categorical)
 head(results$continuous)
 ```
 
+```{r}
+## plot odd ratio vs p-value?
+```
