@@ -13,26 +13,32 @@ vignette: >
 
 KnowYourCpG is a tool for evaluating whether a set of CpGs (represented by Illumina methylation chip probes) is enriched in certain categories or features. These categories or features can be categorical (e.g., CpGs related to tissue-specific transcription factors) or continuous (e.g., CpG Island density).
 
+## Install KnowYourCpG
+
+
+## Load KnowYourCpG
+
 First, load the package.
 
-```{r, include = TRUE}
+```{r, eval=FALSE, include = TRUE}
 library(KnowYourCpG)
 options(rmarkdown.html_vignette.check_title = FALSE)
 ```
 
-## Install KnowYourCpG
+## Load dependencies
 
-Development version can be installed from github
-```{r, eval=FALSE, include = FALSE}
-BiocManager::install('ethanmoyer/knowyourcpg')
-BiocManager::install('ethanmoyer/knowyourcpgData')
+```{r, echo=FALSE, include = TRUE}
+library(sesameData)
 ```
 
 KnowYourCpG has one main function: testEnrichmentAll. This function has one required argument: sigProbes, which is a vector containing the Illumina Probe IDs of interest. These probe IDs might, for example, be the results of an epigenome-wide association study.
 
 KnowYourCpG includes several sets of test results in the object testResults. Each set contains Illumina Mouse Methylation probes from a tissue hypomethylation experiment. We choose one set:
+
 ```{r, include = TRUE}
-testResults = sesameDataGet("MM285.hypomethylation50")
+
+# testResults = sesameDataGet("MM285.hypomethylation50")
+load(file="../data/testResults.rda")
 sigProbes <- testResults[[1]]
 print(sigProbes[1:10])
 print(length(sigProbes))
@@ -41,17 +47,21 @@ print(length(sigProbes))
 We know wish to assess whether this set of probes is enriched in any of the features. We do so by passing this probe set to testEnrichmentAll:
 
 ```{r}
-results <- testEnrichmentAll(sigProbes = sigProbes)
+#results <- testEnrichmentAll(sigProbes = sigProbes)
 ```
 
 The output is a list of tables, one for the categorical database sets, and one for the continuous. The rows of the table correspond to database sets and are ranked by odds ratio (categorical) or P value (continuous).
 
 ```{r}
-head(results$categorical)
+#head(results$categorical)
 
-head(results$continuous)
+#head(results$continuous)
 ```
 
 ```{r}
 ## plot odd ratio vs p-value?
 ```
+
+
+
+
