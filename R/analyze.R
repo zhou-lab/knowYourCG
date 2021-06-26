@@ -198,11 +198,11 @@ plotVolcano = function(filename, fc, pvalue, title="", xlabel=NA, ylabel=NA) {
 }
 
 
-testEnrichmentFGSEA <- function(category, probeIDs, database, sigProbes, dbName, sigProbesRank) {
+testEnrichmentFGSEA <- function(category, probeIDs, database, sigProbes, dbName) {
     pathway <- probeIDs[database == category]
 
     names(sigProbesRank) <- sigProbes
-    result <- fgsea(pathways = list(category = pathway), stats = sigProbesRank)
+    result <- fgsea(pathways = list(category = pathway), stats = sigProbes)
     result$pathway <- db
     return(result)
 }
