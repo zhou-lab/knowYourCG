@@ -2,9 +2,10 @@
 #' testEnrichmentAll tests a default set of categories (database sets) for enrichment
 #' in the provided vector of CpGs (sigProbes).
 #'
-#' @param sigProbes Vector of probes of interested (e.g., significant probes)
-#' @param sigProbesRank Numerical ranking for sigProbes such as P-values. Optional. (Default: NULL)
-#' @param databaseSets Vector of database sets of interest. Optional. (Default: NULL)
+#' @param sigProbes Vector of probes, or a named vector of ranks (e.g. coefficient), with names being
+#' Illumina Probe IDs
+#' @param database Vector of probes, or a named vector of numeric values with names being
+#' Probe IDs. sigProbes is tested against database for enrichment.
 #'
 #' @return A list of two tables, one each for database sets of categorical vs continuous
 #' values. The tables rank database sets by odds ratio (Fisher's exact test,
@@ -30,7 +31,7 @@ testEnrichment1 = function(sigProbes, database) { # sigProbesRank = NULL, databa
             ## spearman
         } else {
             print('FGSEA for continuous database sets')
-            
+
             ## continuous database set
             bind_rows(lapply(
                 names(test_defaultDatabaseSets$continuous),
@@ -45,9 +46,9 @@ testEnrichment1 = function(sigProbes, database) { # sigProbesRank = NULL, databa
     } else { # categorical query
         if(is.numeric(database)) { # numeric db
             ## do fgsea(switched arguments)
-            
+
             print("Fisher's exact test for categorical database sets")
-            database = sesameDataGet("kycg/20210601_TFBS_ENCODE") # instead of test_defaultDatabaseSets
+            database = sesameDataGet("data/www/html/kyCG") # instead of test_defaultDatabaseSets
             ## if only significant probes provided, Fisher (categorical db set) and fgsea (continuous db set)
                                         # categorical database sets first
             bind_rows(lapply(
@@ -62,7 +63,7 @@ testEnrichment1 = function(sigProbes, database) { # sigProbesRank = NULL, databa
                     ## add size of the db
                 }
             ))
-            
+
                                         # sort results by output
             results$categorical <- results$categorical[order(results$categorical$OddsRatio, decreasing = TRUE), ]
             results$categorical <- left_join(results$categorical, databaseSetManifest, by = c('DatabaseAccession' = 'FileAccession'))
@@ -170,7 +171,7 @@ calcFoldChange = function(mtx){
 #' create a volcano plot given a filename, fold change (log2), pvalue (-log10), and title (optional), xlabel (optional), ylabel (optional)
 plotVolcano = function(filename, fc, pvalue, title="", xlabel=NA, ylabel=NA) {
 
-    data = na.omit(data.frame(fc=fc, 
+    data = na.omit(data.frame(fc=fc,
         pvalue=pvalue))
     rownames(data) = 1:nrow(data)
     colnames(data) = c("log2fc", "pvalue")
@@ -186,15 +187,15 @@ plotVolcano = function(filename, fc, pvalue, title="", xlabel=NA, ylabel=NA) {
     }
 
     pdf(filename, height=50, width=50, onefile=FALSE)
-    ggplot(data=data, aes(x=fc, y=pvalue, color = cut(pvalue, c(2.995732, Inf) ))) + geom_point() + 
-    xlab(xlabel) + 
-    ylab(ylabel) + 
-    labs(title = title, fill = "pvalue") + 
-    theme(plot.title = element_text(size=80, face = "bold"), 
-        axis.text=element_text(size=48), 
-        axis.title=element_text(size=60), 
+    ggplot(data=data, aes(x=fc, y=pvalue, color = cut(pvalue, c(2.995732, Inf) ))) + geom_point() +
+    xlab(xlabel) +
+    ylab(ylabel) +
+    labs(title = title, fill = "pvalue") +
+    theme(plot.title = element_text(size=80, face = "bold"),
+        axis.text=element_text(size=48),
+        axis.title=element_text(size=60),
         legend.title = element_text(size=48),
-        legend.text=element_text(size=40)) # + 
+        legend.text=element_text(size=40)) # +
     # scale_color_manual(name = "pvalue", values = c("[2.995732, Inf)" = "red"), labels = c("> 2.995732"))
     dev.off(0)
 }
