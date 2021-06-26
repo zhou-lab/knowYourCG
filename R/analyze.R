@@ -118,7 +118,7 @@ testEnrichment1 = function(sigProbes, databaseName) {
 
 
 
-testEnrichmentAll = function(query) {
+testEnrichmentAll = function(query, databaseSets = NULL) {
     if (!is.null(databaseSets)) {
         # TODO: support custom lists of databaseSets
     }
@@ -127,7 +127,7 @@ testEnrichmentAll = function(query) {
     # each group of database sets is a list of vectors
     # right now, this list has only one group of database sets
     defaultDatabaseSets = c(MM285_TFBS = "http://zhouserver.research.chop.edu/kyCG/20210601_MM285_TFBS_ENCODE.rds")
-    lapply(names(defaultDatabaseSets), function(db) testEnrichment1(query=query, db=db))
+    lapply(names(defaultDatabaseSets), function(db) testEnrichment1(sigProbes=query, databaseName = db))
     ## apply multi-test correction, BH, FDR
 }
 
@@ -208,7 +208,6 @@ testEnrichmentFGSEA <- function(category, probeIDs, database, sigProbes, dbName)
 }
 
 testEnrichmentSpearman <- function(sigProbes, database, dbName) {
-    sharedProbes <- intersect(names(sigProbes), names(database))
     test <- cor.test(
         sigProbes,
         database,
