@@ -120,7 +120,7 @@ print(head(results))
 
 Using these sample results, we can plot a volcano plot 
 
-```{r plot-volcano, fig.width=7, fig.height=4}
+```{r plot-volcano, fig.width=9, fig.height=4}
 plotVolcano(data=results, title="Transcription Factor Binding Site Enrichment")
 ```
 

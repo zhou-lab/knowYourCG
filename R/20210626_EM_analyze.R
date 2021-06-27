@@ -1,23 +1,20 @@
-#' Test for the enrichment of set of probes (query set) in a given feature (database set)
-#' testEnrichmentAll1 tests a default set of categories (database sets) for enrichment
-#' in the provided vector of CpGs (querySet).
+#' testEnrichment1 tests for the enrichment of set of probes (query set) in a 
+#' single given feature (database set)
 #'
 #' @param querySet Vector of probes of interest (e.g., significant probes)
-#' @param sigProbesRank Numerical ranking for querySet such as P-values. Optional. (Default: NULL)
-#' @param databaseSet Vector of database sets of interest. Optional. (Default: NULL)
+#' @param databaseSet Vector of probes corresponding to a single database set of interest.
+#' @param universeSet Vector of probes in the universe set containing all of 
+#' the probes to be considered in the test.
+#' @param verbose Logical value indicating whether to display intermediate 
+#' text output about the type of test. Optional. (Default: FALSE)
 #'
-#' @return A list of two tables, one each for database sets of categorical vs continuous
-#' values. The tables rank database sets by odds ratio (Fisher's exact test,
-#' categorical querySet and categorical database set), or P-value (FGSEA or Spearman, categorical vs
-#'  continuous or continuous vs continuous respectively).
+#' @return One list containing features corresponding the test estimate, 
+#' p-value, and type of test.
 #'
-#' @import dplyr
 #' @import fgsea
-#' @import sesameData
 #'
 #' @export
 testEnrichment1 = function(querySet, databaseSet, universeSet, verbose=FALSE) {
-
     if (is.numeric(querySet)) { # a named vector of continuous value
         if(is.numeric(databaseSet)) { # numeric db
             if (verbose) {
@@ -69,13 +66,24 @@ testEnrichment1 = function(querySet, databaseSet, universeSet, verbose=FALSE) {
 }
 
 
+#' testEnrichmentAll tests for the enrichment of set of probes (query set) in a number of features (database sets).
+#'
+#' @param querySet Vector of probes of interest (e.g., significant probes)
+#' @param databaseSets List of vectors of probes corresponding to multiple 
+#' database sets. Optional. (Default: NULL)
+#' @param platform String corresponding to the type of platform to use. Either 
+#' MM285, EPIC, HM450, or HM27.
+#' @param verbose Logical value indicating whether to display intermediate 
+#' text output about the type of test. Optional. (Default: FALSE)
+#'
+#' @return One list containing features corresponding the test estimate, p-value, and type of test.
+#'
+#' @export
 testEnrichmentAll = function(querySet, databaseSets=NULL, platform = c("MM285", "EPIC", "HM450", "HM27"), verbose=FALSE) {
-
     if (platform == "MM285") {
         # TODO: upload MM285 manifest to sever... use tmp file for now
         # universeSet = readRDS(url("http://zhouserver.research.chop.edu/InfiniumAnnotation/current/MM285/MM285.mm10.manifest.rds"))
         universeSet = readRDS(url("http://zhouserver.research.chop.edu/moyerej/InfiniumAnnotation/MM285.mm10.manifest.rds"))$probeID
-
     } else if (platform == "EPIC") {
         universeSet = readRDS(url("http://zhouserver.research.chop.edu/InfiniumAnnotation/current/EPIC/EPIC.hg19.manifest.rds"))$probeID
     } else if (platform == "HM450") {
@@ -96,12 +104,18 @@ testEnrichmentAll = function(querySet, databaseSets=NULL, platform = c("MM285", 
 }
 
 
-# testEnrichment = function(setQ, setD, setU) {
+#' testEnrichmentFisher uses Fisher's exact test to estimate the association 
+#' between two categorical variables.
+#'
+#' @param querySet Vector of probes of interest (e.g., significant probes)
+#' @param databaseSet Vector of probes corresponding to a single database set 
+#' of interest.
+#' @param universeSet Vector of probes in the universe set containing all of 
+#' the probes to be considered in the test. (Default: NULL)
+#'
+#' @return A DataFrame with the estimate/statistic, p-value, and name of test 
+#' for the given results.
 testEnrichmentFisher = function(querySet, databaseSet, universeSet) {
-    # setD = categoryProbes
-    # setQ = querySet
-    # setU = universeSet
-
     mtx = matrix(c(
         length(intersect(querySet, databaseSet)),
         length(setdiff(databaseSet, querySet)),
@@ -123,14 +137,27 @@ testEnrichmentFisher = function(querySet, databaseSet, universeSet) {
 }
 
 
-#' calculate fold change given a matrix
+#' calcFoldChange calculates fold change given a 2x2 matrix of counts.
+#'
+#' @param mtx 2x2 matrix of values corresponding to overlapping counts between 
+#' two sets of a categorical variable.
+#'
+#' @return A numerical value corresponding to the fold change enrichment,
 calcFoldChange = function(mtx){
     num = mtx[1, 1] / (mtx[1, 1] + mtx[1, 2])
     den = (mtx[1, 1] + mtx[2, 1]) / sum(mtx)
     num / den
 }
 
-
+#' testEnrichmentFGSEA uses the FGSEA test to estimate the association of a 
+#' categorical variable against a continuous variable.
+#'
+#' @param querySet Vector of probes of interest (e.g., significant probes)
+#' @param databaseSet Vector of probes corresponding to a single database set 
+#' of interest.
+#'
+#' @return A DataFrame with the estimate/statistic, p-value, and name of test 
+#' for the given results.
 testEnrichmentFGSEA <- function(querySet, databaseSet) {
     test <- fgsea(pathways=list(pathway=databaseSet), stats=querySet)
     result <- data.frame(
@@ -141,7 +168,15 @@ testEnrichmentFGSEA <- function(querySet, databaseSet) {
     return(result)
 }
 
-
+#' testEnrichmentSpearman uses the spearman test to estimate the association 
+#' between two continuous variables.
+#'
+#' @param querySet Vector of probes of interest (e.g., significant probes)
+#' @param databaseSet Vector of probes corresponding to a single database set 
+#' of interest.
+#'
+#' @return A DataFrame with the estimate/statistic, p-value, and name of test 
+#' for the given results.
 testEnrichmentSpearman <- function(querySet, databaseSet) {
     test <- cor.test(
         querySet,
