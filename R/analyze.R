@@ -124,7 +124,7 @@ testEnrichment1 = function(sigProbes, database) { # sigProbesRank = NULL, databa
 
 
 
-testEnrichmentAll = function(query) {
+testEnrichmentAll = function(query, databaseSets=NULL) {
     if (!is.null(databaseSets)) {
         # TODO: support custom lists of databaseSets
     }

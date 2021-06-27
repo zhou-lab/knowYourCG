@@ -11,55 +11,117 @@ vignette: >
   %\VignetteEncoding{UTF-8}
 ---
 
-KnowYourCpG is a tool for evaluating whether a set of CpGs (represented by Illumina methylation chip probes) is enriched in certain categories or features. These categories or features can be categorical (e.g., CpGs related to tissue-specific transcription factors) or continuous (e.g., CpG Island density).
+# KnowYourCpG
+
+KnowYourCpG is a tool for evaluating whether a set of CpGs (represented by Illumina methylation chip probes) is enriched in certain categories or features. These categories or features can be categorical (e.g., CpGs related to tissue-specific transcription factors) or continuous (e.g., CpG Island density). Additionally, the set of CpGs to which the test will be applied can be cateogiral or continious as well.
+
+The set of CpGs that will be tested for enrichment is called the query set, and the set of CpGs that will be used to determine enrichment is called the database set. Although the user should supply their own query set, providing curated database sets is not necessarily needed. We have taken the time to curate our own sets from ENOCODE, etc that describe different categorical and continuous features such as transcription factor binding sites and CpG density. 
 
 ## Install KnowYourCpG
 
+To install KnowYourCpG from Bioconductor,
+```{r install-kycpg-bioconductor, eval=FALSE}
+if (!requireNamespace("BiocManager", quietly=TRUE))
+    install.packages("BiocManager")
+BiocManager::install("KnowYourCpG")
+```
+
+To install the development version directly from github
+```{r install-kycpg-github, eval=FALSE}
+BiocManager::install('zwdzwd/KnowYourCpG')
+```
 
 ## Load KnowYourCpG
 
 First, load the package.
 
-```{r, eval=FALSE, include = TRUE}
+```{r load-kycpg, eval=FALSE}
 library(KnowYourCpG)
-options(rmarkdown.html_vignette.check_title = FALSE)
 ```
 
-## Load dependencies
-
-```{r, echo=FALSE, include = TRUE}
-library(sesameData)
+``` {r load-dependencies, eval=TRUE, echo=FALSE}
+source("/Users/ethanmoyer/Projects/chop/knowYourCpG/R/20210626_EM_analyze.R")
+source("/Users/ethanmoyer/Projects/chop/knowYourCpG/R/20210626_EM_plot.R")
+suppressMessages(library(GenomicRanges))
+suppressMessages(library(stats4))
+suppressMessages(library(BiocGenerics))
+suppressMessages(library(parallel))
+suppressMessages(library(S4Vectors))
+suppressMessages(library(IRanges))
+suppressMessages(library(GenomeInfoDb))
+suppressMessages(library(fgsea))
+suppressMessages(library(ggplot2))
+options(warn=-1)
 ```
+
+## Introduction 
+
+![Four testing scenarios of KnowYourCpG](/Users/ethanmoyer/Projects/chop/knowYourCpG/images/20210627_kycpg_tests.png){width=75%}
 
 KnowYourCpG has one main function: testEnrichmentAll. This function has one required argument: sigProbes, which is a vector containing the Illumina Probe IDs of interest. These probe IDs might, for example, be the results of an epigenome-wide association study.
 
 KnowYourCpG includes several sets of test results in the object testResults. Each set contains Illumina Mouse Methylation probes from a tissue hypomethylation experiment. We choose one set:
 
-```{r, include = TRUE}
-
-# testResults = sesameDataGet("MM285.hypomethylation50")
-load(file="../data/testResults.rda")
-sigProbes <- testResults[[1]]
-print(sigProbes[1:10])
-print(length(sigProbes))
+```{r load-data, echo=FALSE}
+load(file="/Users/ethanmoyer/Projects/chop/knowYourCpG/data/testResults.rda")
 ```
 
-We know wish to assess whether this set of probes is enriched in any of the features. We do so by passing this probe set to testEnrichmentAll:
+```{r visualize-data}
+querySet = testResults[[1]]
+print(head(querySet))
+print(length(querySet))
 
-```{r}
-#results <- testEnrichmentAll(sigProbes = sigProbes)
+databaseSets = readRDS(url("http://zhouserver.research.chop.edu/kyCG/20210601_MM285_TFBS_ENCODE.rds"))
+print(length(databaseSets))
+
+databaseSet = databaseSets["GSM915161"]
+print(head(databaseSet[[1]]))
+print(length(databaseSet[[1]]))
 ```
 
-The output is a list of tables, one for the categorical database sets, and one for the continuous. The rows of the table correspond to database sets and are ranked by odds ratio (categorical) or P value (continuous).
+For the sake of proof of concept, let's create a couple continious probe sets.
 
-```{r}
-#head(results$categorical)
-
-#head(results$continuous)
+``` {r create-continuous-data}
+databaseSetsCont = lapply(databaseSet, function(db) setNames(runif(length(db), 1, 100), db))
+querySetCont = setNames(runif(length(querySet), 1, 100), querySet)
 ```
 
-```{r}
-## plot odd ratio vs p-value?
+We know wish to assess whether this set of probes is enriched in any of the features. We do so by passing this probe set to testEnrichmentAll.
+
+```{r run-test-few}
+## Case 1
+results = list()
+
+results[[1]] = testEnrichmentAll(querySet=querySetCont, databaseSets=databaseSetsCont, platform="MM285", verbose=T)
+
+## Case 2
+results[[2]] = testEnrichmentAll(querySet=querySetCont, databaseSets=databaseSet, platform="MM285", verbose=T)
+
+## Case 3
+results[[3]] = testEnrichmentAll(querySet=querySet, databaseSets=databaseSetsCont, platform="MM285", verbose=T)
+
+
+## Case 4
+results[[4]] = testEnrichmentAll(querySet=querySet, databaseSets=databaseSet, platform="MM285", verbose=T)
+
+results = do.call(rbind, results)
+
+print(results)
+```
+
+The output of each test contains three variables: the estimate, p-value, and type of test.T The name of the database set is also recorded as well. By default, they are returned such that the p-value column is sorted. It should be noted that the estimate (or test statistic) is test dependent and comparison between p-values should be limited to within the same type of test. For instance, the test statistic for Fisher's exact test is log fold change, the test statistic for FGSEA is log fold change, and the test statistic for Spearman's test is . For simplicity, we report all of the test types in one Dataframe.
+
+In the above four examples, the database sets were specified. In the aforementioned introduction, it was mentioned that this does not have to be the case as we load database sets when none have been provided. Currently our default database sets are transcription factor bining sites. 
+
+```{r run-test-all}
+results = testEnrichmentAll(querySet=querySet, platform="MM285")
+print(head(results))
+```
+
+Using these sample results, we can plot a volcano plot 
+
+```{r plot-volcano, fig.width=7, fig.height=4}
+plotVolcano(data=results, title="Transcription Factor Binding Site Enrichment")
 ```
 
 
