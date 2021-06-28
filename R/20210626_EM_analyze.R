@@ -14,7 +14,7 @@
 #' @import fgsea
 #'
 #' @export
-testEnrichment1 = function(querySet, databaseSet, universeSet, verbose=FALSE) {
+testEnrichment1 = function(querySet, databaseSet, universeSet, estimate.type="ES", verbose=FALSE) {
     if (is.numeric(querySet)) { # a named vector of continuous value
         if(is.numeric(databaseSet)) { # numeric db
             if (verbose) {
@@ -35,7 +35,7 @@ testEnrichment1 = function(querySet, databaseSet, universeSet, verbose=FALSE) {
             }
             results = testEnrichmentFGSEA(
                 querySet=querySet,
-                databaseSet=databaseSet)
+                databaseSet=databaseSet, estimate.type=estimate.type)
         }
     } else { # categorical query
         if(is.numeric(databaseSet)) { # numeric db
@@ -48,7 +48,7 @@ testEnrichment1 = function(querySet, databaseSet, universeSet, verbose=FALSE) {
             }
             results = testEnrichmentFGSEA(
                 querySet=databaseSet,
-                databaseSet=querySet)
+                databaseSet=querySet, estimate.type=estimate.type)
         } else { # categorical db
             if (verbose) {
                 cat("Query set: Discrete\tDatabase set: Discrete\t\t[Fisher exact test]\n")
@@ -79,11 +79,10 @@ testEnrichment1 = function(querySet, databaseSet, universeSet, verbose=FALSE) {
 #' @return One list containing features corresponding the test estimate, p-value, and type of test.
 #'
 #' @export
-testEnrichmentAll = function(querySet, databaseSets=NULL, platform = c("MM285", "EPIC", "HM450", "HM27"), verbose=FALSE) {
+testEnrichmentAll = function(querySet, databaseSets=NULL, platform = c("MM285", "EPIC", "HM450", "HM27"), estimate.type="ES", verbose=FALSE) {
+    # options(timeout=1000)
     if (platform == "MM285") {
-        # TODO: upload MM285 manifest to sever... use tmp file for now
-        # universeSet = readRDS(url("http://zhouserver.research.chop.edu/InfiniumAnnotation/current/MM285/MM285.mm10.manifest.rds"))
-        universeSet = readRDS(url("http://zhouserver.research.chop.edu/moyerej/InfiniumAnnotation/MM285.mm10.manifest.rds"))$probeID
+        universeSet = get(load(url("http://zhouserver.research.chop.edu/sesameData/MM285.mm10.manifest.rda")))$probeID
     } else if (platform == "EPIC") {
         universeSet = readRDS(url("http://zhouserver.research.chop.edu/InfiniumAnnotation/current/EPIC/EPIC.hg19.manifest.rds"))$probeID
     } else if (platform == "HM450") {
@@ -97,7 +96,7 @@ testEnrichmentAll = function(querySet, databaseSets=NULL, platform = c("MM285", 
         databaseSets = readRDS(url("http://zhouserver.research.chop.edu/kyCG/20210601_MM285_TFBS_ENCODE.rds"))
     }
    
-    results = do.call(rbind, lapply(databaseSets, function(databaseSet) testEnrichment1(querySet=querySet, databaseSet=databaseSet, universeSet=universeSet, verbose=verbose)))
+    results = do.call(rbind, lapply(databaseSets, function(databaseSet) testEnrichment1(querySet=querySet, databaseSet=databaseSet, universeSet=universeSet, estimate.type=estimate.type, verbose=verbose)))
     results = results[order(results$p.value, decreasing=F), ]
     return(results)
     ## apply multi-test correction, BH, FDR
@@ -158,11 +157,31 @@ calcFoldChange = function(mtx){
 #'
 #' @return A DataFrame with the estimate/statistic, p-value, and name of test 
 #' for the given results.
-testEnrichmentFGSEA <- function(querySet, databaseSet) {
+testEnrichmentFGSEA <- function(querySet, databaseSet, p.pvalue.adj=FALSE, estimate.type="ES") {
     test <- fgsea(pathways=list(pathway=databaseSet), stats=querySet)
+
+    if (p.pvalue.adj) {
+        p.value = test$padj
+    } else {
+        p.value = test$pval
+    }    
+
+    if (estimate.type == "log2err") {
+        estimate = test$log2err
+    } else if (estimate.type == "NES") {
+        estimate = test$NES
+    } else if (estimate.type == "leadingEdge") {
+        estimate = test$leadingEdge
+    } else if (estimate.type == "ES") {
+        estimate = test$ES
+    } else {
+        print(sprintf("Incorrect estimate.type: [", estimate.type, "].", sep=""))
+        return(NULL)
+    }
+
     result <- data.frame(
-        estimate = test$ES[[1]],
-        p.value = test$pval,
+        estimate = estimate,
+        p.value = p.value,
         test = "fgsea"
     )
     return(result)

@@ -71,6 +71,8 @@ querySet = testResults[[1]]
 print(head(querySet))
 print(length(querySet))
 
+# This end point is currently timing out. Too big of a file?
+# options(timeout=1000)
 databaseSets = readRDS(url("http://zhouserver.research.chop.edu/kyCG/20210601_MM285_TFBS_ENCODE.rds"))
 print(length(databaseSets))
 
@@ -109,7 +111,7 @@ results = do.call(rbind, results)
 print(results)
 ```
 
-The output of each test contains three variables: the estimate, p-value, and type of test.T The name of the database set is also recorded as well. By default, they are returned such that the p-value column is sorted. It should be noted that the estimate (or test statistic) is test dependent and comparison between p-values should be limited to within the same type of test. For instance, the test statistic for Fisher's exact test is log fold change, the test statistic for FGSEA is log fold change, and the test statistic for Spearman's test is . For simplicity, we report all of the test types in one Dataframe.
+The output of each test contains three variables: the estimate, p-value, and type of test. The name of the database set is also recorded as well. By default, they are returned such that the p-value column is sorted. It should be noted that the estimate (or test statistic) is test dependent and comparison between p-values should be limited to within the same type of test. For instance, the test statistic for Fisher's exact test is log fold change, the test statistic for FGSEA is log fold change, and the test statistic for Spearman's test is . For simplicity, we report all of the test types in one Dataframe.
 
 In the above four examples, the database sets were specified. In the aforementioned introduction, it was mentioned that this does not have to be the case as we load database sets when none have been provided. Currently our default database sets are transcription factor bining sites. 
 

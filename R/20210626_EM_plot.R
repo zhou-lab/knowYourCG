@@ -1,4 +1,18 @@
-#' create a volcano plot given a filename, fold change (log2), pvalue (-log10), and title (optional), xlabel (optional), ylabel (optional)
+#' plotVolcano creates a volcano plot of -log2(p.value) and log(estimate)
+#' given data with fields estimate and p.value.
+#'
+#' @param data DataFrame where each field is a database name with two fields
+#' for the estimate and p.value.
+#' @param title String representing the title label. Optional. (Default: NA)
+#' @param xlabel String representing the x-axis label. Optional. (Default: 
+#' NA)
+#' @param ylabel String representing the y-axis label. Optional. (Default: 
+#' NA)
+#'
+#' @return A DataFrame with the estimate/statistic, p-value, and name of test 
+#' for the given results.
+#'
+#' @export
 plotVolcano = function(data, title=NA, xlabel=NA, ylabel=NA) {
     if (is.na(title)) {
         title = "Volcano plot"
@@ -37,3 +51,4 @@ plotVolcano = function(data, title=NA, xlabel=NA, ylabel=NA) {
     # dev.off(0)
     g
 }
+
