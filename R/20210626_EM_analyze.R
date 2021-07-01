@@ -14,7 +14,7 @@
 #' @import fgsea
 #'
 #' @export
-testEnrichment1 = function(querySet, databaseSet, universeSet, estimate.type="ES", verbose=FALSE) {
+testEnrichment1 = function(querySet, databaseSet, universeSet, p.pvalue.adj=FALSE, estimate.type="ES", verbose=FALSE) {
     if (is.numeric(querySet)) { # a named vector of continuous value
         if(is.numeric(databaseSet)) { # numeric db
             if (verbose) {
@@ -35,7 +35,9 @@ testEnrichment1 = function(querySet, databaseSet, universeSet, estimate.type="ES
             }
             results = testEnrichmentFGSEA(
                 querySet=querySet,
-                databaseSet=databaseSet, estimate.type=estimate.type)
+                databaseSet=databaseSet, 
+                p.pvalue.adj=p.pvalue.adj, 
+                estimate.type=estimate.type)
         }
     } else { # categorical query
         if(is.numeric(databaseSet)) { # numeric db
@@ -47,8 +49,10 @@ testEnrichment1 = function(querySet, databaseSet, universeSet, estimate.type="ES
                 return(NULL)
             }
             results = testEnrichmentFGSEA(
-                querySet=databaseSet,
-                databaseSet=querySet, estimate.type=estimate.type)
+                querySet=databaseSet, 
+                databaseSet=querySet, 
+                p.pvalue.adj=p.pvalue.adj,
+                estimate.type=estimate.type)
         } else { # categorical db
             if (verbose) {
                 cat("Query set: Discrete\tDatabase set: Discrete\t\t[Fisher exact test]\n")
@@ -79,8 +83,8 @@ testEnrichment1 = function(querySet, databaseSet, universeSet, estimate.type="ES
 #' @return One list containing features corresponding the test estimate, p-value, and type of test.
 #'
 #' @export
-testEnrichmentAll = function(querySet, databaseSets=NULL, platform = c("MM285", "EPIC", "HM450", "HM27"), estimate.type="ES", verbose=FALSE) {
-    # options(timeout=1000)
+testEnrichmentAll = function(querySet, databaseSets=NULL, platform = c("MM285", "EPIC", "HM450", "HM27"), p.pvalue.adj=FALSE, estimate.type="ES", verbose=FALSE) {
+    options(timeout=1000)
     if (platform == "MM285") {
         universeSet = get(load(url("http://zhouserver.research.chop.edu/sesameData/MM285.mm10.manifest.rda")))$probeID
     } else if (platform == "EPIC") {
@@ -96,10 +100,22 @@ testEnrichmentAll = function(querySet, databaseSets=NULL, platform = c("MM285", 
         databaseSets = readRDS(url("http://zhouserver.research.chop.edu/kyCG/20210601_MM285_TFBS_ENCODE.rds"))
     }
    
-    results = do.call(rbind, lapply(databaseSets, function(databaseSet) testEnrichment1(querySet=querySet, databaseSet=databaseSet, universeSet=universeSet, estimate.type=estimate.type, verbose=verbose)))
+    results = do.call(rbind, 
+        lapply(databaseSets, 
+            function(databaseSet) testEnrichment1(
+                                    querySet=querySet, 
+                                    databaseSet=databaseSet, 
+                                    universeSet=universeSet, 
+                                    p.pvalue.adj=p.pvalue.adj,
+                                    estimate.type=estimate.type, 
+                                    verbose=verbose)
+            ))
     results = results[order(results$p.value, decreasing=F), ]
     return(results)
     ## apply multi-test correction, BH, FDR
+
+
+
 }
 
 
@@ -210,7 +226,8 @@ testEnrichmentSpearman <- function(querySet, databaseSet) {
     return(result)
 }
 
-
-
+# do for MM285, EPIC, HM450
+# database sets: CA, cpg density, probes with genetic variation last five base on 3' extension base (wubin), Infinium annotation
+# https://github.com/zhou-lab/knowYourCpG
 
 

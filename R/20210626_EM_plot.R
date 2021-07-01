@@ -31,7 +31,7 @@ plotVolcano = function(data, title=NA, xlabel=NA, ylabel=NA) {
 
     # pdf(filename, height=50, width=50, onefile=FALSE)
     if (any(data$p.value > -log(0.05))) {
-        g = ggplot(data=data, aes(x=estimate, y=p.value, color = cut(p.value, c(-log(0.05), Inf) ))) 
+        g = ggplot(data=data, aes(x=estimate, y=p.value, color = cut(p.value, c(-log(0.05), Inf)))) 
     } else {
         g = ggplot(data=data, aes(x=estimate, y=p.value)) 
     }

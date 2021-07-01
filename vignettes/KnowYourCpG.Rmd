@@ -51,6 +51,7 @@ suppressMessages(library(IRanges))
 suppressMessages(library(GenomeInfoDb))
 suppressMessages(library(fgsea))
 suppressMessages(library(ggplot2))
+suppressMessages(library(readxl))
 options(warn=-1)
 ```
 
@@ -72,7 +73,7 @@ print(head(querySet))
 print(length(querySet))
 
 # This end point is currently timing out. Too big of a file?
-# options(timeout=1000)
+options(timeout=1000)
 databaseSets = readRDS(url("http://zhouserver.research.chop.edu/kyCG/20210601_MM285_TFBS_ENCODE.rds"))
 print(length(databaseSets))
 
@@ -122,10 +123,19 @@ print(head(results))
 
 Using these sample results, we can plot a volcano plot 
 
-```{r plot-volcano, fig.width=9, fig.height=4}
+```{r plot-volcano, fig.width=7, fig.height=4}
 plotVolcano(data=results, title="Transcription Factor Binding Site Enrichment")
 ```
 
+sesameDataList
+
+Use age clock from sesameDataGet(MM285.clock.347), use as postive control, try to identify polycomb targets
+
+```{r}
+
+meta = read_excel("/Users/ethanmoyer/Dropbox/Ongoing_knowYourCpG/20210329_MM285_databaseSets.xlsx")
+
+```
 
 
 
