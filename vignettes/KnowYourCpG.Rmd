@@ -127,13 +127,13 @@ Using these sample results, we can plot a volcano plot
 plotVolcano(data=results, title="Transcription Factor Binding Site Enrichment")
 ```
 
-sesameDataList
+
 
 Use age clock from sesameDataGet(MM285.clock.347), use as postive control, try to identify polycomb targets
 
 ```{r}
-
-meta = read_excel("/Users/ethanmoyer/Dropbox/Ongoing_knowYourCpG/20210329_MM285_databaseSets.xlsx")
+# sesameDataList
+# meta = read_excel("/Users/ethanmoyer/Dropbox/Ongoing_knowYourCpG/20210329_MM285_databaseSets.xlsx", "meta")
 
 ```
 
