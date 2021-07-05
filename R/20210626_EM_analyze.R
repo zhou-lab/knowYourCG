@@ -169,7 +169,10 @@ testEnrichmentFisher = function(querySet, databaseSet, universeSet) {
     result <- data.frame(
         estimate = calcFoldChange(mtx),
         p.value = test$p.value,
-        test = "fisher"
+        test = "fisher",
+        querySetSize = length(querySet),
+        databaseSetSize = length(databaseSet),
+        overlap = length(intersect(querySet, databaseSet))
     )
     return(result)
 }
