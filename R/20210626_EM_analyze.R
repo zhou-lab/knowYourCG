@@ -24,18 +24,12 @@ testEnrichment1 = function(querySet, databaseSet, universeSet, estimate.type="ES
             if (verbose) {
                 cat("Query set: Continuous\tDatabase set: Continuous\t[Spearman test]\n")
             }
-            if (length(intersect(names(querySet), names(databaseSet))) == 0) {
-                return(NULL)
-            }
             results = testEnrichmentSpearman(
                 querySet=querySet,
                 databaseSet=databaseSet)
         } else {
             if (verbose) {
                 cat("Query set: Continuous\tDatabase set: Discrete\t[FGSEA test]\n")
-            }
-            if (length(intersect(names(querySet), databaseSet)) == 0) {
-                return(NULL)
             }
             results = testEnrichmentFGSEA(
                 querySet=querySet,
@@ -49,9 +43,6 @@ testEnrichment1 = function(querySet, databaseSet, universeSet, estimate.type="ES
             if (verbose) {
                 cat("Query set: Discrete\tDatabase set: Continuous\t[FGSEA test]\n")
             }
-            if (length(intersect(querySet, names(databaseSet))) == 0) {
-                return(NULL)
-            }
             results = testEnrichmentFGSEA(
                 querySet=databaseSet, 
                 databaseSet=querySet, 
@@ -60,9 +51,6 @@ testEnrichment1 = function(querySet, databaseSet, universeSet, estimate.type="ES
         } else { # categorical db
             if (verbose) {
                 cat("Query set: Discrete\tDatabase set: Discrete\t\t[Fisher exact test]\n")
-            }
-            if (length(intersect(querySet, databaseSet)) == 0) {
-                return(NULL)
             }
             results = testEnrichmentFisher(
                 querySet=querySet, 
@@ -154,6 +142,17 @@ testEnrichmentAll = function(querySet, databaseSets=NA, universeSet=NA, platform
 #' @return A DataFrame with the estimate/statistic, p-value, and name of test 
 #' for the given results.
 testEnrichmentFisher = function(querySet, databaseSet, universeSet) {
+    test = "fisher"
+    if (length(intersect(querySet, databaseSet)) == 0) {
+        return(list(estimate=0, 
+                    p.value=1, 
+                    test=test, 
+                    querySetSize=length(querySet), 
+                    databaseSetSize = length(databaseSet), 
+                    overlap=0
+                    ))
+    }
+
     mtx = matrix(c(
         length(intersect(querySet, databaseSet)),
         length(setdiff(databaseSet, querySet)),
@@ -169,7 +168,7 @@ testEnrichmentFisher = function(querySet, databaseSet, universeSet) {
     result <- data.frame(
         estimate = calcFoldChange(mtx),
         p.value = test$p.value,
-        test = "fisher",
+        test = test,
         querySetSize = length(querySet),
         databaseSetSize = length(databaseSet),
         overlap = length(intersect(querySet, databaseSet))
@@ -204,6 +203,16 @@ calcFoldChange = function(mtx){
 #' @return A DataFrame with the estimate/statistic, p-value, and name of test 
 #' for the given results.
 testEnrichmentFGSEA <- function(querySet, databaseSet, p.pvalue.adj=FALSE, estimate.type="ES") {
+    test="fgsea"
+    if (length(intersect(querySet, names(databaseSet))) == 0) {
+        return(list(estimate=0, 
+                    p.value=1, 
+                    test=test, 
+                    querySetSize=length(querySet), 
+                    databaseSetSize=length(databaseSet), 
+                    overlap=0
+                    ))
+    }
     test <- fgsea(pathways=list(pathway=databaseSet), stats=querySet)
 
     if (p.pvalue.adj) {
@@ -228,7 +237,7 @@ testEnrichmentFGSEA <- function(querySet, databaseSet, p.pvalue.adj=FALSE, estim
     result <- data.frame(
         estimate = estimate,
         p.value = p.value,
-        test = "fgsea"
+        test = test
     )
     return(result)
 }
@@ -243,15 +252,25 @@ testEnrichmentFGSEA <- function(querySet, databaseSet, p.pvalue.adj=FALSE, estim
 #' @return A DataFrame with the estimate/statistic, p-value, and name of test 
 #' for the given results.
 testEnrichmentSpearman <- function(querySet, databaseSet) {
+    test = "spearman"
+    if (length(intersect(names(querySet), names(databaseSet))) == 0) {
+        return(list(estimate=0, 
+                    p.value=1, 
+                    test=test, 
+                    querySetSize=length(querySet), 
+                    databaseSetSize=length(databaseSet), 
+                    overlap=0
+                    ))
+    }
     test <- cor.test(
         querySet,
         querySet,
-        method = 'spearman'
+        method = test
     )
     result <- data.frame(
         estimate = test$estimate[[1]],
         p.value = test$p.value,
-        test = "spearman"
+        test = test
     )
     return(result)
 }

@@ -19,7 +19,7 @@ plotVolcano = function(data, title=NA, xlabel=NA, ylabel=NA) {
     } 
     title = gsub('(.{1,80})(\\s|$)', '\\1\n', title)
 
-    data = data.frame(estimate=log(data$estimate, base=10), p.value=-log(data$p.value, base=2))
+    data = data.frame(estimate=log(data$estimate + 1, base=10), p.value=-log(data$p.value + 1, base=2))
 
     if (is.na(xlabel)) {
        xlabel = "log2 fold change"
