@@ -1,20 +1,32 @@
-Package: KnowYourCpG
-Title: What the Package Does (One Line, Title Case)
-Version: 0.0.0.9000
-Authors@R: 
-    person(given = "First",
-           family = "Last",
-           role = c("aut", "cre"),
-           email = "first.last@example.com",
-           comment = c(ORCID = "YOUR-ORCID-ID"))
-Description: What the package does (one paragraph).
-License: `use_mit_license()`, `use_gpl3_license()` or friends to pick a
-    license
+Package: knowYourCpGPackage
+Type: Package
+Title: Automatic Hypothesis Testing & Methylome Feature Engineering
+Version: 0.1.0
+Authors: Ethan Jacob Moyer
+Authors@R: c(person("Moyer", "Ethan", role = c("aut","cre"),
+             email = "ethan.jacob.moyer@gmail.com"))
+Description: This package automates the hypothesis testing process by testing
+    the enrichment of different pre-curated sets of CpGs. Each CpG set, or 
+    databaseSet, corresponds to a genomic or technical element that aims
+    to describe variability in a CpG set of interest, also know as a querySet. 
+    This is another sentence. This is another sentence. 
+    This is another sentence. This is another sentence.
+License: MIT + file LICENSE
+VignetteBuilder: knitr
 Encoding: UTF-8
 LazyData: true
-Roxygen: list(markdown = TRUE)
 RoxygenNote: 7.1.1
-Depends: 
-    R (>= 2.10)
 Imports:
-    fgsea
+    fgsea,
+    ggplot2,
+    stats,
+    utils
+biocViews:
+    Epigenetics, 
+    DNAMethylation, 
+    MethylationArray
+Suggests: 
+    testthat (>= 3.0.0),
+    rmarkdown,
+    knitr
+Config/testthat/edition: 3

@@ -1,222 +1,322 @@
-#' Test for enriched categories of CpGs
-#' testEnrichmentAll tests a default set of categories (database sets) for enrichment
-#' in the provided vector of CpGs (sigProbes).
+#' testEnrichment1 tests for the enrichment of set of probes (query set) in a
+#' single given feature (database set)
 #'
-#' @param sigProbes Vector of probes, or a named vector of ranks (e.g. coefficient), with names being
-#' Illumina Probe IDs
-#' @param database Vector of probes, or a named vector of numeric values with names being
-#' Probe IDs. sigProbes is tested against database for enrichment.
+#' @param querySet Vector of probes of interest (e.g., significant probes)
+#' @param databaseSet Vector of probes corresponding to a single database set
+#' of interest.
+#' @param universeSet Vector of probes in the universe set containing all of
+#' the probes to be considered in the test.
+#' @param estimate.type String indicating the estimate to report. (Default:
+#' "ES")
+#' @param p.value.adj Logical value indicating whether to report the adjusted
+#' p-value. (Default: FALSE)
+#' @param verbose Logical value indicating whether to display intermediate
+#' text output about the type of test. Optional. (Default: FALSE)
 #'
-#' @return A list of two tables, one each for database sets of categorical vs continuous
-#' values. The tables rank database sets by odds ratio (Fisher's exact test,
-#' categorical sigProbes and categorical database set), or P-value (FGSEA or Spearman, categorical vs
-#'  continuous or continuous vs continuous respectively).
+#' @import utils
 #'
-#' @import dplyr
-#' @import fgsea
-#' @import sesameData
-#'
-#' @export
-testEnrichment1 = function(sigProbes, databaseName) {
-
-    # probe IDs: mouseMethylation285_probeIDs
-
-    # TODO: load database sets based on mapping (excel sheet?)
-    # for now, just load the default one
-    database <- readRDS(url("http://zhouserver.research.chop.edu/kyCG/20210601_MM285_TFBS_ENCODE.rds"))[1:100]
-
-    if (all(sapply(database, is.numeric))) { # numeric db
-        if(is.numeric(sigProbes)) { # a named vector of continuous value
-            # Spearman correlation
-            spearmanResult <- bind_rows(lappy(
-                names(database),
-                function(db) {
-                    df <- testEnrichmentSpearman(
-                        sigProbes = sigProbes,
-                        database = database,
-                        dbName = databaseName
-                    )
-                    df$instanceName <- db
-                    df$databaseLength <- length(db)
-
-                    return(df)
-                }
-            ))
-
-            return(spearmanResult)
-        } else { # categorical query
-            # FGSEA
-            print('FGSEA for continuous database sets')
-
-            ## continuous database set
-            fgseaResult <- bind_rows(lapply(
-                names(database),
-                function(db) {
-                    cbind(fgsea(
-                        pathways = list(sigProbes = sigProbes),
-                        stats = database[[db]]
-                    ), data.frame(database = databaseName, instanceName = db))
-                }
-            ))
-
-            return(fgseaResult)
+#' @return One list containing features corresponding the test estimate,
+#' p-value, and type of test.
+testEnrichment1 = function(querySet, databaseSet, universeSet,
+                           estimate.type="ES", p.value.adj=FALSE,
+                           verbose=FALSE) {
+    if (is.numeric(querySet)) { # a named vector of continuous value
+        if(is.numeric(databaseSet)) { # numeric db
+            if (verbose) {
+                cat("Query set: Continuous\t
+                    Database set: Continuous\t[Spearman test]\n")
+            }
+            results = testEnrichmentSpearman(
+                querySet=querySet,
+                databaseSet=databaseSet)
+        } else {
+            if (verbose) {
+                cat("Query set: Continuous\t
+                    Database set: Discrete\t[FGSEA test]\n")
+            }
+            results = testEnrichmentFGSEA(
+                querySet=querySet,
+                databaseSet=databaseSet,
+                p.value.adj=p.value.adj,
+                estimate.type=estimate.type)
         }
-    } else if (all(sapply(database, is.character))) { # categorical database
-        if(is.numeric(sigProbes)) { # a named vector of continuous value
+    } else { # categorical query
+        if(is.numeric(databaseSet)) { # numeric db
             ## do fgsea(switched arguments)
-            fgseaResult <- bind_rows(lapply(
-                names(database),
-                function(db) {
-                    df <- testEnrichmentFGSEA(
-                        probeIDs = probeIDs,
-                        database = database,
-                        sigProbes = sigProbes,
-                        dbName = databaseName,
-                        sigProbesRank = sigProbesRank
-                    )
-                    df$instanceName <- db
-                    df$databaseLength <- length(database[[db]])
-
-                    return(df)
-                }
-            ))
-
-            # TODO: sort by p value, and join with database info table
-            return(fgseaResult)
-
+            if (verbose) {
+                cat("Query set: Discrete\t
+                    Database set: Continuous\t[FGSEA test]\n")
+            }
+            results = testEnrichmentFGSEA(
+                querySet=databaseSet,
+                databaseSet=querySet,
+                p.value.adj=p.value.adj,
+                estimate.type=estimate.type)
         } else { # categorical db
-            print("Fisher's exact test for categorical database sets")
-            ## if only significant probes provided, Fisher (categorical db set) and fgsea (continuous db set)
-            # categorical database sets first
-            fisherResult <- bind_rows(lapply(
-                names(database),
-                function(db) {
-                    df <- testEnrichmentFisher(
-                        probeIDs = mouseMethylation285_probeIDs,
-                        categoryProbes = database[[db]],
-                        sigProbes = sigProbes,
-                        dbName = databaseName
-                    )
-                    df$instanceName <- db
-                    df$databaseLength <- length(database[[db]])
-                    df$test <- 'Fisher'
-
-                    df
-                }
-            ))
-            fisherResult <- fisherResult[order(fisherResult, decreasing = TRUE), ]
-
-            # TODO: join results with database info table
-            return(fisherResult)
+            if (verbose) {
+                cat("Query set: Discrete\t
+                    Database set: Discrete\t\t[Fisher exact test]\n")
+            }
+            results = testEnrichmentFisher(
+                querySet=querySet,
+                databaseSet=databaseSet,
+                universeSet=universeSet)
         }
-    } else {
-        # This may go away depending on the final organization of database sets
-        # for example, if we handle one vector at a time, there is no need for this
-        stop('Database contains mixture of categorical and continuous')
     }
+    return(results)
 }
 
 
+#' inferPlatformFromProbeIDs infers the Infinium MicroArray platform using the
+#' given probeIDs
+#'
+#' @param probeIDs Vector of probes of interest (e.g., probes belonging to a
+#' given platform)
+#'
+#' @return String corresponding to the inferred platform
+inferPlatformFromProbeIDs = function(probeIDs) {
+    sig = get(load(url("https://zhouserver.research.chop.edu/
+                       sesameData/probeIDSignature.rda")))$probeID
+    names(which.max(vapply(
+        sig, function(x) sum(probeIDs %in% x), integer(1))))
+}
 
-testEnrichmentAll = function(query, databaseSets = NULL) {
-    if (!is.null(databaseSets)) {
-        # TODO: support custom lists of databaseSets
+
+#' testEnrichmentAll tests for the enrichment of set of probes (query set) in
+#' a number of features (database sets).
+#'
+#' @param querySet Vector of probes of interest (e.g., significant probes)
+#' @param databaseSets List of vectors of probes corresponding to multiple
+#' database sets. Optional. (Default: NA)
+#' @param universeSet Vector of probes in the universe set containing all of
+#' the probes to be considered in the test. If it is not provided, it will be
+#' inferred from the provided platform. (Default: NA)
+#' @param platform String corresponding to the type of platform to use. Either
+#' MM285, EPIC, HM450, or HM27. If it is not provided, it will be inferred
+#' from the query set probeIDs (Default: NA)
+#' @param estimate.type String indicating the estimate to report. (Default:
+#' "ES")
+#' @param p.value.adj Logical value indicating whether to report the adjusted
+#' p-value. (Default: FALSE)
+#' @param verbose Logical value indicating whether to display intermediate
+#' text output about the type of test. Optional. (Default: FALSE)
+#'
+#' @return One list containing features corresponding the test estimate,
+#' p-value, and type of test.
+#'
+#' @examples
+#' testEnrichmentAll(c("cg0000029"))
+#'
+#' @export
+testEnrichmentAll = function(querySet, databaseSets=NA, universeSet=NA, platform=NA, estimate.type="ES", p.value.adj=FALSE, verbose=FALSE) {
+    options(timeout=1000)
+    if (all(is.na(universeSet))) {
+        print("The universeSet was not defined. Loading in universeSet based on
+              platform.")
+        if (is.na(platform)) {
+            print("The platform was not defined. Inferring platform from
+                  probeIDs.")
+            platform = inferPlatformFromProbeIDs(querySet)
+        }
+        if (platform == "MM285") {
+            universeSet = get(load(url("http://zhouserver.research.chop.edu/
+                                       sesameData/MM285.mm10.manifest.rda"))
+                              )$Probe_ID
+        } else if (platform == "EPIC") {
+            universeSet = readRDS(url("http://zhouserver.research.chop.edu/
+                                      InfiniumAnnotation/current/EPIC/
+                                      EPIC.hg19.manifest.rds"))$probeID
+        } else if (platform == "HM450") {
+            universeSet = readRDS(url("http://zhouserver.research.chop.edu/
+                                      InfiniumAnnotation/current/HM450/H
+                                      M450.hg19.manifest.rds"))$probeID
+        } else if (platform == "HM27") {
+            universeSet = readRDS(url("http://zhouserver.research.chop.edu/
+                                      InfiniumAnnotation/current/HM27/
+                                      HM27.hg19.manifest.rds"))$probeID
+        }
     }
-    # TODO: decide on what the organization of database sets will be
-    # right now: vector of database set keys
-    # each group of database sets is a list of vectors
-    # right now, this list has only one group of database sets
-    defaultDatabaseSets = c(MM285_TFBS = "http://zhouserver.research.chop.edu/kyCG/20210601_MM285_TFBS_ENCODE.rds")
-    lapply(names(defaultDatabaseSets), function(db) testEnrichment1(sigProbes=query, databaseName = db))
+
+    if (all(is.na(databaseSets))) {
+        print("Database set was not defined. Loading in default database sets of
+              transcription factor binding sites.")
+        databaseSets = readRDS(url("http://zhouserver.research.chop.edu/
+                                   kyCG/20210601_MM285_TFBS_ENCODE.rds"))
+    }
+
+    results = do.call(rbind,
+        lapply(databaseSets,
+            function(databaseSet) testEnrichment1(
+                                    querySet=querySet,
+                                    databaseSet=databaseSet,
+                                    universeSet=universeSet,
+                                    p.value.adj=p.value.adj,
+                                    estimate.type=estimate.type,
+                                    verbose=verbose)
+            ))
+    results = results[order(results$p.value, decreasing=FALSE), ]
+    return(results)
     ## apply multi-test correction, BH, FDR
 }
 
 
-# testEnrichment = function(setQ, setD, setU) {
-testEnrichmentFisher = function(probeIDs, categoryProbes, sigProbes, dbName, instanceName) {
-    # setD = categoryProbes
-    # setQ = sigProbes
-    # setU = probeIDs
+#' testEnrichmentFisher uses Fisher's exact test to estimate the association
+#' between two categorical variables.
+#'
+#' @param querySet Vector of probes of interest (e.g., significant probes)
+#' @param databaseSet Vector of probes corresponding to a single database set
+#' of interest.
+#' @param universeSet Vector of probes in the universe set containing all of
+#' the probes to be considered in the test. (Default: NULL)
+#'
+#' @import stats
+#'
+#' @return A DataFrame with the estimate/statistic, p-value, and name of test
+#' for the given results.
+testEnrichmentFisher = function(querySet, databaseSet, universeSet) {
+    test = "fisher"
+    if (length(intersect(querySet, databaseSet)) == 0) {
+        return(list(estimate=0,
+                    p.value=1,
+                    test=test,
+                    querySetSize=length(querySet),
+                    databaseSetSize = length(databaseSet),
+                    overlap=0
+                    ))
+    }
 
     mtx = matrix(c(
-        length(intersect(sigProbes, categoryProbes)),
-        length(setdiff(categoryProbes, sigProbes)),
-        length(setdiff(sigProbes, categoryProbes)),
-        length(setdiff(probeIDs, union(categoryProbes, sigProbes)))),
+        length(intersect(querySet, databaseSet)),
+        length(setdiff(databaseSet, querySet)),
+        length(setdiff(querySet, databaseSet)),
+        length(setdiff(universeSet, union(databaseSet, querySet)))),
         nrow = 2,
         dimnames = list(
-            Query = c("Q_in","Q_out"),
-            Database = c("D_in","D_out")))
+            querySet = c("Q_in","Q_out"),
+            databaseSet = c("D_in","D_out")))
 
-    test <- fisher.test(mtx)
+    res = fisher.test(mtx)
 
-    result <- data.frame(
-        databaseName = dbName,
-        OddsRatio = test$estimate,
-        P.Value = test$p.value
+    result = data.frame(
+        estimate = calcFoldChange(mtx),
+        p.value = res$p.value,
+        test = test,
+        querySetSize = length(querySet),
+        databaseSetSize = length(databaseSet),
+        overlap = length(intersect(querySet, databaseSet))
     )
     return(result)
 }
 
-#' calculate fold change given a matrix
+
+#' calcFoldChange calculates fold change given a 2x2 matrix of counts.
+#'
+#' @param mtx 2x2 matrix of values corresponding to overlapping counts between
+#' two sets of a categorical variable.
+#'
+#' @return A numerical value corresponding to the fold change enrichment,
 calcFoldChange = function(mtx){
-	num = mtx[1, 1] / (mtx[1, 1] + mtx[1, 2])
-	den = (mtx[1, 1] + mtx[2, 1]) / sum(mtx)
-	num / den
-}
-
-#' create a volcano plot given a filename, fold change (log2), pvalue (-log10), and title (optional), xlabel (optional), ylabel (optional)
-plotVolcano = function(filename, fc, pvalue, title="", xlabel=NA, ylabel=NA) {
-
-    data = na.omit(data.frame(fc=fc,
-        pvalue=pvalue))
-    rownames(data) = 1:nrow(data)
-    colnames(data) = c("log2fc", "pvalue")
-
-    title = gsub('(.{1,80})(\\s|$)', '\\1\n', title)
-
-    if (is.na(xlabel)) {
-        xlabel = "log2 fold change"
-    }
-
-    if (is.na(ylabel)) {
-        ylabel = "-log10 pvalue"
-    }
-
-    pdf(filename, height=50, width=50, onefile=FALSE)
-    ggplot(data=data, aes(x=fc, y=pvalue, color = cut(pvalue, c(2.995732, Inf) ))) + geom_point() +
-    xlab(xlabel) +
-    ylab(ylabel) +
-    labs(title = title, fill = "pvalue") +
-    theme(plot.title = element_text(size=80, face = "bold"),
-        axis.text=element_text(size=48),
-        axis.title=element_text(size=60),
-        legend.title = element_text(size=48),
-        legend.text=element_text(size=40)) # +
-    # scale_color_manual(name = "pvalue", values = c("[2.995732, Inf)" = "red"), labels = c("> 2.995732"))
-    dev.off(0)
+    num = mtx[1, 1] / (mtx[1, 1] + mtx[1, 2])
+    den = (mtx[1, 1] + mtx[2, 1]) / sum(mtx)
+    num / den
 }
 
 
-testEnrichmentFGSEA <- function(category, probeIDs, database, sigProbes, dbName) {
-    pathway <- probeIDs[database == category]
+#' testEnrichmentFGSEA uses the FGSEA test to estimate the association of a
+#' categorical variable against a continuous variable.
+#'
+#' @param querySet Vector of probes of interest (e.g., significant probes)
+#' @param databaseSet Vector of probes corresponding to a single database set
+#' of interest.
+#' @param p.value.adj Logical value indicating whether to report the adjusted
+#' p-value. (Default: FALSE)
+#' @param estimate.type String indicating the estimate to report. (Default:
+#' "ES")
+#'
+#'
+#' @import fgsea
+#'
+#' @return A DataFrame with the estimate/statistic, p-value, and name of test
+#' for the given results.
+testEnrichmentFGSEA = function(querySet, databaseSet, p.value.adj=FALSE,
+                               estimate.type="ES") {
+    test="fgsea"
+    if (length(intersect(querySet, names(databaseSet))) == 0) {
+        return(list(estimate=0,
+                    p.value=1,
+                    test=test,
+                    querySetSize=length(querySet),
+                    databaseSetSize=length(databaseSet),
+                    overlap=0
+                    ))
+    }
+    res = fgsea(pathways=list(pathway=databaseSet), stats=querySet)
 
-    names(sigProbesRank) <- sigProbes
-    result <- fgsea(pathways = list(category = pathway), stats = sigProbes)
-    result$pathway <- db
+    if (p.value.adj) {
+        p.value = res$padj
+    } else {
+        p.value = res$pval
+    }
+
+    if (estimate.type == "log2err") {
+        estimate = res$log2err
+    } else if (estimate.type == "NES") {
+        estimate = res$NES
+    } else if (estimate.type == "leadingEdge") {
+        estimate = res$leadingEdge
+    } else if (estimate.type == "ES") {
+        estimate = res$ES
+    } else {
+        print(sprintf("Incorrect estimate.type: [", estimate.type, "].",
+                      sep=""))
+        return(NULL)
+    }
+
+    result = data.frame(
+        estimate = estimate,
+        p.value = p.value,
+        test = test
+    )
     return(result)
 }
 
-testEnrichmentSpearman <- function(sigProbes, database, dbName) {
-    test <- cor.test(
-        sigProbes,
-        database,
-        method = 'spearman'
+
+#' testEnrichmentSpearman uses the spearman test to estimate the association
+#' between two continuous variables.
+#'
+#' @param querySet Vector of probes of interest (e.g., significant probes)
+#' @param databaseSet Vector of probes corresponding to a single database set
+#' of interest.
+#'
+#' @import stats
+#'
+#' @return A DataFrame with the estimate/statistic, p-value, and name of test
+#' for the given results.
+testEnrichmentSpearman = function(querySet, databaseSet) {
+    test = "spearman"
+    if (length(intersect(names(querySet), names(databaseSet))) == 0) {
+        return(list(estimate=0,
+                    p.value=1,
+                    test=test,
+                    querySetSize=length(querySet),
+                    databaseSetSize=length(databaseSet),
+                    overlap=0
+                    ))
+    }
+    res = cor.test(
+        querySet,
+        querySet,
+        method = test
     )
-    result <- data.frame(
-        DatabaseAccession = dbName,
-        rho = test$estimate,
-        P.Value = test$p.value
+    result = data.frame(
+        estimate = res$estimate[[1]],
+        p.value = res$p.value,
+        test = test
     )
     return(result)
 }
+
+# do for MM285, EPIC, HM450
+# database sets: CA, cpg density, probes with genetic variation last five base
+# on 3' extension base (wubin), Infinium annotation
+# https://github.com/zhou-lab/knowYourCpG

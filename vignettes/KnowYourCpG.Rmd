@@ -84,28 +84,28 @@ print(length(databaseSet[[1]]))
 
 For the sake of proof of concept, let's create a couple continious probe sets.
 
-``` {r create-continuous-data}
+``` {r create-continuous-data, echo=FALSE}
 databaseSetsCont = lapply(databaseSet, function(db) setNames(runif(length(db), 1, 100), db))
 querySetCont = setNames(runif(length(querySet), 1, 100), querySet)
 ```
 
 We know wish to assess whether this set of probes is enriched in any of the features. We do so by passing this probe set to testEnrichmentAll.
 
-```{r run-test-few}
+```{r run-test-few, eval=FALSE}
 ## Case 1
 results = list()
 
-results[[1]] = testEnrichmentAll(querySet=querySetCont, databaseSets=databaseSetsCont, platform="MM285", verbose=T)
+results[[1]] = testEnrichmentAll(querySet=querySetCont, databaseSets=databaseSetsCont, platform="MM285", verbose=TRUE)
 
 ## Case 2
-results[[2]] = testEnrichmentAll(querySet=querySetCont, databaseSets=databaseSet, platform="MM285", verbose=T)
+results[[2]] = testEnrichmentAll(querySet=querySetCont, databaseSets=databaseSet, platform="MM285", verbose=TRUE)
 
 ## Case 3
-results[[3]] = testEnrichmentAll(querySet=querySet, databaseSets=databaseSetsCont, platform="MM285", verbose=T)
+results[[3]] = testEnrichmentAll(querySet=querySet, databaseSets=databaseSetsCont, platform="MM285", verbose=TRUE)
 
 
 ## Case 4
-results[[4]] = testEnrichmentAll(querySet=querySet, databaseSets=databaseSet, platform="MM285", verbose=T)
+results[[4]] = testEnrichmentAll(querySet=querySet, databaseSets=databaseSet, platform="MM285", verbose=TRUE)
 
 results = do.call(rbind, results)
 
@@ -116,26 +116,38 @@ The output of each test contains three variables: the estimate, p-value, and typ
 
 In the above four examples, the database sets were specified. In the aforementioned introduction, it was mentioned that this does not have to be the case as we load database sets when none have been provided. Currently our default database sets are transcription factor bining sites. 
 
-```{r run-test-all}
+```{r run-test-all, echo=FALSE}
 results = testEnrichmentAll(querySet=querySet, platform="MM285")
 print(head(results))
 ```
 
 Using these sample results, we can plot a volcano plot 
 
-```{r plot-volcano, fig.width=7, fig.height=4}
+```{r plot-volcano, fig.width=7, fig.height=4, echo=FALSE}
 plotVolcano(data=results, title="Transcription Factor Binding Site Enrichment")
 ```
 
 
-
 Use age clock from sesameDataGet(MM285.clock.347), use as postive control, try to identify polycomb targets
 
-```{r}
+```{r, echo=FALSE}
 # sesameDataList
 # meta = read_excel("/Users/ethanmoyer/Dropbox/Ongoing_knowYourCpG/20210329_MM285_databaseSets.xlsx", "meta")
 
 ```
 
+``` {r, echo=FALSE}
+# library(readxl)
 
+# meta = read_excel("/Users/ethanmoyer/Dropbox/ZhouLab/Lab Data/SampleSheets/2021/20210712__All_GEOsamples.xlsx")
+
+# platform = "EPIC"
+
+# filenames = meta$
+
+
+# databaseSets = databaseSetGet(platform=platforn)
+
+# dataset = buildStatisticDataSet(filenames, databaseSets=databaseSets)
+```
 

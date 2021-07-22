@@ -2,27 +2,51 @@
 % Please edit documentation in R/analyze.R
 \name{testEnrichmentAll}
 \alias{testEnrichmentAll}
-\title{Test for enriched categories of CpGs
-testEnrichmentAll tests a default set of categories (database sets) for enrichment
-in the provided vector of CpGs (sigProbes).}
+\title{testEnrichmentAll tests for the enrichment of set of probes (query set) in
+a number of features (database sets).}
 \usage{
-testEnrichmentAll(sigProbes, sigProbesRank = NULL, databaseSets = NULL)
+testEnrichmentAll(
+  querySet,
+  databaseSets = NA,
+  universeSet = NA,
+  platform = NA,
+  estimate.type = "ES",
+  p.value.adj = FALSE,
+  verbose = FALSE
+)
 }
 \arguments{
-\item{sigProbes}{Vector of probes of interested (e.g., significant probes)}
+\item{querySet}{Vector of probes of interest (e.g., significant probes)}
 
-\item{sigProbesRank}{Numerical ranking for sigProbes such as P-values. Optional. (Default: NULL)}
+\item{databaseSets}{List of vectors of probes corresponding to multiple
+database sets. Optional. (Default: NA)}
 
-\item{databaseSets}{Vector of database sets of interest. Optional. (Default: NULL)}
+\item{universeSet}{Vector of probes in the universe set containing all of
+the probes to be considered in the test. If it is not provided, it will be
+inferred from the provided platform. (Default: NA)}
+
+\item{platform}{String corresponding to the type of platform to use. Either
+MM285, EPIC, HM450, or HM27. If it is not provided, it will be inferred
+from the query set probeIDs (Default: NA)}
+
+\item{estimate.type}{String indicating the estimate to report. (Default:
+"ES")}
+
+\item{p.value.adj}{Logical value indicating whether to report the adjusted
+p-value. (Default: FALSE)}
+
+\item{verbose}{Logical value indicating whether to display intermediate
+text output about the type of test. Optional. (Default: FALSE)}
 }
 \value{
-A list of two tables, one each for database sets of categorical vs continuous
-values. The tables rank database sets by odds ratio (Fisher's exact test,
-categorical sigProbes and categorical database set), or P-value (FGSEA or Spearman, categorical vs
-continuous or continuous vs continuous respectively).
+One list containing features corresponding the test estimate,
+p-value, and type of test.
 }
 \description{
-Test for enriched categories of CpGs
-testEnrichmentAll tests a default set of categories (database sets) for enrichment
-in the provided vector of CpGs (sigProbes).
+testEnrichmentAll tests for the enrichment of set of probes (query set) in
+a number of features (database sets).
+}
+\examples{
+testEnrichmentAll(c("cg0000029"))
+
 }
