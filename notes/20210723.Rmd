@@ -1,0 +1,25 @@
+# 20210731 Meeting
+1. [x?] Cache on file level and memory level
+    a. Systems engineering problem, optimize what is loaded in memory
+    b. https://bioconductor.org/packages/release/bioc/html/BiocFileCache.html
+2. EWAS validation, disocvery?
+    a. Database sets must be related to associated variable under study
+        i. PM20DI in Alzheimer's EWAS
+        ii. Smoking?
+        iii. e.g. https://www.nature.com/articles/s41431-018-0229-9
+3. Network showing pairwise distnaces between database sets
+    a. Find redundancy
+    b. Identify community subgraphs/structures in the network, densly connected
+    subgraphs, analyze different subgraphs separately
+    b. OPTIONAL: Reconstruct biological mechanisms, transcription regulation 
+    network
+4. [x] Find continious database/query set examples to show in Vignette
+    a. FGSEA and Spearman
+5. [x] Tissue specific hypomethylation in mouse validation; i.e. like Brain
+    a. Figure should show top hits, volcano plot?
+
+# 20210806 Idea
+Could we perform a memory-level cahce by ording the bfc in term of most recently used and track which files are currnetly loaded in a separate column and only load the most recent ones and unload the older ones?
+
+Or we could FIFO queue 
+Or we could do batching of databaseSets for every querySet

@@ -5,7 +5,7 @@
 \title{plotVolcano creates a volcano plot of -log2(p.value) and log(estimate)
 given data with fields estimate and p.value.}
 \usage{
-plotVolcano(data, title = NA, xlabel = NA, ylabel = NA)
+plotVolcano(data, title = NA, subtitle = NA)
 }
 \arguments{
 \item{data}{DataFrame where each field is a database name with two fields
@@ -13,17 +13,18 @@ for the estimate and p.value.}
 
 \item{title}{String representing the title label. Optional. (Default: NA)}
 
-\item{xlabel}{String representing the x-axis label. Optional. (Default:
-NA)}
-
-\item{ylabel}{String representing the y-axis label. Optional. (Default:
+\item{subtitle}{String representing the subtitle label. Optional. (Default:
 NA)}
 }
 \value{
-A DataFrame with the estimate/statistic, p-value, and name of test
-for the given results.
+ggplot volcano plot
 }
 \description{
 plotVolcano creates a volcano plot of -log2(p.value) and log(estimate)
 given data with fields estimate and p.value.
+}
+\examples{
+data=data.frame(estimate=c(runif(10)), p.value=c(runif(10)))
+plotVolcano(data)
+
 }

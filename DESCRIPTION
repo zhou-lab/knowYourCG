@@ -4,7 +4,7 @@ Title: Automatic Hypothesis Testing & Methylome Feature Engineering
 Version: 0.1.0
 Authors: Ethan Jacob Moyer
 Authors@R: c(person("Moyer", "Ethan", role = c("aut","cre"),
-             email = "ethan.jacob.moyer@gmail.com"))
+             email = "ejm374@drexel.edu"))
 Description: This package automates the hypothesis testing process by testing
     the enrichment of different pre-curated sets of CpGs. Each CpG set, or 
     databaseSet, corresponds to a genomic or technical element that aims
@@ -19,8 +19,20 @@ RoxygenNote: 7.1.1
 Imports:
     fgsea,
     ggplot2,
+    ggrepel,
+    GenomicRanges,
+    stats4,
+    BiocGenerics,
+    parallel,
+    S4Vectors,
+    readxl, 
     stats,
-    utils
+    utils,
+    BiocFileCache,
+    dbplyr,
+    tools,
+    GenomeInfoDb,
+    IRanges
 biocViews:
     Epigenetics, 
     DNAMethylation, 

@@ -4,17 +4,20 @@
 \alias{databaseSetGet}
 \title{databaseSetGet retrieves database sets from a meta data sheet by querying the array, group, and reference columns. The data is returned as a list where the names correspond to chosen database sets.}
 \usage{
-databaseSetGet(keys = -1, platform = NA)
+databaseSetGet(keys = -1, group = NA, platform = NA, cacheLoc = "")
 }
 \arguments{
 \item{keys}{vector containing the keys associated with the selected
 databaseSets; only non-NA locations will be returned.}
 
+\item{group}{string representing the group for which the databaseSets will
+be returned.}
+
 \item{platform}{string representing the platform (EPIC, HM450, HM27, MM285)
-for which database sets will be returned.}
+for which databaseSets will be returned.}
 }
 \value{
-One list containing features corresponding the test estimate, p-value, and type of test.
+One list of vectors corresponding to aggregated databaseSets.
 }
 \description{
 databaseSetGet retrieves database sets from a meta data sheet by querying the array, group, and reference columns. The data is returned as a list where the names correspond to chosen database sets.

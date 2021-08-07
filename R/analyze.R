@@ -1,3 +1,17 @@
+baseurl = "http://zhouserver.research.chop.edu"
+source("R/data.R")
+
+testDatabaseSetRedundancy = function(databaseSets=NA,
+                                     estimate.type="ES",
+                                     p.value.adj=FALSE,
+                                     verbose=FALSE) {
+
+
+
+
+
+}
+
 #' testEnrichment1 tests for the enrichment of set of probes (query set) in a
 #' single given feature (database set)
 #'
@@ -23,16 +37,14 @@ testEnrichment1 = function(querySet, databaseSet, universeSet,
     if (is.numeric(querySet)) { # a named vector of continuous value
         if(is.numeric(databaseSet)) { # numeric db
             if (verbose) {
-                cat("Query set: Continuous\t
-                    Database set: Continuous\t[Spearman test]\n")
+                cat("Query set: Continuous\tDatabase set: Continuous\t[Spearman test]\n")
             }
             results = testEnrichmentSpearman(
                 querySet=querySet,
                 databaseSet=databaseSet)
         } else {
             if (verbose) {
-                cat("Query set: Continuous\t
-                    Database set: Discrete\t[FGSEA test]\n")
+                cat("Query set: Continuous\tDatabase set: Discrete\t[FGSEA test]\n")
             }
             results = testEnrichmentFGSEA(
                 querySet=querySet,
@@ -44,8 +56,7 @@ testEnrichment1 = function(querySet, databaseSet, universeSet,
         if(is.numeric(databaseSet)) { # numeric db
             ## do fgsea(switched arguments)
             if (verbose) {
-                cat("Query set: Discrete\t
-                    Database set: Continuous\t[FGSEA test]\n")
+                cat("Query set: Discrete\tDatabase set: Continuous\t[FGSEA test]\n")
             }
             results = testEnrichmentFGSEA(
                 querySet=databaseSet,
@@ -54,8 +65,7 @@ testEnrichment1 = function(querySet, databaseSet, universeSet,
                 estimate.type=estimate.type)
         } else { # categorical db
             if (verbose) {
-                cat("Query set: Discrete\t
-                    Database set: Discrete\t\t[Fisher exact test]\n")
+                cat("Query set: Discrete\tDatabase set: Discrete\t\t[Fisher exact test]\n")
             }
             results = testEnrichmentFisher(
                 querySet=querySet,
@@ -64,21 +74,6 @@ testEnrichment1 = function(querySet, databaseSet, universeSet,
         }
     }
     return(results)
-}
-
-
-#' inferPlatformFromProbeIDs infers the Infinium MicroArray platform using the
-#' given probeIDs
-#'
-#' @param probeIDs Vector of probes of interest (e.g., probes belonging to a
-#' given platform)
-#'
-#' @return String corresponding to the inferred platform
-inferPlatformFromProbeIDs = function(probeIDs) {
-    sig = get(load(url("https://zhouserver.research.chop.edu/
-                       sesameData/probeIDSignature.rda")))$probeID
-    names(which.max(vapply(
-        sig, function(x) sum(probeIDs %in% x), integer(1))))
 }
 
 
@@ -108,57 +103,118 @@ inferPlatformFromProbeIDs = function(probeIDs) {
 #' testEnrichmentAll(c("cg0000029"))
 #'
 #' @export
-testEnrichmentAll = function(querySet, databaseSets=NA, universeSet=NA, platform=NA, estimate.type="ES", p.value.adj=FALSE, verbose=FALSE) {
+testEnrichmentAll = function(querySet, databaseSets=NA, universeSet=NA,
+                             platform=NA, estimate.type="ES", p.value.adj=FALSE,
+                             verbose=FALSE) {
     options(timeout=1000)
     if (all(is.na(universeSet))) {
-        print("The universeSet was not defined. Loading in universeSet based on
-              platform.")
+        if (verbose) {
+            print("The universeSet was not defined. Loading in universeSet based on platform.")
+        }
         if (is.na(platform)) {
-            print("The platform was not defined. Inferring platform from
-                  probeIDs.")
+            if (verbose) {
+                print("The platform was not defined. Inferring platform from probeIDs.")
+            }
             platform = inferPlatformFromProbeIDs(querySet)
         }
-        if (platform == "MM285") {
-            universeSet = get(load(url("http://zhouserver.research.chop.edu/
-                                       sesameData/MM285.mm10.manifest.rda"))
-                              )$Probe_ID
-        } else if (platform == "EPIC") {
-            universeSet = readRDS(url("http://zhouserver.research.chop.edu/
-                                      InfiniumAnnotation/current/EPIC/
-                                      EPIC.hg19.manifest.rds"))$probeID
-        } else if (platform == "HM450") {
-            universeSet = readRDS(url("http://zhouserver.research.chop.edu/
-                                      InfiniumAnnotation/current/HM450/H
-                                      M450.hg19.manifest.rds"))$probeID
-        } else if (platform == "HM27") {
-            universeSet = readRDS(url("http://zhouserver.research.chop.edu/
-                                      InfiniumAnnotation/current/HM27/
-                                      HM27.hg19.manifest.rds"))$probeID
-        }
+        universeSet = getUniverseSet(platform)
     }
 
     if (all(is.na(databaseSets))) {
-        print("Database set was not defined. Loading in default database sets of
-              transcription factor binding sites.")
-        databaseSets = readRDS(url("http://zhouserver.research.chop.edu/
-                                   kyCG/20210601_MM285_TFBS_ENCODE.rds"))
+        if (verbose) {
+            print("Database set was not defined. Loading in default database
+                  sets of transcription factor binding sites.")
+        }
+
+        databaseSets = readRDS(url(sprintf("%s/kyCG/20210601_MM285_TFBS_ENCODE.rds",
+                                           baseurl)))
     }
 
-    results = do.call(rbind,
-        lapply(databaseSets,
-            function(databaseSet) testEnrichment1(
-                                    querySet=querySet,
-                                    databaseSet=databaseSet,
-                                    universeSet=universeSet,
-                                    p.value.adj=p.value.adj,
-                                    estimate.type=estimate.type,
-                                    verbose=verbose)
-            ))
+    # store url ending in variable
+
+    results = data.frame(do.call(rbind,
+                      lapply(databaseSets,
+                             function(databaseSet) testEnrichment1(
+                                 querySet=querySet,
+                                 databaseSet=databaseSet,
+                                 universeSet=universeSet,
+                                 p.value.adj=p.value.adj,
+                                 estimate.type=estimate.type,
+                                 verbose=verbose)
+                      )))
+
     results = results[order(results$p.value, decreasing=FALSE), ]
     return(results)
     ## apply multi-test correction, BH, FDR
 }
 
+
+#' testEnrichmentGene tests for the enrichment of set of probes
+#' (querySet) in gene regions.
+#'
+#' @param querySet Vector of probes of interest (e.g., probes belonging to a
+#' given platform)
+#' @param platform String corresponding to the type of platform to use. Either
+#' MM285, EPIC, HM450, or HM27. If it is not provided, it will be inferred
+#' from the query set querySet (Default: NA)
+#' @param verbose Logical value indicating whether to display intermediate
+#' text output about the type of test. Optional. (Default: FALSE)
+#'
+#' @return One list containing features corresponding the test estimate,
+#' p-value, and type of test.
+#'
+#' @examples
+#' testEnrichmentGene(c("cg0000029"), platform="EPIC")
+#'
+#' @export
+testEnrichmentGene = function(querySet, platform=NA, verbose=FALSE) {
+    if (is.na(platform)) {
+        if (verbose) {
+            print("The platform was not defined. Inferring platform from probeIDs.")
+        }
+        platform = inferPlatformFromProbeIDs(querySet)
+    }
+    probeID2gene = getProbeID2Gene(platform)
+
+    # databaseSetNames = c()
+    #
+    # for (i in 1:length(querySet)) {
+    #     querySet_ = querySet[(2500 * (i - 1) + 1):(2500 * i)]
+    #     databaseSetNames_ = probeID2gene$genesUniq[grep(paste(querySet_, collapse="|"),
+    #                                 probeID2gene$probeID)]
+    #     databaseSetNames = append(databaseSetNames, databaseSetNames_)
+    # }
+
+    databaseSetNames = probeID2gene$genesUniq[grep(paste(querySet, collapse="|"),
+                                                    probeID2gene$probeID)]
+
+    databaseSetNames = na.omit(unique(
+        unlist(lapply(databaseSetNames,
+                      function(databaseSetName) {
+                          strsplit(databaseSetName, ";")
+                          }))))
+
+    if (length(databaseSetNames) == 0) return(NULL)
+
+    databaseSets = databaseSetGet(group="GeneAssociation", platform=platform)
+
+    databaseSets = databaseSets[names(databaseSets) %in% databaseSetNames]
+
+    return(testEnrichmentAll(querySet, databaseSets, platform=platform))
+}
+
+#' inferPlatformFromProbeIDs infers the Infinium MicroArray platform using the
+#' given probeIDs
+#'
+#' @param probeIDs Vector of probes of interest (e.g., probes belonging to a
+#' given platform)
+#'
+#' @return String corresponding to the inferred platform
+inferPlatformFromProbeIDs = function(probeIDs) {
+    sig = get(load(url(sprintf("%s/sesameData/probeIDSignature.rda", baseurl))))
+    names(which.max(vapply(
+        sig, function(x) sum(probeIDs %in% x), integer(1))))
+}
 
 #' testEnrichmentFisher uses Fisher's exact test to estimate the association
 #' between two categorical variables.
@@ -176,7 +232,7 @@ testEnrichmentAll = function(querySet, databaseSets=NA, universeSet=NA, platform
 testEnrichmentFisher = function(querySet, databaseSet, universeSet) {
     test = "fisher"
     if (length(intersect(querySet, databaseSet)) == 0) {
-        return(list(estimate=0,
+        return(data.frame(estimate=0,
                     p.value=1,
                     test=test,
                     querySetSize=length(querySet),
@@ -235,14 +291,19 @@ calcFoldChange = function(mtx){
 #'
 #'
 #' @import fgsea
+#' @import BiocGenerics
+#' @import GenomeInfoDb
+#' @import GenomicRanges
+#' @import IRanges
+#' @import S4Vectors
 #'
 #' @return A DataFrame with the estimate/statistic, p-value, and name of test
 #' for the given results.
 testEnrichmentFGSEA = function(querySet, databaseSet, p.value.adj=FALSE,
                                estimate.type="ES") {
     test="fgsea"
-    if (length(intersect(querySet, names(databaseSet))) == 0) {
-        return(list(estimate=0,
+    if (length(intersect(names(querySet), databaseSet)) == 0) {
+        return(data.frame(estimate=0,
                     p.value=1,
                     test=test,
                     querySetSize=length(querySet),
@@ -267,8 +328,7 @@ testEnrichmentFGSEA = function(querySet, databaseSet, p.value.adj=FALSE,
     } else if (estimate.type == "ES") {
         estimate = res$ES
     } else {
-        print(sprintf("Incorrect estimate.type: [", estimate.type, "].",
-                      sep=""))
+        print(sprintf("Incorrect estimate.type: [%s].", estimate.type))
         return(NULL)
     }
 
@@ -295,7 +355,7 @@ testEnrichmentFGSEA = function(querySet, databaseSet, p.value.adj=FALSE,
 testEnrichmentSpearman = function(querySet, databaseSet) {
     test = "spearman"
     if (length(intersect(names(querySet), names(databaseSet))) == 0) {
-        return(list(estimate=0,
+        return(data.frame(estimate=0,
                     p.value=1,
                     test=test,
                     querySetSize=length(querySet),
@@ -305,7 +365,7 @@ testEnrichmentSpearman = function(querySet, databaseSet) {
     }
     res = cor.test(
         querySet,
-        querySet,
+        databaseSet,
         method = test
     )
     result = data.frame(
@@ -315,8 +375,3 @@ testEnrichmentSpearman = function(querySet, databaseSet) {
     )
     return(result)
 }
-
-# do for MM285, EPIC, HM450
-# database sets: CA, cpg density, probes with genetic variation last five base
-# on 3' extension base (wubin), Infinium annotation
-# https://github.com/zhou-lab/knowYourCpG
