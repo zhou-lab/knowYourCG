@@ -185,8 +185,7 @@ testEnrichmentGene = function(querySet, platform=NA, verbose=FALSE) {
     #     databaseSetNames = append(databaseSetNames, databaseSetNames_)
     # }
 
-    databaseSetNames = probeID2gene$genesUniq[grep(paste(querySet, collapse="|"),
-                                                    probeID2gene$probeID)]
+    databaseSetNames = probeID2gene$genesUniq[match(querySet, probeID2gene$probeID)]
 
     databaseSetNames = na.omit(unique(
         unlist(lapply(databaseSetNames,

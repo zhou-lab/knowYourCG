@@ -3,9 +3,3 @@
 Mouse array
 1. Find probes related to SNPs for backlist
 2. Explore additive effect of different factors in interaction
-
-# KnowYourCpG
-
-Look into for networks CytoScape
-
-Focus on min for distToTSSMin

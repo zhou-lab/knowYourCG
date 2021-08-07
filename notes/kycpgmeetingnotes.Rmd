@@ -18,8 +18,21 @@
 5. [x] Tissue specific hypomethylation in mouse validation; i.e. like Brain
     a. Figure should show top hits, volcano plot?
 
-# 20210806 Idea
+# 20210806
 Could we perform a memory-level cahce by ording the bfc in term of most recently used and track which files are currnetly loaded in a separate column and only load the most recent ones and unload the older ones?
 
+# 20210807
 Or we could FIFO queue 
 Or we could do batching of databaseSets for every querySet
+
+1. Work on memory level caching
+2. Fix the Dist2TSS database set
+    a. Focus on min for distToTSS
+    b. Use bedtools closest -d to find those TSS that are closest to a given probe, gene body independent distance.
+    c. Use /mnt/isilon/zhou_lab/projects/20191221_references/mm10/annotation/transcripts/gencode.v28.annotation.gtf.tss.bed
+3. Work on testDatabaseSetRedundancy, use Jacard Index?
+    a. Display using CytoScape
+
+
+
+

@@ -30,7 +30,7 @@ BiocManager::install("KnowYourCpG")
 
 To install the development version directly from GitHub
 ```{r install-kycpg-github, eval=FALSE}
-BiocManager::install('zwdzwd/KnowYourCpG')
+BiocManager::install('zhoulab/KnowYourCpG')
 ```
 
 ## Load KnowYourCpG
@@ -62,7 +62,7 @@ options(warn=-1)
 
 KnowYourCpG has one main function: testEnrichmentAll. This function has one required argument: querySet, which is a vector containing the Illumina Probe IDs of interest. These probe IDs might, for example, be the results of an epigenome-wide association study.
 
-![Four testing scenarios of KnowYourCpG](/Users/ethanmoyer/Projects/chop/knowYourCpGPackage/images/20210627_kycpg_tests.png){width=75%}
+![Four testing scenarios of KnowYourCpG](images/20210627_kycpg_tests.png){width=75%}
 
 ## Data Format  
 
