@@ -37,7 +37,7 @@ databaseSetGet = function(keys=NA, group=NA, platform=NA, reference=NA,
     }
 
     if (dev) {
-        meta = read_excel("/Users/ethanmoyer/Dropbox/Ongoing_knowYourCpG/20210710_databaseSets.xlsx", "R2 In Progress")
+        meta = read_excel("%s/Dropbox/Ongoing_knowYourCpG/20210710_databaseSets.xlsx", "R2 In Progress", Sys.getenv("HOME"))
         meta = meta[as.logical(meta$Development), ]
     } else {
         meta = read.table(url(sprintf("%s/kyCG/RELEASE_%s.csv",
