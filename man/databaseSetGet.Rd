@@ -2,27 +2,53 @@
 % Please edit documentation in R/data.R
 \name{databaseSetGet}
 \alias{databaseSetGet}
-\title{databaseSetGet retrieves database sets from a meta data sheet by querying the array, group, and reference columns. The data is returned as a list where the names correspond to chosen database sets.}
+\title{databaseSetGet retrieves database sets from a meta data sheet by querying the
+group, platform, reference columns. The data is returned as a list where the
+names correspond to chosen databaseSets.}
 \usage{
-databaseSetGet(keys = -1, group = NA, platform = NA, cacheLoc = "")
+databaseSetGet(
+  keys = NA,
+  group = NA,
+  platform = NA,
+  reference = NA,
+  cacheLoc = "",
+  release = 2,
+  dev = TRUE,
+  verbose = TRUE
+)
 }
 \arguments{
-\item{keys}{vector containing the keys associated with the selected
-databaseSets; only non-NA locations will be returned.}
-
 \item{group}{string representing the group for which the databaseSets will
-be returned.}
+be returned. Optional. (Default: NA).}
 
 \item{platform}{string representing the platform (EPIC, HM450, HM27, MM285)
-for which databaseSets will be returned.}
+for which databaseSets will be returned. Optional. (Default: NA).}
+
+\item{cacheLoc}{String corresponding to the local filesystem location of
+where the cache should be stored. Optional. (Default: "").}
+
+\item{release}{Integer indicating the release number of the databaseSet
+manifest to use. Optional. (Defualt: 2).}
+
+\item{dev}{Logical value indiciating whether to use development version
+of the manifest file. Optional. (Default: TRUE).}
+
+\item{verbose}{Logical value indicating whether intermediate outputs will be
+displayed to console. Optional. (Default: TRUE).}
+
+\item{accessions}{vector containing the characters associated with the
+selected databaseSets; only non-NA locations will be returned. Optional.
+(Default: c("20210810_MM285_TFBS_ENCODE").}
 }
 \value{
 One list of vectors corresponding to aggregated databaseSets.
 }
 \description{
-databaseSetGet retrieves database sets from a meta data sheet by querying the array, group, and reference columns. The data is returned as a list where the names correspond to chosen database sets.
+databaseSetGet retrieves database sets from a meta data sheet by querying the
+group, platform, reference columns. The data is returned as a list where the
+names correspond to chosen databaseSets.
 }
 \examples{
-databaseSetGet(c(1))
+databaseSetGet()
 
 }

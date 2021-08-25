@@ -1,5 +1,5 @@
 # 20210731 Meeting
-1. [x?] Cache on file level and memory level
+1. [x] Cache on file level and memory level
     a. Systems engineering problem, optimize what is loaded in memory
     b. https://bioconductor.org/packages/release/bioc/html/BiocFileCache.html
 2. EWAS validation, disocvery?
@@ -19,20 +19,46 @@
     a. Figure should show top hits, volcano plot?
 
 # 20210806
-Could we perform a memory-level cahce by ording the bfc in term of most recently used and track which files are currnetly loaded in a separate column and only load the most recent ones and unload the older ones?
+Could we perform a memory-level caches by ording the bfc in term of most recently used and track which files are currnetly loaded in a separate column and only load the most recent ones and unload the older ones?
 
 # 20210807
-Or we could FIFO queue 
-Or we could do batching of databaseSets for every querySet
-
-1. Work on memory level caching
-2. Fix the Dist2TSS database set
+1. [x] Work on memory level caching with FIFO or batching databaseSets for every querySet
+2. [x] Fix the Dist2TSS database set
     a. Focus on min for distToTSS
     b. Use bedtools closest -d to find those TSS that are closest to a given probe, gene body independent distance.
     c. Use /mnt/isilon/zhou_lab/projects/20191221_references/mm10/annotation/transcripts/gencode.v28.annotation.gtf.tss.bed
-3. Work on testDatabaseSetRedundancy, use Jacard Index?
-    a. Display using CytoScape
+3. [x] Work on testDatabaseSetRedundancy.
+    a. Use Jacard Index for distance metric?
+    b. Display using CytoScape
 
+# 20210807
+What do we do with the cache when the server is updated? Do we have to change the filename? Can we cross the cache with the modified times on the server?
 
+# 20210814
+1. Incoporate the getDatabaseSetPairwiseDistance function into vigenette and clean
+    a. How would you visualize where a query set is within a network? Similarity 
+    network would allow us to observe network similarities.
+2. Meta data in each database set should be list as opposed to vector
+    a. Once formatted, add to R2
+3. [x] Attach meta data back to test results (for testEnrichmentAll)
+4. Cluster the TFBS pairwise distance matrix
+    a. Explore and maybe allow the user to do the clustering themselves
+5. [x] getCGAnnotation: input: one cpg; output: all database sets that contain that cpg
+6. [x] Update date prefix to Dist2TSS database set and add to Release 2
 
+# 20210820
+Can we use the ClinVar database? 
+https://www.ncbi.nlm.nih.gov/clinvar
 
+# 20210821
+1. Investigate confoudning technical factors in existing EWAS. 
+    a. [x] Add column in spreadsheet 'BroadCategory'? for 'Technical' group and such. 
+    b. [] Add 'testEnrichmentFactors' for these EWAS studies.
+2. Benchmark caching for a given release and make it under 5 min. Caching should be one time thing.
+3. [x] Move environmental variable to a given location on disk or let the user specify where they want it downloaded.
+    a. [x] Priotize environmental variable for advanced user
+    b. [x] Basic user use /knowYourCpGPackage/databaseSets
+    c. Or organize it in experimental hub package
+4. [x] Separate development and production databaseSets; add 'Development' column in meta data.
+5. [x] Change CA to ChromatinAccessibility and HM to HistoneMod
+6. [] Prepare readable and reproducible vignette for GitHub and for others to use to test the software (Chis Jones)

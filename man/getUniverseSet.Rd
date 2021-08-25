@@ -4,11 +4,14 @@
 \alias{getUniverseSet}
 \title{getUniverseSet retrieves universe set of a given array.}
 \usage{
-getUniverseSet(platform)
+getUniverseSet(platform, verbose = TRUE)
 }
 \arguments{
 \item{platform}{string representing the platform (EPIC, HM450, HM27, MM285)
 for which databaseSets will be returned.}
+
+\item{verbose}{Logical value indicating whether intermediate outputs will be
+displayed to console. Optional. (Default: TRUE).}
 }
 \value{
 Vector of strings corresponding to the ProbeIDs on a given array.
@@ -17,6 +20,6 @@ Vector of strings corresponding to the ProbeIDs on a given array.
 getUniverseSet retrieves universe set of a given array.
 }
 \examples{
-getUniverseSet("MM285")
+getUniverseSet("MM285.mm10.manifest")
 
 }

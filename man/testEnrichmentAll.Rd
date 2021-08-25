@@ -12,14 +12,16 @@ testEnrichmentAll(
   platform = NA,
   estimate.type = "ES",
   p.value.adj = FALSE,
+  release = 2,
   verbose = FALSE
 )
 }
 \arguments{
 \item{querySet}{Vector of probes of interest (e.g., significant probes)}
 
-\item{databaseSets}{List of vectors of probes corresponding to multiple
-database sets. Optional. (Default: NA)}
+\item{databaseSets}{List of vectors corresponding to the databaseSets of
+interest with associated meta data as an attribute to each element. Optional.
+(Default: NA)}
 
 \item{universeSet}{Vector of probes in the universe set containing all of
 the probes to be considered in the test. If it is not provided, it will be

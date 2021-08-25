@@ -1,26 +1,51 @@
 baseurl = "http://zhouserver.research.chop.edu"
 
-#' databaseSetGet retrieves database sets from a meta data sheet by querying the array, group, and reference columns. The data is returned as a list where the names correspond to chosen database sets.
+#' databaseSetGet retrieves database sets from a meta data sheet by querying the
+#' group, platform, reference columns. The data is returned as a list where the
+#' names correspond to chosen databaseSets.
 #'
-#' @param keys vector containing the keys associated with the selected
-#' databaseSets; only non-NA locations will be returned.
+#' @param accessions vector containing the characters associated with the
+#' selected databaseSets; only non-NA locations will be returned. Optional.
+#' (Default: c("20210810_MM285_TFBS_ENCODE").
 #' @param group string representing the group for which the databaseSets will
-#' be returned.
+#' be returned. Optional. (Default: NA).
 #' @param platform string representing the platform (EPIC, HM450, HM27, MM285)
-#' for which databaseSets will be returned.
+#' for which databaseSets will be returned. Optional. (Default: NA).
+#' @param cacheLoc String corresponding to the local filesystem location of
+#' where the cache should be stored. Optional. (Default: "").
+#' @param release Integer indicating the release number of the databaseSet
+#' manifest to use. Optional. (Defualt: 2).
+#' @param dev Logical value indiciating whether to use development version
+#' of the manifest file. Optional. (Default: TRUE).
+#' @param verbose Logical value indicating whether intermediate outputs will be
+#' displayed to console. Optional. (Default: TRUE).
 #'
 #' @return One list of vectors corresponding to aggregated databaseSets.
 #'
 #' @examples
-#' databaseSetGet(c(1))
+#' databaseSetGet()
+#'
+#' @import readxl
 #'
 #' @export
-databaseSetGet = function(keys=-1, group=NA, platform=NA, cacheLoc="") {
+databaseSetGet = function(keys=NA, group=NA, platform=NA, reference=NA,
+                          cacheLoc="", release=2, dev=TRUE, verbose=TRUE) {
     options(timeout=1000)
-    meta = readRDS(url(sprintf("%s/kyCG/20210710_databaseSets.rds", baseurl)))
 
-    if (keys >= 0) {
-        meta = meta[match(keys, meta$Key), ]
+    if (verbose) {
+        print(sprintf("Loading in databaseSet manifest release %d...", release))
+    }
+
+    if (dev) {
+        meta = read_excel("/Users/ethanmoyer/Dropbox/Ongoing_knowYourCpG/20210710_databaseSets.xlsx", "R2 In Progress")
+        meta = meta[as.logical(meta$Development), ]
+    } else {
+        meta = read.table(url(sprintf("%s/kyCG/RELEASE_%s.csv",
+                                   baseurl, release)), header=TRUE)
+    }
+
+    if (any(!is.na(keys))) {
+        meta = meta[match(keys, meta$Accession), ]
     }
 
     if (!is.na(group)) {
@@ -31,13 +56,29 @@ databaseSetGet = function(keys=-1, group=NA, platform=NA, cacheLoc="") {
         meta = meta[match(platform, meta$Array), ]
     }
 
-    locations = na.omit(meta$Location)
-
-    if (length(locations) == 0) {
-        return(NULL)
+    if (!is.na(reference)) {
+        meta = meta[match(reference, meta$Reference), ]
     }
 
-    databaseSets = cacheDatabaseSets(locations, cacheLoc=cacheLoc)
+    if (verbose) {
+        print(sprintf("Retrieving %d databaseSets...", sum(meta$N)))
+    }
+
+    cacheDatabaseSets(release=release)
+
+    path = Sys.getenv("KYCG_DATABASESETS_LOC")
+    if (path == "") {
+        path = file.path('..', 'databaseSets')
+    }
+
+    path = file.path(path, sprintf("RELEASE_%s", release))
+
+    bfc = BiocFileCache(path, ask = FALSE)
+    bfcinfoAll = bfcinfo(bfc)
+
+    filelocations = lapply(meta$Accession, function(acc) bfcquery(bfc, acc, field=c("rname"))$rpath)
+
+    databaseSets = flattenlist(lapply(filelocations, function(filelocation) readRDS(filelocation)))
 
     return(databaseSets)
 }
@@ -49,80 +90,111 @@ databaseSetGet = function(keys=-1, group=NA, platform=NA, cacheLoc="") {
 #'
 #' @examples
 #' flattenlist(list(a=list(1,2,3), b=list(4,5,6)))
-flattenlist = function(x){
+flattenlist = function(x) {
     morelists = vapply(x, function(x_) is(x_, 'list'), TRUE)
     out = c(x[!morelists], unlist(x[morelists], recursive=FALSE))
     if(sum(morelists)){
         Recall(out)
-     } else{
+    } else{
         return(out)
     }
 }
 
-#' getTestQuerySet retrieves sample query sets.
+
+#' listDatabaseSets prints which databaseSets are available for a given release
+#'
+#' @param release Integer indicating the release number of the databaseSet
+#' manifest to use. Optional. (Defualt: 2).
+#' @param dev Logical value indiciating whether to use development version
+#' of the manifest file. Optional. (Default: TRUE).
+#' @param verbose Logical value indicating whether intermediate outputs will be
+#' displayed to console. Optional. (Default: TRUE).
+#'
+#' @return One list of vectors corresponding to aggregated databaseSets.
+#'
+#' @examples
+#' databaseSetGet(c(1))
+#'
+#' @import readxl
+#'
+#' @export
+listDatabaseSets = function(release=2, dev=TRUE, verbose=TRUE) {
+    if (dev) {
+        meta = read_excel("/Users/ethanmoyer/Dropbox/Ongoing_knowYourCpG/20210710_databaseSets.xlsx",
+                          "R2 In Progress")
+    } else {
+        meta = read.table(url(sprintf("%s/kyCG/RELEASE_%s.csv",
+                                      baseurl, release)), header=TRUE)
+    }
+
+    x = apply(meta, 1, function(row) {if (dev & !as.logical(row["Development"])) return(NULL)
+        cat(sprintf("Accession: %s (n: %s)\n", format(row["Accession"], width = 50, justify = "l"), row["N"]))})
+}
+
+
+#' getQuerySets retrieves sample query sets.
 #'
 #' @return List of categorical vectors, each of which corresponding to a query
 #' set.
 #'
 #' @examples
-#' getTestQuerySet()
+#' getQuerySets()
 #'
 #' @export
-getTestQuerySet = function() {
-    return(readRDS(url(sprintf("%s/kyCG/20210726_testResults.rds", baseurl))))
+getQuerySets = function() {
+    return(readRDS(url(sprintf("%s/kyCG/20210726_querySets.rds", baseurl))))
 }
+
 
 #' getUniverseSet retrieves universe set of a given array.
 #'
 #' @param platform string representing the platform (EPIC, HM450, HM27, MM285)
 #' for which databaseSets will be returned.
+#' @param verbose Logical value indicating whether intermediate outputs will be
+#' displayed to console. Optional. (Default: TRUE).
 #'
 #' @return Vector of strings corresponding to the ProbeIDs on a given array.
 #'
 #' @examples
-#' getUniverseSet("MM285")
+#' getUniverseSet("MM285.mm10.manifest")
 #'
 #' @export
-getUniverseSet = function(platform, cacheLoc="") {
-    tools::R_user_dir(cacheLoc, which="cache")
+getUniverseSet = function(platform, verbose=TRUE) {
+    tools::R_user_dir("", which="cache")
 
-    path = Sys.getenv("kyCpGCache")
+    path = Sys.getenv("KYCG_UNIVERSESETS_LOC")
     if (path == "") {
-        path = tempfile()
-        Sys.setenv(kyCpGCache=path)
+        path = file.path("..", "universeSets")
     }
 
     bfc = BiocFileCache(path, ask = FALSE)
 
     ridsAll = bfcinfo(bfc)$rname
 
-    if (any(platform %in% ridsAll))
-        return(readRDS(bfcquery(bfc, platform, exact=TRUE)$rpath))
+    manifests = c("MM285.mm10.manifest",
+                  "EPIC.hg19.manifest",
+                  "HM450.hg19.manifest",
+                  "HM27.hg19.manifest")
 
-    if (platform == "MM285") {
-        universeSet = get(load(url(sprintf("%s/sesameData/MM285.mm10.manifest.rda",
-                                           baseurl))))$Probe_ID
-    } else if (platform == "EPIC") {
-        universeSet = readRDS(url(sprintf("%s/InfiniumAnnotation/current/EPIC/EPIC.hg19.manifest.rds",
-                                          baseurl)))$probeID
-    } else if (platform == "HM450") {
-        universeSet = readRDS(url(sprintf("%s/InfiniumAnnotation/current/HM450/HM450.hg19.manifest.rds",
-                                          baseurl)))$probeID
-    } else if (platform == "HM27") {
-        universeSet = readRDS(url(sprintf("%s/InfiniumAnnotation/current/HM27/HM27.hg19.manifest.rds",
-                                          baseurl)))$probeID
-    } else {
+    manifest = manifests[grepl(platform, manifests)]
+
+    if (length(manifest) == 0) {
         print(sprintf("Invalid platform [%s]", platform))
         return(NULL)
     }
 
-    # TODO: Change ID to reflect file name instead of platform
+    if (any(manifest %in% ridsAll))
+        return(readRDS(bfcquery(bfc, manifest, field=c("rname"))$rpath))
 
-    savepath = bfcnew(bfc, platform, ext=".RDS")
+    universeSet = fread(
+        sprintf("%s/InfiniumAnnotation/current/%s/%s.tsv.gz", baseurl, platform, manifest))$probeID
+
+    savepath = bfcnew(bfc, manifest, ext=".RDS")
     saveRDS(universeSet, file=savepath)
 
     return(universeSet)
 }
+
 
 #' getProbeID2Gene retrieves mapping of of genes to probeID for a specific
 #' platform.
@@ -134,7 +206,9 @@ getUniverseSet = function(platform, cacheLoc="") {
 getProbeID2Gene = function(platform) {
     # TODO: TRY BLOCK
     tryCatch({
-        readRDS(url(sprintf("%s/kyCG/20210726_%s_probeID2gene.rds", baseurl, platform)))
+        readRDS(
+            url(sprintf("%s/kyCG/20210726_%s_probeID2gene.rds",
+                        baseurl, platform)))
     },
     error = function (condition) {
         print("ERROR:")
@@ -153,16 +227,23 @@ getProbeID2Gene = function(platform) {
 #'
 #' @examples
 #' getGSM2Target('EPIC', 'TFBS')
-getGSM2Target = function(platform, modality) {
-    return(readRDS(url(sprintf("%s/kyCG/%s.%s.GSM2Target.rds", baseurl, platform, modality))))
-}
+# getGSM2Target = function(platform, modality) {
+#     rds = readRDS(
+#         url(sprintf("%s/kyCG/%s.%s.GSM2Target.rds",
+#                     baseurl, platform, modality)))
+#     return(rds)
+# }
+
+
 
 #' cacheDatabaseSets cache databaseSets into memory
 #'
-#' @param locations Vector of strings corresponding to the URL locations of
-#' databaseSets stored in RDS format.
-#' @param cacheLoc String corresponding to the local filesystem location of
-#' where the cache should be stored.
+#' @param release Integer indicating the release number of the databaseSet
+#' manifest to use. Optional. (Defualt: 2).
+#' @param dev Logical value indiciating whether to use development version
+#' of the manifest file. Optional. (Default: TRUE).
+#' @param verbose Logical value indicating whether intermediate outputs will be
+#' displayed to console. Optional. (Default: TRUE).
 #'
 #' @return One list of vectors corresponding to aggregated databaseSets.
 #'
@@ -171,49 +252,86 @@ getGSM2Target = function(platform, modality) {
 #' @import BiocFileCache
 #'
 #' @examples
-#' cacheDatabaseSets(c("https://zhouserver.research.chop.edu/kyCG/20210713_EPIC_hg19_SNPs.rds", "https://zhouserver.research.chop.edu/kyCG/20210630_MM285_mm10_CTCF.rds"))
-cacheDatabaseSets = function(locations, cacheLoc="") {
-    tools::R_user_dir(cacheLoc, which="cache")
+#' cacheDatabaseSets(release=2)
+cacheDatabaseSets = function(release=2, dev=TRUE, verbose=TRUE) {
+    tools::R_user_dir("", which="cache")
 
-    path = Sys.getenv("kyCpGCache")
+    path = Sys.getenv("KYCG_DATABASESETS_LOC")
     if (path == "") {
-        path = tempfile()
-        Sys.setenv(kyCpGCache=path)
+        path = file.path("..", "databaseSets")
     }
 
-    bfc = BiocFileCache(path, ask = FALSE)
+    path = file.path(path, sprintf("RELEASE_%s", release))
 
-    ridsQuery = setNames(locations, unlist(lapply(
-        locations,
+    if (dev) {
+        meta = read_excel("/Users/ethanmoyer/Dropbox/Ongoing_knowYourCpG/20210710_databaseSets.xlsx",
+                          "R2 In Progress")
+        meta = meta[as.logical(meta$Development), ]
+    } else {
+        meta = readRDS(url(sprintf("%s/kyCG/20210710_databaseSets.rds",
+                                   baseurl)))
+        meta = read_excel(sprintf("%s/kyCG/20210710_databaseSets.xlsx",
+                                  baseurl), sprintf("R%d", release))
+    }
+
+    remotelocations = unlist(lapply(meta$Accession, function(acc) sprintf("%s/kyCG/%s.rds", baseurl, acc)))
+
+    ridsQuery = setNames(remotelocations, unlist(lapply(
+        remotelocations,
         function(location) {
-            strsplit(location, "/")[[1]][5]
+            strsplit(strsplit(location, "/")[[1]][5], ".rds")[[1]]
         })))
 
-    ridsAll = bfcinfo(bfc)$rname
+    bfc = BiocFileCache(path, ask = FALSE)
+    bfcinfoAll = bfcinfo(bfc)
+
+    ridsAll = bfcinfoAll$rname
 
     rids = ridsQuery[!(names(ridsQuery) %in% ridsAll)]
 
-    if (length(rids) > 0)
-        databaseSetsNew = flattenlist(lapply(as.vector(rids),
-                                      function(location) {
-                                          location=gsub("https", "http", location)
-                                          databaseSet = readRDS(url(location))
-                                          savepath = bfcnew(bfc, strsplit(location, "/")[[1]][5], ext=".RDS")
-                                          saveRDS(databaseSet, file=savepath)
-                                          return(databaseSet)
-                                          }))
-    else
-        databaseSetsNew = c()
+    nrids = length(rids)
 
-    rids = ridsQuery[names(ridsQuery) %in% ridsAll]
-
-    databaseSetsCached = flattenlist(lapply(names(rids),
-                                     function(rname) {
-                                         readRDS(bfcquery(bfc, rname)$rpath)
-                                     }))
-
-    databaseSets = append(databaseSetsNew, databaseSetsCached)
-
-    return(databaseSets)
-
+    if (nrids > 0) {
+        for (irid in 1:nrids) {
+            if (verbose)
+                cat(sprintf("Downloading ... [%d of %d].\r", irid, nrids))
+            rid = rids[irid]
+            location=gsub("https", "http", as.character(rid))
+            databaseSet = readRDS(url(location))
+            savepath = bfcnew(bfc,
+                              names(rid),
+                              ext=".RDS")
+            saveRDS(databaseSet, file=savepath)
+        }
+    }
 }
+
+
+
+#' clearCache removes current cache (if it exists) otherwise returns an error.
+#'
+#' @param verbose Logical value indicating whether intermediate outputs will be
+#' displayed to console. Optional. (Default: TRUE).
+#'
+#' @return NULL
+#'
+#' @import dbplyr
+#' @import BiocFileCache
+#'
+#' @examples
+#'
+#' @export
+clearCache = function(verbose=TRUE) {
+    path = Sys.getenv("KYCG_DATABASESETS_LOC")
+    if (path == "") {
+        path = "../databaseSets"
+    }
+    bfc = BiocFileCache(path, ask = FALSE)
+    if (verbose)
+        cat(sprintf("Clearing cache ...\r"))
+    removebfc(bfc, ask=FALSE)
+    if (verbose)
+        cat(sprintf("Cache cleared.\n"))
+}
+
+

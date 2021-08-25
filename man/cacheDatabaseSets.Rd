@@ -2,23 +2,32 @@
 % Please edit documentation in R/data.R
 \name{cacheDatabaseSets}
 \alias{cacheDatabaseSets}
-\title{cacheDatabaseSets cache databaseSets into memory}
+\title{getGSM2Target retrieves sample query sets.}
 \usage{
-cacheDatabaseSets(locations, cacheLoc = "")
+cacheDatabaseSets(release = 2, dev = TRUE, verbose = TRUE)
 }
 \arguments{
-\item{locations}{Vector of strings corresponding to the URL locations of
-databaseSets stored in RDS format.}
+\item{release}{Integer indicating the release number of the databaseSet
+manifest to use. Optional. (Defualt: 2).}
 
-\item{cacheLoc}{String corresponding to the local filesystem location of
-where the cache should be stored.}
+\item{dev}{Logical value indiciating whether to use development version
+of the manifest file. Optional. (Default: TRUE).}
+
+\item{verbose}{Logical value indicating whether intermediate outputs will be
+displayed to console. Optional. (Default: TRUE).}
 }
 \value{
+List of categorical vectors, each of which corresponding to a query
+set.
+
 One list of vectors corresponding to aggregated databaseSets.
 }
 \description{
-cacheDatabaseSets cache databaseSets into memory
+getGSM2Target retrieves sample query sets.
 }
 \examples{
-cacheDatabaseSets(c("https://zhouserver.research.chop.edu/kyCG/20210713_EPIC_hg19_SNPs.rds", "https://zhouserver.research.chop.edu/kyCG/20210630_MM285_mm10_CTCF.rds"))
+getGSM2Target('EPIC', 'TFBS')
+cacheDatabaseSets cache databaseSets into memory
+
+cacheDatabaseSets(release=2)
 }

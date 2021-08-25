@@ -1,23 +1,89 @@
 baseurl = "http://zhouserver.research.chop.edu"
-source("R/data.R")
+# source("R/data.R")
 
-testDatabaseSetRedundancy = function(databaseSets=NA,
-                                     estimate.type="ES",
-                                     p.value.adj=FALSE,
-                                     verbose=FALSE) {
+#' getDatabaseSetPairwiseDistance tests for the pariwise overlap between given
+#' list of databaseSets using a distance metric.
+#'
+#' @param databaseSets List of vectors corresponding to the databaseSets of
+#' interest with associated meta data as an attribute to each element. Optional.
+#' (Default: NA)
+#' @param metric String representing the similarity metric to use. Optional.
+#' (Default: "Jaccard").
+#' @param verbose Logical value indicating whether to display intermediate
+#' text output about the type of test. Optional. (Default: FALSE)
+#'
+#' @return An upper triangular matrix containing a metric (Jaccard) comparing
+#' the pairwise distances between database sets.
+#'
+#' @examples
+#' getDatabaseSetPairwiseDistance(list(a=c("a", "b"), b=c("a", "e", "f"), c=c("q", "a")))
+#'
+#' @export
+getDatabaseSetPairwiseDistance = function(databaseSets=NA,
+                                          metric="Jaccard",
+                                          verbose=FALSE) {
+    ndatabaseSets = length(databaseSets)
+    names = names(databaseSets)
+    m = matrix(0, nrow=ndatabaseSets, ncol=ndatabaseSets)
+    colnames(m) = names
+    rownames(m) = names
+    for (i in 1:(ndatabaseSets - 1)) {
+        for (j in (i + 1):ndatabaseSets) {
+            cat(i, j, '\n')
+            m[i, j] = length(intersect(databaseSets[[i]], databaseSets[[j]])) /
+                length(union(databaseSets[[i]], databaseSets[[j]]))
+        }
+    }
+    return(m)
+}
 
+#' getCGAnnotation tests for the overlap of set of probes (querySet) in a
+#' single given feature (database set)
+#'
+#' @param databaseSet Vector of probes corresponding to a single database set
+#' of interest.
+#' @param databaseSets List of vectors corresponding to the databaseSets of
+#' interest with associated meta data as an attribute to each element. Optional.
+#' (Default: NA)
+#' @param verbose Logical value indicating whether to display intermediate
+#' text output about the type of test. Optional. (Default: FALSE)
+#'
+#' @return An upper triangular matrix containing a metric (Jaccard) comparing
+#' the pairwise distances between database sets.
+#'
+#' @examples
+#' getCGAnnotation(querySet=c("cg29176188_TC21", "cg29176794_TC21"), release=2)
+#'
+#' @export
+getCGAnnotation = function(querySet,
+                           databaseSets=NA,
+                           release=NA,
+                           platform=NA,
+                           dev=TRUE) {
+    if (all(is.na(databaseSets))) {
+        databaseSets = databaseSetGet(release=release, dev=dev)
+    }
+    if (all(is.na(databaseSets))) {
+        return(NULL)
+    }
 
-
-
-
+    results = data.frame(databaseSets=do.call(rbind,
+                lapply(names(databaseSets), function(databaseSetName) {
+                    databaseSet = databaseSets[[databaseSetName]]
+                    if (length(intersect(databaseSet, querySet))) {
+                        append(databaseSetName, attr(databaseSet, "meta"))
+                        }
+                    })
+                ))
+    return(results)
 }
 
 #' testEnrichment1 tests for the enrichment of set of probes (query set) in a
 #' single given feature (database set)
 #'
 #' @param querySet Vector of probes of interest (e.g., significant probes)
-#' @param databaseSet Vector of probes corresponding to a single database set
-#' of interest.
+#' @param databaseSets List of vectors corresponding to the databaseSets of
+#' interest with associated meta data as an attribute to each element.
 #' @param universeSet Vector of probes in the universe set containing all of
 #' the probes to be considered in the test.
 #' @param estimate.type String indicating the estimate to report. (Default:
@@ -81,8 +147,9 @@ testEnrichment1 = function(querySet, databaseSet, universeSet,
 #' a number of features (database sets).
 #'
 #' @param querySet Vector of probes of interest (e.g., significant probes)
-#' @param databaseSets List of vectors of probes corresponding to multiple
-#' database sets. Optional. (Default: NA)
+#' @param databaseSets List of vectors corresponding to the databaseSets of
+#' interest with associated meta data as an attribute to each element. Optional.
+#' (Default: NA)
 #' @param universeSet Vector of probes in the universe set containing all of
 #' the probes to be considered in the test. If it is not provided, it will be
 #' inferred from the provided platform. (Default: NA)
@@ -105,6 +172,7 @@ testEnrichment1 = function(querySet, databaseSet, universeSet,
 #' @export
 testEnrichmentAll = function(querySet, databaseSets=NA, universeSet=NA,
                              platform=NA, estimate.type="ES", p.value.adj=FALSE,
+                             release=2,
                              verbose=FALSE) {
     options(timeout=1000)
     if (all(is.na(universeSet))) {
@@ -120,31 +188,55 @@ testEnrichmentAll = function(querySet, databaseSets=NA, universeSet=NA,
         universeSet = getUniverseSet(platform)
     }
 
-    if (all(is.na(databaseSets))) {
-        if (verbose) {
-            print("Database set was not defined. Loading in default database
-                  sets of transcription factor binding sites.")
-        }
+    # Pull from release instead
 
-        databaseSets = readRDS(url(sprintf("%s/kyCG/20210601_MM285_TFBS_ENCODE.rds",
-                                           baseurl)))
+    if (all(is.na(databaseSets))) {
+        if (!is.na(release)) {
+            if (verbose)
+                print("Database set was not defined. Loading in database
+                  sets from the given release.")
+            databaseSets = databaseSetGet(release=release)
+        } else {
+            if (verbose)
+                print("Database set was not defined. Loading in database
+                  sets from the most recent release.")
+            databaseSets = databaseSetGet(release=2)
+        }
     }
 
     # store url ending in variable
 
-    results = data.frame(do.call(rbind,
-                      lapply(databaseSets,
-                             function(databaseSet) testEnrichment1(
-                                 querySet=querySet,
-                                 databaseSet=databaseSet,
-                                 universeSet=universeSet,
-                                 p.value.adj=p.value.adj,
-                                 estimate.type=estimate.type,
-                                 verbose=verbose)
-                      )))
+    results = data.frame(
+        do.call(rbind,
+                lapply(databaseSets,
+                       function(databaseSet) testEnrichment1(
+                           querySet=querySet,
+                           databaseSet=databaseSet,
+                           universeSet=universeSet,
+                           p.value.adj=p.value.adj,
+                           estimate.type=estimate.type,
+                           verbose=verbose)
+                       )
+                )
+        )
 
-    results = results[order(results$p.value, decreasing=FALSE), ]
-    return(results)
+    # TODO: row disagreement issue
+
+    metadata = data.frame(
+        do.call(rbind,
+                lapply(databaseSets,
+                       function(databaseSet) {
+                           output = attr(databaseSet, "meta")
+                           if (!is.null(output)) return(append(c(meta=TRUE), output))
+                           return(c(meta=FALSE))
+                       })
+                )
+        )
+
+    output = cbind(results, metadata)
+
+    output = output[order(output$p.value, decreasing=FALSE), ]
+    return(output)
     ## apply multi-test correction, BH, FDR
 }
 
@@ -176,15 +268,6 @@ testEnrichmentGene = function(querySet, platform=NA, verbose=FALSE) {
     }
     probeID2gene = getProbeID2Gene(platform)
 
-    # databaseSetNames = c()
-    #
-    # for (i in 1:length(querySet)) {
-    #     querySet_ = querySet[(2500 * (i - 1) + 1):(2500 * i)]
-    #     databaseSetNames_ = probeID2gene$genesUniq[grep(paste(querySet_, collapse="|"),
-    #                                 probeID2gene$probeID)]
-    #     databaseSetNames = append(databaseSetNames, databaseSetNames_)
-    # }
-
     databaseSetNames = probeID2gene$genesUniq[match(querySet, probeID2gene$probeID)]
 
     databaseSetNames = na.omit(unique(
@@ -195,7 +278,7 @@ testEnrichmentGene = function(querySet, platform=NA, verbose=FALSE) {
 
     if (length(databaseSetNames) == 0) return(NULL)
 
-    databaseSets = databaseSetGet(group="GeneAssociation", platform=platform)
+    databaseSets = databaseSetGet(group="Gene", platform=platform)
 
     databaseSets = databaseSets[names(databaseSets) %in% databaseSetNames]
 
@@ -219,8 +302,8 @@ inferPlatformFromProbeIDs = function(probeIDs) {
 #' between two categorical variables.
 #'
 #' @param querySet Vector of probes of interest (e.g., significant probes)
-#' @param databaseSet Vector of probes corresponding to a single database set
-#' of interest.
+#' @param databaseSets List of vectors corresponding to the databaseSets of
+#' interest with associated meta data as an attribute to each element.
 #' @param universeSet Vector of probes in the universe set containing all of
 #' the probes to be considered in the test. (Default: NULL)
 #'
@@ -284,9 +367,9 @@ calcFoldChange = function(mtx){
 #' @param databaseSet Vector of probes corresponding to a single database set
 #' of interest.
 #' @param p.value.adj Logical value indicating whether to report the adjusted
-#' p-value. (Default: FALSE)
-#' @param estimate.type String indicating the estimate to report. (Default:
-#' "ES")
+#' p-value. (Default: FALSE).
+#' @param estimate.type String indicating the estimate to report. Optional.
+#' (Default: "ES").
 #'
 #'
 #' @import fgsea
@@ -301,13 +384,14 @@ calcFoldChange = function(mtx){
 testEnrichmentFGSEA = function(querySet, databaseSet, p.value.adj=FALSE,
                                estimate.type="ES") {
     test="fgsea"
-    if (length(intersect(names(querySet), databaseSet)) == 0) {
+    overlap = length((intersect(names(querySet), databaseSet)))
+    if (overlap == 0) {
         return(data.frame(estimate=0,
                     p.value=1,
                     test=test,
-                    querySetSize=length(querySet),
-                    databaseSetSize=length(databaseSet),
-                    overlap=0
+                    querySetSize=length(databaseSet),
+                    databaseSetSize=length(querySet),
+                    overlap=overlap
                     ))
     }
     res = fgsea(pathways=list(pathway=databaseSet), stats=querySet)
@@ -334,7 +418,10 @@ testEnrichmentFGSEA = function(querySet, databaseSet, p.value.adj=FALSE,
     result = data.frame(
         estimate = estimate,
         p.value = p.value,
-        test = test
+        test = test,
+        querySetSize=length(databaseSet),
+        databaseSetSize=length(querySet),
+        overlap=overlap
     )
     return(result)
 }
@@ -344,8 +431,8 @@ testEnrichmentFGSEA = function(querySet, databaseSet, p.value.adj=FALSE,
 #' between two continuous variables.
 #'
 #' @param querySet Vector of probes of interest (e.g., significant probes)
-#' @param databaseSet Vector of probes corresponding to a single database set
-#' of interest.
+#' @param databaseSets List of vectors corresponding to the databaseSets of
+#' interest with associated meta data as an attribute to each element.
 #'
 #' @import stats
 #'
@@ -362,6 +449,9 @@ testEnrichmentSpearman = function(querySet, databaseSet) {
                     overlap=0
                     ))
     }
+
+    databaseSet = databaseSet[match(names(querySet), names(databaseSet))]
+
     res = cor.test(
         querySet,
         databaseSet,

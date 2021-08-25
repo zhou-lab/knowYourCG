@@ -17,9 +17,6 @@ testEnrichment1(
 \arguments{
 \item{querySet}{Vector of probes of interest (e.g., significant probes)}
 
-\item{databaseSet}{Vector of probes corresponding to a single database set
-of interest.}
-
 \item{universeSet}{Vector of probes in the universe set containing all of
 the probes to be considered in the test.}
 
@@ -31,6 +28,9 @@ p-value. (Default: FALSE)}
 
 \item{verbose}{Logical value indicating whether to display intermediate
 text output about the type of test. Optional. (Default: FALSE)}
+
+\item{databaseSets}{List of vectors corresponding to the databaseSets of
+interest with associated meta data as an attribute to each element.}
 }
 \value{
 One list containing features corresponding the test estimate,

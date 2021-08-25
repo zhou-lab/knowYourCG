@@ -32,7 +32,10 @@ Imports:
     dbplyr,
     tools,
     GenomeInfoDb,
-    IRanges
+    IRanges,
+    RCy3,
+    reshape2,
+    data.table
 biocViews:
     Epigenetics, 
     DNAMethylation, 

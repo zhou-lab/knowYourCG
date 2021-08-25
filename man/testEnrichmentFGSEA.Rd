@@ -19,10 +19,10 @@ testEnrichmentFGSEA(
 of interest.}
 
 \item{p.value.adj}{Logical value indicating whether to report the adjusted
-p-value. (Default: FALSE)}
+p-value. (Default: FALSE).}
 
-\item{estimate.type}{String indicating the estimate to report. (Default:
-"ES")}
+\item{estimate.type}{String indicating the estimate to report. Optional.
+(Default: "ES").}
 }
 \value{
 A DataFrame with the estimate/statistic, p-value, and name of test
