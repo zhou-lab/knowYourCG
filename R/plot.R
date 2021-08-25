@@ -20,6 +20,8 @@
 plotVolcano = function(data, title=NA, subtitle=NA) {
     options(ggrepel.max.overlaps = 10)
 
+    # data = data[which(as.logical(data$meta)), ]
+    
     if ("Target" %in% colnames(data))
         data["label"] = unlist(data[["Target"]])
     else
@@ -92,6 +94,8 @@ plotVolcano = function(data, title=NA, subtitle=NA) {
 #'
 #' @export
 plotLollipop = function(data, n=10, title=NA, subtitle=NA) {
+    # data = data[which(as.logical(data$meta)), ]
+    
     if ("Target" %in% colnames(data))
         data["label"] = unlist(data[["Target"]])
     else

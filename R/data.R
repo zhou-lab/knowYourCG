@@ -220,21 +220,6 @@ getProbeID2Gene = function(platform) {
     })
 }
 
-#' getGSM2Target retrieves sample query sets.
-#'
-#' @return List of categorical vectors, each of which corresponding to a query
-#' set.
-#'
-#' @examples
-#' getGSM2Target('EPIC', 'TFBS')
-# getGSM2Target = function(platform, modality) {
-#     rds = readRDS(
-#         url(sprintf("%s/kyCG/%s.%s.GSM2Target.rds",
-#                     baseurl, platform, modality)))
-#     return(rds)
-# }
-
-
 
 #' cacheDatabaseSets cache databaseSets into memory
 #'

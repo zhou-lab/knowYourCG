@@ -39,8 +39,8 @@ BiocManager::install('zhoulab/KnowYourCpG')
 
 First, load the package.
 
-```{r load-kycpg, eval=FALSE}
-library(knowYourCpG)
+```{r load-kycpg, eval=TRUE, echo=TRUE}
+suppressWarnings(library(knowYourCpG))
 ```
 
 ``` {r load-dependencies, eval=TRUE, echo=TRUE}
@@ -60,10 +60,6 @@ suppressMessages(library(dbplyr))
 suppressMessages(library(data.table))
 suppressMessages(library(RCy3))
 options(warn=-1)
-source('../R/data.R')
-source('../R/analyze.R')
-source('../R/features.R')
-source('../R/plot.R')
 ```
 
 ## Input Data
@@ -79,8 +75,14 @@ listDatabaseSets(release=2, dev=TRUE)
 We have provided the ```databaseSetGet()``` function that returns a list of database sets identified by their keys shown in ```listDatabaseSets()```. When this function is ran for the first time, none of the database sets have been cached. Caching on the local machine is important on two fronts: firstly it limits the number of requests sent to our server, and secondly it limits the amount of time the user needs to wait when re-downloading database sets. For this reason, the first time the user runs ```databaseSetGet()```, it will take some time to download all of the database sets from a given release. The default directory to which the database set will be cached is in knowYourCpGPackage/databaseSets. Additionally, the user may set an environment variable KYCG_DATABASESETS_LOC if they wish to specify an alternative directory. Regardless of the initial request to ```databaseSetGet()```, the entire given Release (identified by the ```release``` parameter) will be cached. The following displays this functionality.
 
 ``` {r cache-data, eval=TRUE, echo=TRUE}
-databaseSets = databaseSetGet(release=2, dev=TRUE)
-str(databaseSets)
+databaseSetNames = c('20210630_MM285_mm10_CpGDensity',
+                     '20210630_MM285_mm10_CGI',
+                     '20210816_MM285_mm10_distToTSS',
+                     '20210210_MM285_design',
+                     '20210630_MM285_mm10_probe_type')
+databaseSets = databaseSetGet(databaseSetNames, dev=TRUE)
+print(length(databaseSets))
+print(str(head(databaseSets)))
 ```
 
 On subsequent runs of this function, loading specific database sets from the same release using ```databaseSetGet()``` will be much faster. These database sets will be persistent between R sessions so long as the directory to which they are downloaded is not deleted. Otherwise, the database sets will have to be downloaded again.
@@ -109,10 +111,10 @@ Using the ```getCGAnnotation()``` function, the user can investigate the databas
 
 ``` {r run-annotation, echo=TRUE, eval=TRUE}
 annotation = getCGAnnotation(querySet, databaseSets)
-print(annotation)
+head(annotation)
 ```
 
-In some cases, this annotation data.frame will be sparse as not all database sets have the same annotation columns.
+In some cases, this annotation data.frame will be sparse as not all database sets have the same annotation columns. None of the overlapping database sets have annotation, so no additional columns were returned.
 
 ### testEnrichmentAll
 
@@ -123,7 +125,7 @@ The ```testEnrichmentAll()``` function is the main work horse to KnowYourCpG. It
 The ```testEnrichmentAll()``` as shown below will automate statistical tests and report metrics about each of them. Another set that is needed for the test is called the universe set. This is the set of all probes for a given array. It can either be passed in as an argument called ```universeSet``` or the array platform name can be passed with argument ```platform```. If neither of these are supplied, the universe set will be implied from the probes. In all subsequent runs of ```testEnrichmentAll()```, the platform will be specified. 
 
 ```{r run-test-single, echo=TRUE, eval=TRUE}
-allresults = testEnrichmentAll(querySet=querySet, databaseSets=databaseSets, verbose=TRUE)
+allresults = testEnrichmentAll(querySet=querySet, databaseSets=databaseSets, verbose=FALSE)
 print(allresults)
 ```
 
@@ -136,17 +138,17 @@ print(str(CpGDensitydatabaseSet), str(Dist2TSSdatabaseSet))
 ```
 
 ``` {r run-test-other1, echo=TRUE, eval=TRUE}
-results = testEnrichmentAll(querySet=querySet, databaseSets=CpGDensitydatabaseSet, verbose=TRUE, platform="MM285")
+results = testEnrichmentAll(querySet=querySet, databaseSets=CpGDensitydatabaseSet, platform="MM285")
 print(results)
 ```
 
 ``` {r run-test-other2, echo=TRUE, eval=TRUE}
-results = testEnrichmentAll(querySet=querySet, databaseSets=Dist2TSSdatabaseSet, verbose=TRUE, platform="MM285")
+results = testEnrichmentAll(querySet=querySet, databaseSets=Dist2TSSdatabaseSet, platform="MM285")
 print(results)
 ```
 
 ``` {r run-test-other3, echo=TRUE, eval=TRUE}
-results = testEnrichmentAll(querySet=CpGDensitydatabaseSet$CpGDesity50, databaseSets=Dist2TSSdatabaseSet, verbose=TRUE, platform="MM285")
+results = testEnrichmentAll(querySet=CpGDensitydatabaseSet$CpGDesity50, databaseSets=Dist2TSSdatabaseSet, platform="MM285")
 print(results)
 ```
 

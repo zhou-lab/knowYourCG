@@ -67,15 +67,19 @@ getCGAnnotation = function(querySet,
         return(NULL)
     }
 
-    results = data.frame(databaseSets=do.call(rbind,
-                lapply(names(databaseSets), function(databaseSetName) {
-                    databaseSet = databaseSets[[databaseSetName]]
-                    if (length(intersect(databaseSet, querySet))) {
-                        append(databaseSetName, attr(databaseSet, "meta"))
-                        }
-                    })
-                ))
-    return(results)
+    metadata = as.data.frame(
+        do.call(rbind,
+                lapply(databaseSets,
+                       function(databaseSet) {
+                           output = attr(databaseSet, "meta")
+                           if (!is.null(output)) return(append(c(meta=TRUE), output))
+                           return(c(meta=FALSE))
+                       })
+        ))
+    
+    metadata$meta = as.logical(metadata$meta)
+
+    return(metadata)
 }
 
 #' testEnrichment1 tests for the enrichment of set of probes (query set) in a
@@ -394,7 +398,7 @@ testEnrichmentFGSEA = function(querySet, databaseSet, p.value.adj=FALSE,
                     overlap=overlap
                     ))
     }
-    res = fgsea(pathways=list(pathway=databaseSet), stats=querySet)
+    res = suppressWarnings(fgsea(pathways=list(pathway=databaseSet), stats=querySet))
 
     if (p.value.adj) {
         p.value = res$padj
