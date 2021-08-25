@@ -37,7 +37,7 @@ databaseSetGet = function(keys=NA, group=NA, platform=NA, reference=NA,
     }
 
     if (dev) {
-        meta = read_excel("%s/Dropbox/Ongoing_knowYourCpG/20210710_databaseSets.xlsx", "R2 In Progress", Sys.getenv("HOME"))
+        meta = read_excel(sprintf("%s/Dropbox/Ongoing_knowYourCpG/20210710_databaseSets.xlsx", Sys.getenv("HOME")), "R2 In Progress")
         meta = meta[as.logical(meta$Development), ]
     } else {
         meta = read.table(url(sprintf("%s/kyCG/RELEASE_%s.csv",
@@ -120,8 +120,8 @@ flattenlist = function(x) {
 #' @export
 listDatabaseSets = function(release=2, dev=TRUE, verbose=TRUE) {
     if (dev) {
-        meta = read_excel("/Users/ethanmoyer/Dropbox/Ongoing_knowYourCpG/20210710_databaseSets.xlsx",
-                          "R2 In Progress")
+        meta = read_excel(sprintf("%s/Dropbox/Ongoing_knowYourCpG/20210710_databaseSets.xlsx", Sys.getenv("HOME")),
+                          "R2 In Progress", )
     } else {
         meta = read.table(url(sprintf("%s/kyCG/RELEASE_%s.csv",
                                       baseurl, release)), header=TRUE)
@@ -264,7 +264,7 @@ cacheDatabaseSets = function(release=2, dev=TRUE, verbose=TRUE) {
     path = file.path(path, sprintf("RELEASE_%s", release))
 
     if (dev) {
-        meta = read_excel("/Users/ethanmoyer/Dropbox/Ongoing_knowYourCpG/20210710_databaseSets.xlsx",
+        meta = read_excel(sprintf("%s/Dropbox/Ongoing_knowYourCpG/20210710_databaseSets.xlsx", Sys.getenv("HOME")),
                           "R2 In Progress")
         meta = meta[as.logical(meta$Development), ]
     } else {

@@ -1,4 +1,4 @@
-Package: knowYourCpGPackage
+Package: knowYourCpG
 Type: Package
 Title: Automatic Hypothesis Testing & Methylome Feature Engineering
 Version: 0.1.0
@@ -43,5 +43,6 @@ biocViews:
 Suggests: 
     testthat (>= 3.0.0),
     rmarkdown,
+    markdown,
     knitr
 Config/testthat/edition: 3

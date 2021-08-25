@@ -39,8 +39,8 @@ BiocManager::install('zhoulab/KnowYourCpG')
 
 First, load the package.
 
-```{r load-kycpg, eval=TRUE}
-library(knowYourCpGPackage)
+```{r load-kycpg, eval=FALSE}
+library(knowYourCpG)
 ```
 
 ``` {r load-dependencies, eval=TRUE, echo=TRUE}
@@ -58,7 +58,12 @@ suppressMessages(library(ggrepel))
 suppressMessages(library(BiocFileCache))
 suppressMessages(library(dbplyr))
 suppressMessages(library(data.table))
+suppressMessages(library(RCy3))
 options(warn=-1)
+source('../R/data.R')
+source('../R/analyze.R')
+source('../R/features.R')
+source('../R/plot.R')
 ```
 
 ## Input Data
