@@ -58,7 +58,7 @@ getDatabaseSetPairwiseDistance = function(databaseSets=NA,
 getCGAnnotation = function(querySet,
                            databaseSets=NA,
                            release=NA,
-                           platform=NA,
+                           array=NA,
                            dev=TRUE) {
     if (all(is.na(databaseSets))) {
         databaseSets = databaseSetGet(release=release, dev=dev)
@@ -156,8 +156,8 @@ testEnrichment1 = function(querySet, databaseSet, universeSet,
 #' (Default: NA)
 #' @param universeSet Vector of probes in the universe set containing all of
 #' the probes to be considered in the test. If it is not provided, it will be
-#' inferred from the provided platform. (Default: NA)
-#' @param platform String corresponding to the type of platform to use. Either
+#' inferred from the provided array. (Default: NA)
+#' @param array String corresponding to the type of array to use. Either
 #' MM285, EPIC, HM450, or HM27. If it is not provided, it will be inferred
 #' from the query set probeIDs (Default: NA)
 #' @param estimate.type String indicating the estimate to report. (Default:
@@ -175,21 +175,21 @@ testEnrichment1 = function(querySet, databaseSet, universeSet,
 #'
 #' @export
 testEnrichmentAll = function(querySet, databaseSets=NA, universeSet=NA,
-                             platform=NA, estimate.type="ES", p.value.adj=FALSE,
+                             array=NA, estimate.type="ES", p.value.adj=FALSE,
                              release=2,
                              verbose=FALSE) {
     options(timeout=1000)
     if (all(is.na(universeSet))) {
         if (verbose) {
-            print("The universeSet was not defined. Loading in universeSet based on platform.")
+            print("The universeSet was not defined. Loading in universeSet based on array.")
         }
-        if (is.na(platform)) {
+        if (is.na(array)) {
             if (verbose) {
-                print("The platform was not defined. Inferring platform from probeIDs.")
+                print("The array was not defined. Inferring array from probeIDs.")
             }
-            platform = inferPlatformFromProbeIDs(querySet)
+            array = inferarrayFromProbeIDs(querySet)
         }
-        universeSet = getUniverseSet(platform)
+        universeSet = getUniverseSet(array)
     }
 
     # Pull from release instead
@@ -249,8 +249,8 @@ testEnrichmentAll = function(querySet, databaseSets=NA, universeSet=NA,
 #' (querySet) in gene regions.
 #'
 #' @param querySet Vector of probes of interest (e.g., probes belonging to a
-#' given platform)
-#' @param platform String corresponding to the type of platform to use. Either
+#' given array)
+#' @param array String corresponding to the type of array to use. Either
 #' MM285, EPIC, HM450, or HM27. If it is not provided, it will be inferred
 #' from the query set querySet (Default: NA)
 #' @param verbose Logical value indicating whether to display intermediate
@@ -260,17 +260,17 @@ testEnrichmentAll = function(querySet, databaseSets=NA, universeSet=NA,
 #' p-value, and type of test.
 #'
 #' @examples
-#' testEnrichmentGene(c("cg0000029"), platform="EPIC")
+#' testEnrichmentGene(c("cg0000029"), array="EPIC")
 #'
 #' @export
-testEnrichmentGene = function(querySet, platform=NA, verbose=FALSE) {
-    if (is.na(platform)) {
+testEnrichmentGene = function(querySet, array=NA, verbose=FALSE) {
+    if (is.na(array)) {
         if (verbose) {
-            print("The platform was not defined. Inferring platform from probeIDs.")
+            print("The array was not defined. Inferring array from probeIDs.")
         }
-        platform = inferPlatformFromProbeIDs(querySet)
+        array = inferarrayFromProbeIDs(querySet)
     }
-    probeID2gene = getProbeID2Gene(platform)
+    probeID2gene = getProbeID2Gene(array)
 
     databaseSetNames = probeID2gene$genesUniq[match(querySet, probeID2gene$probeID)]
 
@@ -282,21 +282,21 @@ testEnrichmentGene = function(querySet, platform=NA, verbose=FALSE) {
 
     if (length(databaseSetNames) == 0) return(NULL)
 
-    databaseSets = databaseSetGet(group="Gene", platform=platform)
+    databaseSets = getDatabaseSets(group="Gene", array=array)
 
     databaseSets = databaseSets[names(databaseSets) %in% databaseSetNames]
 
-    return(testEnrichmentAll(querySet, databaseSets, platform=platform))
+    return(testEnrichmentAll(querySet, databaseSets, array=array))
 }
 
-#' inferPlatformFromProbeIDs infers the Infinium MicroArray platform using the
+#' inferarrayFromProbeIDs infers the Infinium MicroArray array using the
 #' given probeIDs
 #'
 #' @param probeIDs Vector of probes of interest (e.g., probes belonging to a
-#' given platform)
+#' given array)
 #'
-#' @return String corresponding to the inferred platform
-inferPlatformFromProbeIDs = function(probeIDs) {
+#' @return String corresponding to the inferred array
+inferarrayFromProbeIDs = function(probeIDs) {
     sig = get(load(url(sprintf("%s/sesameData/probeIDSignature.rda", baseurl))))
     names(which.max(vapply(
         sig, function(x) sum(probeIDs %in% x), integer(1))))

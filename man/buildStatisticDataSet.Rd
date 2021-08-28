@@ -5,13 +5,13 @@
 \title{buildStatisticDataSet builds dataset for each filename in filenames composed
 of engineered features from the given databaseSets}
 \usage{
-buildStatisticDataSet(filenames, databaseSets)
+buildStatisticDataSet(betas, databaseSets)
 }
 \arguments{
-\item{filenames}{Vector of filenames to load using readRDS/tbk_data}
-
 \item{databaseSets}{List of vectors corresponding to probe locations for
 which the features will be extracted}
+
+\item{filenames}{Vector of filenames to load using readRDS/tbk_data}
 }
 \value{
 DataFrame where rows are sample names and columns are features across

@@ -3,16 +3,20 @@
 \name{getProbeID2Gene}
 \alias{getProbeID2Gene}
 \title{getProbeID2Gene retrieves mapping of of genes to probeID for a specific
-platform.}
+array.}
 \usage{
-getProbeID2Gene(platform)
+getProbeID2Gene(array)
+}
+\arguments{
+\item{array}{string representing the array (EPIC, HM450, HM27, MM285)
+for which databaseSets will be returned.}
 }
 \value{
 List with each probe mapped to its respective gene.?
 }
 \description{
 getProbeID2Gene retrieves mapping of of genes to probeID for a specific
-platform.
+array.
 }
 \examples{
 getProbeID2Gene('EPIC')

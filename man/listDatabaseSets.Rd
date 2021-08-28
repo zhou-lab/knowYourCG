@@ -23,6 +23,6 @@ One list of vectors corresponding to aggregated databaseSets.
 listDatabaseSets prints which databaseSets are available for a given release
 }
 \examples{
-databaseSetGet(c(1))
+listDatabaseSets(release=2)
 
 }

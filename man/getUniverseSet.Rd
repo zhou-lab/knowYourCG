@@ -4,10 +4,10 @@
 \alias{getUniverseSet}
 \title{getUniverseSet retrieves universe set of a given array.}
 \usage{
-getUniverseSet(platform, verbose = TRUE)
+getUniverseSet(array, verbose = TRUE)
 }
 \arguments{
-\item{platform}{string representing the platform (EPIC, HM450, HM27, MM285)
+\item{array}{string representing the array (EPIC, HM450, HM27, MM285)
 for which databaseSets will be returned.}
 
 \item{verbose}{Logical value indicating whether intermediate outputs will be

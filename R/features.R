@@ -6,18 +6,19 @@
 #'
 #' @import stats
 calcDatabaseSetStatistics1 = function(x) {
-    c(mean=mean(x, na.rm=TRUE),
-      median=median(x, na.rm=TRUE),
-      var=var(x, na.rm=TRUE),
-      stdev=sd(x, na.rm=TRUE),
-      skew=as.numeric(skew(x, na.rm=TRUE)),
-      iqr=IQR(x, na.rm=TRUE),
-      range=max(x, na.rm=TRUE) - min(x, na.rm=TRUE),
-      min=min(x, na.rm=TRUE),
-      max=max(x, na.rm=TRUE),
-      quantile(x, na.rm=TRUE, probs=seq(0, 1, 0.1)))
+    a = data.frame(mean=apply(x, 2, mean, na.rm=TRUE),
+      median=apply(x, 2, median, na.rm=TRUE),
+      var=apply(x, 2, var, na.rm=TRUE),
+      sd=apply(x, 2, sd, na.rm=TRUE),
+      skew=apply(x, 2, var, na.rm=TRUE),
+      iqr=apply(x, 2, IQR, na.rm=TRUE),
+      range=apply(x, 2, max, na.rm=TRUE) - apply(x, 2, min, na.rm=TRUE),
+      min=apply(x, 2, min, na.rm=TRUE),
+      max=apply(x, 2, max, na.rm=TRUE))
+  b = apply(x, 2, quantile, na.rm=TRUE, probs=seq(0, 1, 0.1))
+  return(cbind(a, t(b)))
 }
-
+    
 
 #' calcDatabaseSetStatisticsAll builds dataset for a given filename composed
 #' of engineered features from the given databaseSets
@@ -28,19 +29,27 @@ calcDatabaseSetStatistics1 = function(x) {
 #'
 #' @return Vector for a given sample columns are features across different
 #' databaseSets
-calcDatabaseSetStatisticsAll = function(filename, databaseSets) {
-    unlist(lapply(names(databaseSets),
-                  function(databaseSetName) {
+calcDatabaseSetStatisticsAll = function(betas, databaseSets) {
+    a = do.call(cbind, 
+            lapply(names(databaseSets),
+                   function(databaseSetName) {
                       databaseSet = databaseSets[[databaseSetName]]
-                      # statistics = calcDatabaseSetStatistics1(tbk_data(filename,
-                      # probes=head(databaseSet)))
-                      rds = readRDS(filename)
-                      statistics = calcDatabaseSetStatistics1(rds[names(databaseSets)])
-                      names(statistics) = lapply(names(statistics), function(colname) {
+                      if (length(databaseSet) >= nrow(betas)) return(FALSE)
+                      if (is.numeric(databaseSet)) {
+                          probes = names(databaseSet)
+                      } else {
+                          probes = databaseSet
+                      }
+                      
+                      statistics = suppressWarnings(calcDatabaseSetStatistics1(betas[na.omit(match(probes, rownames(betas))), ]))
+                      names(statistics) = unlist(lapply(names(statistics), function(colname) {
                           paste(databaseSetName, colname, sep="-")
-                      })
+                      }))
                       return(statistics)
                   }))
+    b = a[, !grepl("FALSE", colnames(a))]
+    c = b[, !apply(b, 2, function(x) {any(is.na(x) | is.infinite(x))})]
+    return(c)
 }
 
 
@@ -53,11 +62,11 @@ calcDatabaseSetStatisticsAll = function(filename, databaseSets) {
 #'
 #' @return DataFrame where rows are sample names and columns are features across
 #' different databaseSets
-buildStatisticDataSet = function(filenames, databaseSets) {
+buildStatisticDataSet = function(betas, databaseSets) {
     a = t(data.frame(setNames(
         lapply(filenames,
                function(filename) {
-                   unlist(calcDatabaseSetStatisticsAll(filename,
+                   unlist(calcDatabaseSetStatisticsAll(betas,
                                                        databaseSets))
                }),
         lapply(filenames,

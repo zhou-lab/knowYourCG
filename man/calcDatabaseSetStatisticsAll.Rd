@@ -5,13 +5,13 @@
 \title{calcDatabaseSetStatisticsAll builds dataset for a given filename composed
 of engineered features from the given databaseSets}
 \usage{
-calcDatabaseSetStatisticsAll(filename, databaseSets)
+calcDatabaseSetStatisticsAll(betas, databaseSets)
 }
 \arguments{
-\item{filename}{String representing a filename to load using readRDS/tbk_data}
-
 \item{databaseSets}{List of vectors corresponding to probe locations for
 which the features will be extracted}
+
+\item{filename}{String representing a filename to load using readRDS/tbk_data}
 }
 \value{
 Vector for a given sample columns are features across different

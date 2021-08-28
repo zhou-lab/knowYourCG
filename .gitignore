@@ -42,3 +42,6 @@ vignettes/*.pdf
 databaseSets
 universeSets
 images
+featureEngineering
+
+.DS_Store

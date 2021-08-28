@@ -2,7 +2,7 @@
 % Please edit documentation in R/data.R
 \name{clearCache}
 \alias{clearCache}
-\title{clearCache removes current cache (if it exists) otherwise returns an error.}
+\title{clearCache removes all current cache (if it exists).}
 \usage{
 clearCache(verbose = TRUE)
 }
@@ -11,8 +11,9 @@ clearCache(verbose = TRUE)
 displayed to console. Optional. (Default: TRUE).}
 }
 \description{
-clearCache removes current cache (if it exists) otherwise returns an error.
+clearCache removes all current cache (if it exists).
 }
 \examples{
+clearCache()
 
 }

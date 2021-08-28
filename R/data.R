@@ -1,7 +1,7 @@
 baseurl = "http://zhouserver.research.chop.edu"
 
-#' databaseSetGet retrieves database sets from a meta data sheet by querying the
-#' group, platform, reference columns. The data is returned as a list where the
+#' getDatabaseSets retrieves database sets from a meta data sheet by querying the
+#' group, array, reference columns. The data is returned as a list where the
 #' names correspond to chosen databaseSets.
 #'
 #' @param accessions vector containing the characters associated with the
@@ -9,7 +9,7 @@ baseurl = "http://zhouserver.research.chop.edu"
 #' (Default: c("20210810_MM285_TFBS_ENCODE").
 #' @param group string representing the group for which the databaseSets will
 #' be returned. Optional. (Default: NA).
-#' @param platform string representing the platform (EPIC, HM450, HM27, MM285)
+#' @param array string representing the array (EPIC, HM450, HM27, MM285)
 #' for which databaseSets will be returned. Optional. (Default: NA).
 #' @param cacheLoc String corresponding to the local filesystem location of
 #' where the cache should be stored. Optional. (Default: "").
@@ -23,12 +23,12 @@ baseurl = "http://zhouserver.research.chop.edu"
 #' @return One list of vectors corresponding to aggregated databaseSets.
 #'
 #' @examples
-#' databaseSetGet()
+#' getDatabaseSets()
 #'
 #' @import readxl
 #'
 #' @export
-databaseSetGet = function(keys=NA, group=NA, platform=NA, reference=NA,
+getDatabaseSets = function(keys=NA, group=NA, array=NA, reference=NA,
                           cacheLoc="", release=2, dev=TRUE, verbose=TRUE) {
     options(timeout=1000)
 
@@ -45,21 +45,21 @@ databaseSetGet = function(keys=NA, group=NA, platform=NA, reference=NA,
     }
 
     if (any(!is.na(keys))) {
-        meta = meta[match(keys, meta$Accession), ]
+        meta = meta[which(meta$Accession %in% keys), ]
     }
-
+    
     if (!is.na(group)) {
-        meta = meta[match(group, meta$Group), ]
+        meta = meta[which(meta$Group %in% group), ]
     }
 
-    if (!is.na(platform)) {
-        meta = meta[match(platform, meta$Array), ]
+    if (!is.na(array)) {
+        meta = meta[which(meta$Array %in% array), ]
     }
 
     if (!is.na(reference)) {
-        meta = meta[match(reference, meta$Reference), ]
+        meta = meta[which(meta$Reference %in% reference), ]
     }
-
+    
     if (verbose) {
         print(sprintf("Retrieving %d databaseSets...", sum(meta$N)))
     }
@@ -68,7 +68,7 @@ databaseSetGet = function(keys=NA, group=NA, platform=NA, reference=NA,
 
     path = Sys.getenv("KYCG_DATABASESETS_LOC")
     if (path == "") {
-        path = file.path('..', 'databaseSets')
+        path = file.path('databaseSets')
     }
 
     path = file.path(path, sprintf("RELEASE_%s", release))
@@ -113,7 +113,7 @@ flattenlist = function(x) {
 #' @return One list of vectors corresponding to aggregated databaseSets.
 #'
 #' @examples
-#' databaseSetGet(c(1))
+#' listDatabaseSets(release=2)
 #'
 #' @import readxl
 #'
@@ -148,7 +148,7 @@ getQuerySets = function() {
 
 #' getUniverseSet retrieves universe set of a given array.
 #'
-#' @param platform string representing the platform (EPIC, HM450, HM27, MM285)
+#' @param array string representing the array (EPIC, HM450, HM27, MM285)
 #' for which databaseSets will be returned.
 #' @param verbose Logical value indicating whether intermediate outputs will be
 #' displayed to console. Optional. (Default: TRUE).
@@ -159,12 +159,12 @@ getQuerySets = function() {
 #' getUniverseSet("MM285.mm10.manifest")
 #'
 #' @export
-getUniverseSet = function(platform, verbose=TRUE) {
+getUniverseSet = function(array, verbose=TRUE) {
     tools::R_user_dir("", which="cache")
 
     path = Sys.getenv("KYCG_UNIVERSESETS_LOC")
     if (path == "") {
-        path = file.path("..", "universeSets")
+        path = file.path("universeSets")
     }
 
     bfc = BiocFileCache(path, ask = FALSE)
@@ -176,18 +176,23 @@ getUniverseSet = function(platform, verbose=TRUE) {
                   "HM450.hg19.manifest",
                   "HM27.hg19.manifest")
 
-    manifest = manifests[grepl(platform, manifests)]
+    manifest = manifests[grepl(array, manifests)]
 
     if (length(manifest) == 0) {
-        print(sprintf("Invalid platform [%s]", platform))
+        print(sprintf("Invalid array [%s]", array))
         return(NULL)
     }
-
-    if (any(manifest %in% ridsAll))
+    
+    if (length(grepl(manifest, ridsAll)) == 1 && grepl(manifest, ridsAll))
         return(readRDS(bfcquery(bfc, manifest, field=c("rname"))$rpath))
 
-    universeSet = fread(
-        sprintf("%s/InfiniumAnnotation/current/%s/%s.tsv.gz", baseurl, platform, manifest))$probeID
+    manifest_data = fread(
+        sprintf("%s/InfiniumAnnotation/current/%s/%s.tsv.gz", baseurl, array, manifest))
+    
+    universeSet = manifest_data$probeID
+    
+    if (is.null(universeSet))
+        universeSet = manifest_data$Probe_ID
 
     savepath = bfcnew(bfc, manifest, ext=".RDS")
     saveRDS(universeSet, file=savepath)
@@ -197,18 +202,21 @@ getUniverseSet = function(platform, verbose=TRUE) {
 
 
 #' getProbeID2Gene retrieves mapping of of genes to probeID for a specific
-#' platform.
+#' array.
+#' 
+#' @param array string representing the array (EPIC, HM450, HM27, MM285)
+#' for which databaseSets will be returned.
 #'
 #' @return List with each probe mapped to its respective gene.?
 #'
 #' @examples
 #' getProbeID2Gene('EPIC')
-getProbeID2Gene = function(platform) {
+getProbeID2Gene = function(array) {
     # TODO: TRY BLOCK
     tryCatch({
         readRDS(
             url(sprintf("%s/kyCG/20210726_%s_probeID2gene.rds",
-                        baseurl, platform)))
+                        baseurl, array)))
     },
     error = function (condition) {
         print("ERROR:")
@@ -216,7 +224,7 @@ getProbeID2Gene = function(platform) {
         print(paste("  Call: ",conditionCall(condition)))
     },
     finally= function() {
-        print(sprintf("Invalid platform [%s]", platform))
+        print(sprintf("Invalid array [%s]", array))
     })
 }
 
@@ -243,7 +251,7 @@ cacheDatabaseSets = function(release=2, dev=TRUE, verbose=TRUE) {
 
     path = Sys.getenv("KYCG_DATABASESETS_LOC")
     if (path == "") {
-        path = file.path("..", "databaseSets")
+        path = file.path("databaseSets")
     }
 
     path = file.path(path, sprintf("RELEASE_%s", release))
@@ -293,7 +301,7 @@ cacheDatabaseSets = function(release=2, dev=TRUE, verbose=TRUE) {
 
 
 
-#' clearCache removes current cache (if it exists) otherwise returns an error.
+#' clearCache removes all current cache (if it exists).
 #'
 #' @param verbose Logical value indicating whether intermediate outputs will be
 #' displayed to console. Optional. (Default: TRUE).
@@ -304,19 +312,218 @@ cacheDatabaseSets = function(release=2, dev=TRUE, verbose=TRUE) {
 #' @import BiocFileCache
 #'
 #' @examples
+#' clearCache()
 #'
 #' @export
 clearCache = function(verbose=TRUE) {
-    path = Sys.getenv("KYCG_DATABASESETS_LOC")
-    if (path == "") {
-        path = "../databaseSets"
-    }
-    bfc = BiocFileCache(path, ask = FALSE)
-    if (verbose)
-        cat(sprintf("Clearing cache ...\r"))
-    removebfc(bfc, ask=FALSE)
-    if (verbose)
-        cat(sprintf("Cache cleared.\n"))
+    clearDatabaseSetCache(verbose=verbose)
+    clearUniverseSetCache(verbose=verbose)
+    clearFeatureEngineeringCache(verbose=verbose)
 }
 
+#' clearDatabaseSetCache removes database set current cache (if it exists).
+#'
+#' @param verbose Logical value indicating whether intermediate outputs will be
+#' displayed to console. Optional. (Default: TRUE).
+#'
+#' @return NULL
+#'
+#' @import dbplyr
+#' @import BiocFileCache
+#'
+#' @examples
+#' clearDatabaseSetCache()
+#'
+#' @export
+clearDatabaseSetCache = function(verbose=TRUE) {
+    if (verbose)
+        cat(sprintf("Clearing database set cache ...\r"))
+    path = Sys.getenv("KYCG_DATABASESETS_LOC")
+    if (path == "") {
+        path = "databaseSets"
+    }
+    
+    bfc = BiocFileCache(path, ask = FALSE)
+    removebfc(bfc, ask=FALSE)
+    
+    if (verbose)
+        cat(sprintf("Cache database set cleared.\n"))
+}
+
+#' clearUniverseSetCache removes universe set current cache (if it exists).
+#'
+#' @param verbose Logical value indicating whether intermediate outputs will be
+#' displayed to console. Optional. (Default: TRUE).
+#'
+#' @return NULL
+#'
+#' @import dbplyr
+#' @import BiocFileCache
+#'
+#' @examples
+#' clearUniverseSetCache()
+#'
+#' @export
+clearUniverseSetCache = function(verbose=TRUE) {
+    if (verbose)
+        cat(sprintf("Clearing universe set cache ...\r"))
+    path = Sys.getenv("KYCG_UNIVERSESETS_LOC")
+    if (path == "") {
+        path = "universeSets"
+    }
+    bfc = BiocFileCache(path, ask = FALSE)
+    removebfc(bfc, ask=FALSE)
+
+    if (verbose)
+        cat(sprintf("Cache universe set cleared.\n"))
+}
+
+#' clearFeatureEngineeringCache removes universe set current cache (if it 
+#' exists).
+#'
+#' @param verbose Logical value indicating whether intermediate outputs will be
+#' displayed to console. Optional. (Default: TRUE).
+#'
+#' @return NULL
+#'
+#' @import dbplyr
+#' @import BiocFileCache
+#'
+#' @examples
+#' clearFeatureEngineeringCache()
+#'
+#' @export
+clearFeatureEngineeringCache = function(verbose=TRUE) {
+    if (verbose)
+        cat(sprintf("Clearing feature engineering cache ...\r"))
+    
+    path = Sys.getenv("KYCG_FEATURE_ENGINEERING_LOC")
+    if (path == "") {
+        path = "featureEngineering"
+    }
+    bfc = BiocFileCache(path, ask = FALSE)
+    removebfc(bfc, ask=FALSE)
+    
+    if (verbose)
+        cat(sprintf("Cache feature engineering cleared.\n"))
+}
+
+
+#' getSampleSheet retrieves an example samplesheet composed of 
+#' 20 samples.
+#'
+#' @param array string representing the array (EPIC, HM450, HM27, MM285)
+#' for which databaseSets will be returned.
+#' 
+#' @param array string representing the array (EPIC, HM450, HM27, MM285)
+#' for which databaseSets will be returned.
+#' @param release Integer indicating the release number of the databaseSet
+#' manifest to use. Optional. (Defualt: 2).
+#' @param dev Logical value indiciating whether to use development version
+#' of the manifest file. Optional. (Default: TRUE).
+#' @param verbose Logical value indicating whether intermediate outputs will be
+#' displayed to console. Optional. (Default: TRUE).
+#'
+#' @return samplesheet
+#'
+#' @import dbplyr
+#' @import BiocFileCache
+#'
+#' @examples
+#' getSampleSheet("MM285")
+#'
+#' @export
+getSampleSheet = function(array, release=1, dev=TRUE, verbose=TRUE) {
+    if (verbose) {
+        print(sprintf("Loading in Mouse samplesheet release %d...", release))
+    }
+    
+    if (dev) {
+        meta = read_excel('/Users/moyerej/Dropbox/Ongoing_knowYourCpG/20210827_featureEngineering.xlsx', sprintf("R%s", release))
+    } else {
+        meta = NULL
+    }
+        
+    path = Sys.getenv("KYCG_FEATURE_ENGINEERING_LOC")
+    if (path == "") {
+        path = file.path("featureEngineering")
+    }
+    
+    bfc = BiocFileCache(path, ask = FALSE)
+    
+    ridsAll = bfcinfo(bfc)$rname
+    
+    query = sprintf("%s_samplesheet", toupper(array))
+    
+    if (length(grepl(query, ridsAll)) == 1 && grepl(query, ridsAll))
+        return(readRDS(bfcquery(bfc, query, field=c("rname"))$rpath))
+    
+    meta = meta[which(meta$Group %in% "samplesheet"), ]
+
+    meta = meta[which(meta$Array %in% array), ]
+    
+    samplesheet = readRDS(url(sprintf("%s/kyCG/%s", baseurl, meta$Accession)))
+    
+    savepath = bfcnew(bfc, meta$Accession, ext=".RDS")
+    saveRDS(samplesheet, file=savepath)
+    
+    return(samplesheet)
+}
+
+#' getBetas retrieves an example betas matrix composed of 20 samples.
+#'
+#' @param array string representing the array (EPIC, HM450, HM27, MM285)
+#' for which databaseSets will be returned.
+#' @param release Integer indicating the release number of the databaseSet
+#' manifest to use. Optional. (Defualt: 2).
+#' @param dev Logical value indiciating whether to use development version
+#' of the manifest file. Optional. (Default: TRUE).
+#' @param verbose Logical value indicating whether intermediate outputs will be
+#' displayed to console. Optional. (Default: TRUE).
+#'
+#' @return betas matrix
+#'
+#' @import dbplyr
+#' @import BiocFileCache
+#'
+#' @examples
+#' getBetas("MM285")
+#'
+#' @export
+getBetas = function(array, release=1, dev=TRUE, verbose=TRUE) {
+    if (verbose) {
+        print(sprintf("Loading in Mouse samplesheet release %d...", release))
+    }
+    
+    if (dev) {
+        meta = read_excel('/Users/moyerej/Dropbox/Ongoing_knowYourCpG/20210827_featureEngineering.xlsx', sprintf("R%s", release))
+    } else {
+        meta = NULL
+    }
+    
+    path = Sys.getenv("KYCG_FEATURE_ENGINEERING_LOC")
+    if (path == "") {
+        path = file.path("featureEngineering")
+    }
+    
+    bfc = BiocFileCache(path, ask = FALSE)
+    
+    ridsAll = bfcinfo(bfc)$rname
+    
+    query = sprintf("%s_betas", toupper(array))
+    
+    if (length(grepl(query, ridsAll)) == 1 && grepl(query, ridsAll))
+        return(readRDS(bfcquery(bfc, query, field=c("rname"))$rpath))
+    
+    meta = meta[which(meta$Group %in% "betas"), ]
+    
+    meta = meta[which(meta$Array %in% array), ]
+    
+    betas = readRDS(url(sprintf("%s/kyCG/%s", baseurl, meta$Accession)))
+    
+    savepath = bfcnew(bfc, meta$Accession, ext=".RDS")
+    saveRDS(betas, file=savepath)
+    
+    return(betas)
+}
 
