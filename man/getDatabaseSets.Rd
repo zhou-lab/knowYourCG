@@ -2,9 +2,9 @@
 % Please edit documentation in R/data.R
 \name{getDatabaseSets}
 \alias{getDatabaseSets}
-\title{getDatabaseSets retrieves database sets from a meta data sheet by querying the
-group, array, reference columns. The data is returned as a list where the
-names correspond to chosen databaseSets.}
+\title{getDatabaseSets retrieves database sets from a meta data sheet by querying 
+the group, array, reference columns. The data is returned as a list where the
+names correspond to chosen database sets.}
 \usage{
 getDatabaseSets(
   keys = NA,
@@ -18,16 +18,23 @@ getDatabaseSets(
 )
 }
 \arguments{
-\item{group}{string representing the group for which the databaseSets will
+\item{keys}{vector containing the characters associated with the
+selected database sets; only non-NA locations will be returned. Optional.
+(Default: c("20210810_MM285_TFBS_ENCODE").}
+
+\item{group}{string representing the group for which the database sets will
 be returned. Optional. (Default: NA).}
 
 \item{array}{string representing the array (EPIC, HM450, HM27, MM285)
-for which databaseSets will be returned. Optional. (Default: NA).}
+for which database sets will be returned. Optional. (Default: NA).}
+
+\item{reference}{string representing the reference (hg19, hg38, mm9, mm10) 
+for which the database sets will be returned. Optional. (Default NA).}
 
 \item{cacheLoc}{String corresponding to the local filesystem location of
 where the cache should be stored. Optional. (Default: "").}
 
-\item{release}{Integer indicating the release number of the databaseSet
+\item{release}{Integer indicating the release number of the database set
 manifest to use. Optional. (Defualt: 2).}
 
 \item{dev}{Logical value indiciating whether to use development version
@@ -35,18 +42,14 @@ of the manifest file. Optional. (Default: TRUE).}
 
 \item{verbose}{Logical value indicating whether intermediate outputs will be
 displayed to console. Optional. (Default: TRUE).}
-
-\item{accessions}{vector containing the characters associated with the
-selected databaseSets; only non-NA locations will be returned. Optional.
-(Default: c("20210810_MM285_TFBS_ENCODE").}
 }
 \value{
-One list of vectors corresponding to aggregated databaseSets.
+One list of vectors corresponding to aggregated database sets.
 }
 \description{
-getDatabaseSets retrieves database sets from a meta data sheet by querying the
-group, array, reference columns. The data is returned as a list where the
-names correspond to chosen databaseSets.
+getDatabaseSets retrieves database sets from a meta data sheet by querying 
+the group, array, reference columns. The data is returned as a list where the
+names correspond to chosen database sets.
 }
 \examples{
 getDatabaseSets()

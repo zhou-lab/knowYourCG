@@ -1,6 +1,6 @@
 c(bibentry(bibtype = "Article",
            key = "sesame",
-           title = KnowYourCpG
+           title = KnowYourCpG,
            author = c(
                person("Moyer", "Ethan")
            ),

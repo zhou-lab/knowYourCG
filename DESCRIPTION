@@ -2,10 +2,14 @@ Package: knowYourCpG
 Type: Package
 Title: Automatic Hypothesis Testing & Methylome Feature Engineering
 Version: 0.1.0
-Authors: Ethan Jacob Moyer
-Authors@R: c(person("Moyer", "Ethan", role = c("aut","cre"),
-             email = "ejm374@drexel.edu"))
-Description: This package automates the hypothesis testing process by testing
+Authors: Ethan Jacob Moyer, Wanding Zhou, Fredrick Dong
+Authors@R: c(person("Moyer", "Ethan", role=c("aut","cre"),
+             email="ejm374@drexel.edu"),
+             person("Zhou", "Wanding", role=c("aut"),
+             email="ZHOUW3@chop.edu"),
+             person("Dong", "Fredrick", role=c("aut"),
+             email="fdong2@gmail.com"))
+Description: Automates the hypothesis testing process by testing
     the enrichment of different pre-curated sets of CpGs. Each CpG set, or 
     databaseSet, corresponds to a genomic or technical element that aims
     to describe variability in a CpG set of interest, also know as a querySet. 
@@ -21,9 +25,7 @@ Imports:
     ggplot2,
     ggrepel,
     GenomicRanges,
-    stats4,
     BiocGenerics,
-    parallel,
     S4Vectors,
     readxl, 
     stats,
@@ -35,7 +37,8 @@ Imports:
     IRanges,
     RCy3,
     reshape2,
-    data.table
+    data.table,
+    methods
 biocViews:
     Epigenetics, 
     DNAMethylation, 

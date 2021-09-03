@@ -9,9 +9,10 @@ testEnrichmentAll(
   querySet,
   databaseSets = NA,
   universeSet = NA,
-  platform = NA,
+  array = NA,
   estimate.type = "ES",
   p.value.adj = FALSE,
+  n.fdr = NA,
   release = 2,
   verbose = FALSE
 )
@@ -19,26 +20,32 @@ testEnrichmentAll(
 \arguments{
 \item{querySet}{Vector of probes of interest (e.g., significant probes)}
 
-\item{databaseSets}{List of vectors corresponding to the databaseSets of
+\item{databaseSets}{List of vectors corresponding to the database sets of
 interest with associated meta data as an attribute to each element. Optional.
 (Default: NA)}
 
 \item{universeSet}{Vector of probes in the universe set containing all of
 the probes to be considered in the test. If it is not provided, it will be
-inferred from the provided platform. (Default: NA)}
+inferred from the provided array. (Default: NA).}
 
-\item{platform}{String corresponding to the type of platform to use. Either
+\item{array}{String corresponding to the type of array to use. Either
 MM285, EPIC, HM450, or HM27. If it is not provided, it will be inferred
-from the query set probeIDs (Default: NA)}
+from the query set probeIDs (Default: NA).}
 
 \item{estimate.type}{String indicating the estimate to report. (Default:
 "ES")}
 
 \item{p.value.adj}{Logical value indicating whether to report the adjusted
-p-value. (Default: FALSE)}
+p-value. (Default: FALSE).}
+
+\item{n.fdr}{Integer corresponding to the number of comparisons made. 
+Optional. (Default: NA).}
+
+\item{release}{Integer indicating the release number of the database set. 
+Optional. (Default: NA).}
 
 \item{verbose}{Logical value indicating whether to display intermediate
-text output about the type of test. Optional. (Default: FALSE)}
+text output about the type of test. Optional. (Default: FALSE).}
 }
 \value{
 One list containing features corresponding the test estimate,

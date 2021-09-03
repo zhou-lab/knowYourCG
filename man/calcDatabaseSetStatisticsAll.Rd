@@ -2,22 +2,23 @@
 % Please edit documentation in R/features.R
 \name{calcDatabaseSetStatisticsAll}
 \alias{calcDatabaseSetStatisticsAll}
-\title{calcDatabaseSetStatisticsAll builds dataset for a given filename composed
-of engineered features from the given databaseSets}
+\title{calcDatabaseSetStatisticsAll builds dataset for a given betas matrix 
+composed of engineered features from the given database sets}
 \usage{
 calcDatabaseSetStatisticsAll(betas, databaseSets)
 }
 \arguments{
+\item{betas}{matrix of beta values where probes are on the rows and samples
+are on the columns}
+
 \item{databaseSets}{List of vectors corresponding to probe locations for
 which the features will be extracted}
-
-\item{filename}{String representing a filename to load using readRDS/tbk_data}
 }
 \value{
 Vector for a given sample columns are features across different
 databaseSets
 }
 \description{
-calcDatabaseSetStatisticsAll builds dataset for a given filename composed
-of engineered features from the given databaseSets
+calcDatabaseSetStatisticsAll builds dataset for a given betas matrix 
+composed of engineered features from the given database sets
 }

@@ -39,18 +39,11 @@ BiocManager::install('zhou-lab/knowYourCpG')
 
 First, load the package.
 
-```{r load-kycpg, eval=FALSE, echo=TRUE}
+```{r load-kycpg, eval=TRUE, echo=TRUE}
 suppressWarnings(library(knowYourCpG))
 ```
 
-```{r source-kycpg, eval=TRUE, echo=TRUE}
-source('../R/data.R')
-source('../R/analyze.R')
-source('../R/features.R')
-source('../R/plot.R')
-```
-
-``` {r load-dependencies, eval=TRUE, echo=TRUE}
+``` {r load-dependencies, eval=FALSE, echo=FALSE}
 suppressMessages(library(GenomicRanges))
 suppressMessages(library(stats4))
 suppressMessages(library(BiocGenerics))
@@ -71,7 +64,7 @@ options(warn=-1)
 
 ## Input Data
 
-### Caching Database Sets
+### Database Sets
 
 We have organized our database sets in terms of different releases. The ```listDatabaseSets()``` function lists the database sets in the most recent release. The ```release``` parameter to this function controls which release to list. The user can see the database sets available in Release 2 using the following:
 
@@ -79,14 +72,18 @@ We have organized our database sets in terms of different releases. The ```listD
 listDatabaseSets(release=2, dev=TRUE)
 ```
 
-We have provided the ```getDatabaseSet()``` function that returns a list of database sets identified by their keys shown in ```listDatabaseSets()```. When this function is ran for the first time, none of the database sets have been cached. Caching on the local machine is important on two fronts: firstly it limits the number of requests sent to our server, and secondly it limits the amount of time the user needs to wait when re-downloading database sets. For this reason, the first time the user runs ```getDatabaseSet()```, it will take some time to download all of the database sets from a given release. The default directory to which the database set will be cached is in knowYourCpGPackage/databaseSets. Additionally, the user may set an environment variable KYCG_DATABASESETS_LOC if they wish to specify an alternative directory. Regardless of the initial request to ```getDatabaseSet()```, the entire given Release (identified by the ```release``` parameter) will be cached.
+We have provided the ```getDatabaseSet()``` function that returns a list of database sets identified by their accessions shown in ```listDatabaseSets()```. When this function is ran for the first time, none of the database sets have been cached. Caching on the local machine is important on two fronts: firstly it limits the number of requests sent to our server, and secondly it limits the amount of time the user needs to wait when re-downloading database sets. For this reason, the first time the user runs ```getDatabaseSet()```, it will take some time to download all of the database sets from a given release. The default directory to which the database set will be cached is in knowYourCpGPackage/databaseSets. Additionally, the user may set a global variable KYCG_DATABASESETS_LOC if they wish to specify an alternative directory. Regardless of the initial request to ```getDatabaseSet()```, the entire given Release (identified by the ```release``` parameter) will be cached and stored in a respective sub-directory.
 
-Two environmental variables, ```KYCG_UNIVERSESETS_LOC``` and ```KYCG_DATABASESETS_LOC```, control where universe sets and database sets will be cached, respectively If either is not set, then then default respective locations in the root of the package will be used. 
+Two global variables, ```KYCG_UNIVERSESETS_LOC``` and ```KYCG_DATABASESETS_LOC```, control where universe sets and database sets will be cached, respectively If either is not set, then then default respective locations in the root of the package will be used. 
+
+``` {r set-options0, eval=TRUE, echo=TRUE}
+options(KYCG_UNIVERSESETS_LOC = file.path('..', 'universeSets'))
+options(KYCG_DATABASESETS_LOC = file.path('..', 'databaseSets'))
+```
+
+Using a subset of the available database sets, we will download them and load them in into memory using their accessions.
 
 ``` {r cache-data, eval=TRUE, echo=TRUE}
-Sys.setenv(KYCG_UNIVERSESETS_LOC = file.path('..', 'universeSets'))
-Sys.setenv(KYCG_DATABASESETS_LOC = file.path('..', 'databaseSets'))
-
 databaseSetNames = c('20210630_MM285_mm10_CpGDensity',
                      '20210630_MM285_mm10_CGI',
                      '20210816_MM285_mm10_distToTSS',
@@ -94,23 +91,54 @@ databaseSetNames = c('20210630_MM285_mm10_CpGDensity',
                      '20210630_MM285_mm10_probe_type')
 
 databaseSets = getDatabaseSets(databaseSetNames, dev=TRUE)
-print(length(databaseSets))
-print(str(head(databaseSets)))
 ```
 
-On subsequent runs of this function, loading specific database sets from the same release using ```getDatabaseSet()``` will be much faster. These database sets will be persistent between R sessions so long as the directory to which they are downloaded is not deleted. Otherwise, the database sets will have to be downloaded again.
+In total, 40 database sets have been loaded from this command.
 
-### Creating Query Sets
+``` {r view-data0, eval=TRUE, echo=FALSE}
+cat(sprintf("length(databaseSets) = %s database sets", length(databaseSets)))
+```
+
+We will show the first three for simplicity.
+
+``` {r view-data1, eval=TRUE, echo=FALSE}
+str(databaseSets[1:3])
+```
+
+And display a summary of its contents.
+
+``` {r view-data2, eval=TRUE, echo=FALSE}
+summary(databaseSets[1:3])
+```
+
+``` {r eval=FALSE, echo=FALSE}
+# TODO: use temp dir instead in vignette
+# TODO: can we make this more presentable?
+```
+
+On subsequent runs of the ```getDatabaseSet()``` function, loading specific database sets from the same release will be much faster. These database sets will be persistent between R sessions so long as the directory to which they are downloaded is not deleted. Otherwise, the database sets will have to be downloaded again.
+
+### Query Sets
 
 A query set represents probes of interest. It may either be in the form of a character vector where the values correspond to probe IDs or a named numeric vector where the names correspond to probe IDs.
 
-A set of sample query sets can be obtained using the ```getQuerySets()``` function. This returns a list of query sets.
+A list of test query sets can be obtained from the following URL. 
 
 ```{r cache-data2, eval=TRUE, echo=TRUE}
-querySets = getQuerySets()
+querySets = readRDS(url("http://zhouserver.research.chop.edu/kyCG/20210726_querySets.rds"))
 querySet = querySets[[1]]
-print(length(querySet))
-print(head(querySet))
+```
+
+In total, 26 query sets have been loaded from this command.
+
+``` {r view-data3, eval=TRUE, echo=FALSE}
+cat(sprintf("length(querySets) = %s", length(querySets)))
+```
+
+We are just going to use the first one, which is a set of hypomethylated probes in Mouse brain tissue from the MM285 array. This specific query set has 50 probes.
+
+``` {r view-data4, eval=TRUE, echo=FALSE}
+cat(sprintf("length(querySet) = %s probes", length(querySet)))
 ```
 
 Using the obtained database sets and query set, the user may analyze their overlap and enrichment. 
@@ -119,112 +147,153 @@ Using the obtained database sets and query set, the user may analyze their overl
 
 There are many functions in this package that make investigating the biological significance of a set of probes easier.
 
-### getCGAnnotation
+### Obtaining Optional Annotation from each Databse Set 
 
-Using the ```getCGAnnotation()``` function, the user can investigate the database sets that overlap with the given query set along with any provided annotation.
+Using the ```getDatabaseSetOverlap()``` function, the user can investigate the database sets that overlap with the given query set, the degree of overlap, and any provided annotation.
 
 ``` {r run-annotation, echo=TRUE, eval=TRUE}
-annotation = getCGAnnotation(querySet, databaseSets)
+annotation = getDatabaseSetOverlap(querySet, databaseSets)
 head(annotation)
 ```
 
-In some cases, this annotation data.frame will be sparse as not all database sets have the same annotation columns. None of the overlapping database sets have annotation, so no additional columns were returned.
+The ```meta``` column indicates whether the respective database set contains annotation. The ```nQ``` and ```nD``` columns indicate the length of the query set and database set respectively, and the ```overlap``` column indicates the amount of overlap. In some cases, this annotation data.frame will be sparse as not all database sets have the same annotation columns. None of these overlapping database sets have annotation, so no additional columns were returned.
 
-### testEnrichmentAll
+### Investigating the Enrichment of Many Database Sets in a Single Query Set
 
-The ```testEnrichmentAll()``` function is the main work horse to KnowYourCpG. It tests the enrichment of the query set in each database set. There are four testing scenarios depending on the type format of the query set and database sets. They are shown with the respective testing scenario in the table below.
+The ```testEnrichmentAll()``` function is the main work horse to KnowYourCpG. It tests the enrichment of the given database sets in a single query set. There are four testing scenarios depending on the type format of the query set and database sets. They are shown with the respective testing scenario in the table below.
 
 ![Four testing scenarios of KnowYourCpG](../20210627_kycpg_tests.png){width=75%}
 
-The ```testEnrichmentAll()``` as shown below will automate statistical tests and report metrics about each of them. Another set that is needed for the test is called the universe set. This is the set of all probes for a given array. It can either be passed in as an argument called ```universeSet``` or the array array name can be passed with argument ```array```. If neither of these are supplied, the universe set will be implied from the probes. In all subsequent runs of ```testEnrichmentAll()```, the array will be specified. 
+The ```testEnrichmentAll()``` will automate statistical tests and report metrics about each of the the loaded database sets. Another set that is needed for the test is called the universe set. This is the set of all probes for a given array. It can either be passed in as an argument called ```universeSet``` or the array name can be passed with argument ```array```. If neither of these are supplied, the universe set will be implied from the probes. In all subsequent runs of ```testEnrichmentAll()``` in this vignette, the array will be specified. 
 
 ```{r run-test-single, echo=TRUE, eval=TRUE}
-results_0 = testEnrichmentAll(querySet=querySet, databaseSets=databaseSets, verbose=FALSE)
-print(results_0)
+resultsAll = testEnrichmentAll(querySet=querySet, 
+                               databaseSets=databaseSets, 
+                               verbose=FALSE)
+print(head(resultsAll))
+```
+
+The output of each test contains at least four variables: the estimate, p-value, type of test, and whether meta data is included in the tested database set. The name of the database set is also recorded as well. By default, the p-value column is sorted. 
+
+It should be noted that the estimate (or test statistic) is test dependent and comparison between p-values should be limited to within the same type of test. For instance, the test statistics for Fisher's exact test and FGSEA are log fold change and the test statistic for Spearman's test is simply the rank order correlation coefficient. For simplicity, we report all of the test types in one data frame. 
+
+The ```nQ``` and ```nD``` columns identify the length of the query set and the database set, respectively. Often, it's important to examine the extent of overlap between the two sets, so that metric is reported as well in the ```overlap``` column.
+
+Using these results, we can plot a volcano plot and lollipop plot.
+
+```{r plot-volcano, fig.width=7, fig.height=6, echo=TRUE}
+plotVolcano(data=resultsAll, title="Database Set Enrichment", 
+            subtitle="MM285 Mouse Array")
+```
+
+```{r plot-lollipop, fig.width=7, fig.height=6, echo=TRUE}
+plotLollipop(data=resultsAll, title="Top Database Set Enrichment", 
+             subtitle="MM285 Mouse Array")
+```
+
+### Example Testing Scenarios
+
+``` {r, eval=FALSE, echo=FALSE}
+# TODO: break this into another section... different testing scenarios
+# TODO: also break up the code with explanations so it looks less messy in between
+
 ```
 
 The querySet may be a named continuous vector. In that case, either a gene enrichment score will be calculated (if the databaseSet is discrete) or a Spearman correlation will be calculated (if the databaseSet is continuous as well). The three other cases are shown below using biologically relevant examples.
 
+To display this functionality, let's load two numeric database sets individually. One is a database set for CpG density and the other is a database set corresponding to the distance of the nearest transcriptional start site (TSS) to each probe.
+
 ``` {r run-test-data, echo=TRUE, eval=TRUE}
-CpGDensitydatabaseSet = getDatabaseSets('20210630_MM285_mm10_CpGDensity')
-Dist2TSSdatabaseSet = getDatabaseSets('20210816_MM285_mm10_distToTSS')
-print(str(CpGDensitydatabaseSet), str(Dist2TSSdatabaseSet))
+CpGDensitydatabaseSet = getDatabaseSets('20210630_MM285_mm10_CpGDensity',
+                                        verbose=FALSE)
+Dist2TSSdatabaseSet = getDatabaseSets('20210816_MM285_mm10_distToTSS',
+                                      verbose=FALSE)
 ```
 
+#### Example 1
+
+Our first test will look at whether the query set is significantly enriched in either of the database sets individually.
+
 ``` {r run-test-other1, echo=TRUE, eval=TRUE}
-results_1 = testEnrichmentAll(querySet=querySet, databaseSets=CpGDensitydatabaseSet, array="MM285")
-print(results_1)
+resultsCpGDensity = testEnrichmentAll(querySet=querySet,
+                                      databaseSets=CpGDensitydatabaseSet,
+                                      array="MM285")
+print(resultsCpGDensity)
 ```
 
 ``` {r run-test-other2, echo=TRUE, eval=TRUE}
-results_2 = testEnrichmentAll(querySet=querySet, databaseSets=Dist2TSSdatabaseSet, array="MM285")
-print(results_2)
+resultsTSS = testEnrichmentAll(querySet=querySet, 
+                               databaseSets=Dist2TSSdatabaseSet, 
+                               array="MM285")
+print(resultsTSS)
 ```
+Both of the tests result in a p-value greater than 0.05, so there is little evidence to suggest that either of the query set is enriched in either of these database sets. 
+
+#### Example 2
+
+A third test might be whether there is a significant correlation between these two database sets.
 
 ``` {r run-test-other3, echo=TRUE, eval=TRUE}
-results_3 = testEnrichmentAll(querySet=CpGDensitydatabaseSet$CpGDesity50, databaseSets=Dist2TSSdatabaseSet, array="MM285")
-print(results_3)
+resultsCpGdensityTSS = testEnrichmentAll(querySet=CpGDensitydatabaseSet$CpGDesity50,
+                                         databaseSets=Dist2TSSdatabaseSet,
+                                         array="MM285")
+print(resultsCpGdensityTSS)
 ```
 
-The output of each test contains at least four variables: the estimate, p-value, type of test, and whether meta data is included in the tested database set. The name of the database set is also recorded as well. By default, the p-value column is sorted. It should be noted that the estimate (or test statistic) is test dependent and comparison between p-values should be limited to within the same type of test. For instance, the test statistics for Fisher's exact test and FGSEA are log fold change and the test statistic for Spearman's test is simply the rank order correlation coefficient. For simplicity, we report all of the test types in one data frame.
+This test is statistically significant with a p-value less than 0.05 and a moderately weak negative correlation. It is known in biology that the distance to TSS are negatively correlated with CpG islands, which is shown to be the case here from the data as well.
 
-In the above tree examples, the database sets were specified. This is not neccessarily needed as the function can load a default set of database sets based on the newest Release. This would yeild the same results as when they were all supplied earlier.
+In the above four examples, the database sets were specified explicitly. This is not necessarily needed as the function can load a default set of database sets based a release specified the ```release``` parameter. The default is ```release=2```.
 
-### Plotting Results
+#### Example 3
 
-Using these sample results, we can plot a volcano plot and lollipop plot.
+We may want to look specifically at query our query set is significantly enriched in the set of all Transcription Factor Binding Sites (TFBS). Let's first load in the TFBS database set.
 
-```{r plot-volcano, fig.width=7, fig.height=6, echo=TRUE}
-plotVolcano(data=results_0, title="Database Set Enrichment\nMM285 Mouse Array")
+``` {r load-data-tfbs, echo=TRUE, eval=TRUE}
+databaseSets = getDatabaseSets("20210817_MM285_TFBS_ENCODE", verbose=FALSE)
 ```
 
-```{r plot-lollipop, fig.width=7, fig.height=6, echo=TRUE}
-plotLollipop(data=results_0, title="Top Database Set Enrichment\nMM285 Mouse Array")
-```
-
-### Transcription Factor Binding Site Analysis
-
-Often, a more telling volcano plot is with transcription factor binding sites. The use can perform the analysis in the following way.
+Next we can actually perform the test.
 
 ``` {r run-test-tfbs, echo=TRUE, eval=TRUE}
-databaseSets = getDatabaseSets("20210817_MM285_TFBS_ENCODE")
-results_TFBS = testEnrichmentAll(querySet=querySet, databaseSets=databaseSets, array="MM285", verbose=FALSE)
-head(results_TFBS)
+resultsTFBS = testEnrichmentAll(querySet=querySet, databaseSets=databaseSets,
+                                array="MM285", verbose=FALSE)
+head(resultsTFBS)
 ```
 
 Using these sample results, we can plot a volcano plot and lollipop plot.
 
 ```{r plot-volcano-tfbs, fig.width=7, fig.height=6, echo=TRUE}
-plotVolcano(data=results_TFBS, title="Transcription Factor Binding Site Enrichment\nMM285 Mouse Array")
+plotVolcano(data=resultsTFBS, title="Transcription Factor Binding Site Enrichment",
+            subtitle='MM285 Mouse Array')
 ```
 
-
 ```{r plot-lollipop-tfbs, fig.width=7, fig.height=6, echo=TRUE}
-plotLollipop(data=results_TFBS, title="Transcription Factor Binding Site Enrichment\nMM285 Mouse Array")
+plotLollipop(data=resultsTFBS, title="Transcription Factor Binding Site Enrichment",
+             subtitle='MM285 Mouse Array')
 ```
 
 ### Gene Enrichment Ananlysis
 
-Automating the enrichment test process only works when the number of database sets is small. This is important when targeting all genes as there are tens of thousands of genes on each array array. By testing only those genes that overlap with the query set, we can greatly reduce the number of tests.
+Automating the enrichment test process only works when the number of database sets is small. This is important when targeting all genes as there are tens of thousands of genes on each array array. By testing only those genes that overlap with the query set, we can greatly reduce the number of tests. For this reason, the gene enrichment analysis is a special case of these enrichment tests. We can perform this analysis using the ```testEnrichmentGene()``` function.
 
 ``` {r run-test-gene, fig.width=7, fig.height=6, echo=TRUE}
-results_gene = testEnrichmentGene(querySet, array="MM285", verbose=FALSE)
-head(results_gene)
+resultsGene = testEnrichmentGene(querySet, array="MM285", verbose=FALSE)
+head(resultsGene)
 ```
 
 Using these sample results, we can plot a volcano plot and lollipop plot.
 
 ```{r plot-volcano-gene, fig.width=7, fig.height=6, echo=TRUE}
-plotVolcano(data=results_gene, title="Transcription Factor Binding Site Enrichment\nMM285 Mouse Array")
+plotVolcano(data=resultsGene, title="Gene Enrichment",
+            subtitle="MM285 Mouse Array", n.fdr=TRUE)
 ```
 
 ```{r plot-lollipop-gene, fig.width=7, fig.height=6, echo=TRUE}
-plotLollipop(data=results_gene, title="Top Gene Enrichmentt\nMM285 Mouse Array", n=20)
+plotLollipop(data=resultsGene, title="Top Gene Enrichment", 
+             subtitle="MM285 Mouse Array", n=10)
 ```
 
-For example, this given query set is tissue specific hypomethylation of mouse brain. RBFOX3 is shown to be significantly enriched in this set and it is known to be enriched in neurons (https://www.ncbi.nlm.nih.gov/gene/146713).
-
-TODO: Use age clock from sesameDataGet(MM285.clock.347), use as positive control, try to identify polycomb targets
+For example, this given query set is tissue specific hypomethylation of mouse brain. Rufy3 is shown to be significantly enriched in this set and it is known to be enriched in neurons (https://www.ncbi.nlm.nih.gov/gene/22902).
 
 ## Feature Engineering
 
@@ -242,11 +311,13 @@ betas = getBetas("MM285", release=1, dev=TRUE, verbose=TRUE)
 The samplesheet includes a couple UIDs pertaining to the sample and several categorical/numerical features. To use this for a linear model, we will extract the most relevant prevalent features. 
 
 ``` {r run-feature-engineering-subsetting-samplesheet, echo=TRUE, eval=TRUE}
-samplesheet = samplesheet[, c("meanMeth", "pcgMeth", "Mouse_Age_Months", "Mouse_Age_Days", "Sex", "Strain_Corrected", "Tissue_Corrected", 'Genotype')]
+samplesheet = samplesheet[, c("meanMeth", "pcgMeth", "Mouse_Age_Months",
+                              "Mouse_Age_Days", "Sex", "Strain_Corrected",
+                              "Tissue_Corrected", 'Genotype')]
 print(head(samplesheet))
 ```
 
-We have found that it is incredibly computationally expensive to perform a linear model/generalized linear model on a feature set of individual CpGs. Additionally, interpretting the mechanism the signifigantly contributing CpGs is non-trival due to their complex interactions. We hope to leverage these pre-curated database sets by using their beta value summary statistics as features instead. 
+We have found that it is incredibly computationally expensive to perform a linear model/generalized linear model on a feature set of individual CpGs. Additionally, interpreting the mechanism the significantly contributing CpGs is non-trivial due to their complex interactions. We hope to leverage these pre-curated database sets by using their beta value summary statistics as features instead. 
 
 We will calculate the summary statistics for the betas matrix using a list of database sets.
 
@@ -281,7 +352,11 @@ data$Mouse_Age_Months = as.numeric(data$Mouse_Age_Months)
 A linear model can finally be constructed using this data. Since there are only 20 samples, we will use use four of the database summary statistics.
 
 ``` {r feature-engineering-linear-model}
-model = lm(Mouse_Age_Days ~ Sex + Strain_Corrected + Tissue_Corrected + Genotype + `CGI-mean` + `CTCF-mean` + `Random-mean` + `SNP-mean` + `SpermMeth-mean` + `VMR-mean`, data=data)
+model = lm(Mouse_Age_Days ~ Sex + Strain_Corrected + Tissue_Corrected + 
+               Genotype + `CGI-mean` + `CTCF-mean` + `Random-mean` + 
+               `SNP-mean` + `SpermMeth-mean` + `VMR-mean`, data=data)
+
+library(stats4)
 
 summary(model)
 

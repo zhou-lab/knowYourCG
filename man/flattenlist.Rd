@@ -6,6 +6,9 @@
 \usage{
 flattenlist(x)
 }
+\arguments{
+\item{x}{Multidimensional list.}
+}
 \value{
 A single dimensional list.
 }

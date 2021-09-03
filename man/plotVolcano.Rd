@@ -5,7 +5,7 @@
 \title{plotVolcano creates a volcano plot of -log2(p.value) and log(estimate)
 given data with fields estimate and p.value.}
 \usage{
-plotVolcano(data, title = NA, subtitle = NA)
+plotVolcano(data, title = NA, subtitle = NA, n.fdr = FALSE)
 }
 \arguments{
 \item{data}{DataFrame where each field is a database name with two fields

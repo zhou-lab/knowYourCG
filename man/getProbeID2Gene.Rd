@@ -9,7 +9,7 @@ getProbeID2Gene(array)
 }
 \arguments{
 \item{array}{string representing the array (EPIC, HM450, HM27, MM285)
-for which databaseSets will be returned.}
+for which database sets will be returned.}
 }
 \value{
 List with each probe mapped to its respective gene.?

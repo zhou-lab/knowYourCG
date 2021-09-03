@@ -6,29 +6,40 @@
 #'
 #' @import stats
 calcDatabaseSetStatistics1 = function(x) {
-    a = data.frame(mean=apply(x, 2, mean, na.rm=TRUE),
-      median=apply(x, 2, median, na.rm=TRUE),
-      var=apply(x, 2, var, na.rm=TRUE),
-      sd=apply(x, 2, sd, na.rm=TRUE),
-      skew=apply(x, 2, var, na.rm=TRUE),
-      iqr=apply(x, 2, IQR, na.rm=TRUE),
+    a = data.frame(mean=apply(x, 2, stats::mean, na.rm=TRUE),
+      median=apply(x, 2, stats::median, na.rm=TRUE),
+      var=apply(x, 2, stats::var, na.rm=TRUE),
+      sd=apply(x, 2, stats::sd, na.rm=TRUE),
+      skew=apply(x, 2, stats::var, na.rm=TRUE),
+      iqr=apply(x, 2, stats::IQR, na.rm=TRUE),
       range=apply(x, 2, max, na.rm=TRUE) - apply(x, 2, min, na.rm=TRUE),
       min=apply(x, 2, min, na.rm=TRUE),
       max=apply(x, 2, max, na.rm=TRUE))
-  b = apply(x, 2, quantile, na.rm=TRUE, probs=seq(0, 1, 0.1))
+  b = apply(x, 2, stats::quantile, na.rm=TRUE, probs=seq(0, 1, 0.1))
   return(cbind(a, t(b)))
 }
     
 
-#' calcDatabaseSetStatisticsAll builds dataset for a given filename composed
-#' of engineered features from the given databaseSets
+#' calcDatabaseSetStatisticsAll builds dataset for a given betas matrix 
+#' composed of engineered features from the given database sets
 #'
-#' @param filename String representing a filename to load using readRDS/tbk_data
+#' @param betas matrix of beta values where probes are on the rows and samples
+#' are on the columns
 #' @param databaseSets List of vectors corresponding to probe locations for
 #' which the features will be extracted
-#'
+#' 
+#' @examples 
+#' betas = getBetas("MM285", release=1, dev=TRUE, verbose=TRUE)
+#' databaseSetNames = c('20210630_MM285_mm10_CpGDensity',
+#' '20210630_MM285_mm10_CGI', 20210816_MM285_mm10_distToTSS',
+#' '20210210_MM285_design', '20210630_MM285_mm10_probe_type')
+#' databaseSets = getDatabaseSets(databaseSetNames, dev=TRUE)
+#' calcDatabaseSetStatisticsAll(betas, databaseSets)
+#' 
 #' @return Vector for a given sample columns are features across different
 #' databaseSets
+#' 
+#' @export
 calcDatabaseSetStatisticsAll = function(betas, databaseSets) {
     a = do.call(cbind, 
             lapply(names(databaseSets),
@@ -41,7 +52,9 @@ calcDatabaseSetStatisticsAll = function(betas, databaseSets) {
                           probes = databaseSet
                       }
                       
-                      statistics = suppressWarnings(calcDatabaseSetStatistics1(betas[na.omit(match(probes, rownames(betas))), ]))
+                      statistics = suppressWarnings(
+                          calcDatabaseSetStatistics1(
+                              betas[na.omit(match(probes, rownames(betas))), ]))
                       names(statistics) = unlist(lapply(names(statistics), function(colname) {
                           paste(databaseSetName, colname, sep="-")
                       }))
@@ -50,29 +63,6 @@ calcDatabaseSetStatisticsAll = function(betas, databaseSets) {
     b = a[, !grepl("FALSE", colnames(a))]
     c = b[, !apply(b, 2, function(x) {any(is.na(x) | is.infinite(x))})]
     return(c)
-}
-
-
-#' buildStatisticDataSet builds dataset for each filename in filenames composed
-#' of engineered features from the given databaseSets
-#'
-#' @param filenames Vector of filenames to load using readRDS/tbk_data
-#' @param databaseSets List of vectors corresponding to probe locations for
-#' which the features will be extracted
-#'
-#' @return DataFrame where rows are sample names and columns are features across
-#' different databaseSets
-buildStatisticDataSet = function(betas, databaseSets) {
-    a = t(data.frame(setNames(
-        lapply(filenames,
-               function(filename) {
-                   unlist(calcDatabaseSetStatisticsAll(betas,
-                                                       databaseSets))
-               }),
-        lapply(filenames,
-               function(filename){
-                   strsplit(basename(filename), '\\.')[[1]][1]
-               }))))
 }
 
 

@@ -8,7 +8,7 @@ getUniverseSet(array, verbose = TRUE)
 }
 \arguments{
 \item{array}{string representing the array (EPIC, HM450, HM27, MM285)
-for which databaseSets will be returned.}
+for which database sets will be returned.}
 
 \item{verbose}{Logical value indicating whether intermediate outputs will be
 displayed to console. Optional. (Default: TRUE).}
@@ -20,6 +20,6 @@ Vector of strings corresponding to the ProbeIDs on a given array.
 getUniverseSet retrieves universe set of a given array.
 }
 \examples{
-getUniverseSet("MM285.mm10.manifest")
+getUniverseSet("MM285")
 
 }

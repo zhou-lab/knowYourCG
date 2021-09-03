@@ -2,25 +2,25 @@
 % Please edit documentation in R/data.R
 \name{listDatabaseSets}
 \alias{listDatabaseSets}
-\title{listDatabaseSets prints which databaseSets are available for a given release}
+\title{listDatabaseSets prints which database sets are available for a given release}
 \usage{
 listDatabaseSets(release = 2, dev = TRUE, verbose = TRUE)
 }
 \arguments{
-\item{release}{Integer indicating the release number of the databaseSet
+\item{release}{Integer indicating the release number of the database et.
 manifest to use. Optional. (Defualt: 2).}
 
-\item{dev}{Logical value indiciating whether to use development version
+\item{dev}{Logical value indiciating whether to use development version.
 of the manifest file. Optional. (Default: TRUE).}
 
 \item{verbose}{Logical value indicating whether intermediate outputs will be
 displayed to console. Optional. (Default: TRUE).}
 }
 \value{
-One list of vectors corresponding to aggregated databaseSets.
+One list of vectors corresponding to aggregated database sets.
 }
 \description{
-listDatabaseSets prints which databaseSets are available for a given release
+listDatabaseSets prints which database sets are available for a given release
 }
 \examples{
 listDatabaseSets(release=2)

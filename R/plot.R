@@ -17,10 +17,8 @@
 #' plotVolcano(data)
 #'
 #' @export
-plotVolcano = function(data, title=NA, subtitle=NA) {
+plotVolcano = function(data, title=NA, subtitle=NA, n.fdr=FALSE) {
     options(ggrepel.max.overlaps = 10)
-
-    # data = data[which(as.logical(data$meta)), ]
     
     if ("Target" %in% colnames(data))
         data["label"] = unlist(data[["Target"]])
@@ -35,22 +33,42 @@ plotVolcano = function(data, title=NA, subtitle=NA) {
     if (is.na(subtitle)) {
         subtitle = ''
     }
+    
+    if (n.fdr) {
+        data$p.value = data$p.adjust.fdr
+    }
 
     subtitle = gsub('(.{1,80})(\\s|$)', '\\1\n', subtitle)
 
+    # TODO: repalce with column specifying sig vs non sig
+    
     if (any(data$p.value <= 0.05)) {
         g = ggplot(data=data, aes(x=log2(estimate), y=-log10(p.value),
                                   color = cut(p.value, c(-Inf, 0.05))))
     } else {
         g = ggplot(data=data, aes(x=estimate, y=p.value))
     }
-    g = g + geom_point() +
-    xlab("log2 Fold Change") +
-    ylab("-log10 p-value") +
-    labs(
+    g = g + geom_point() + 
+        xlab("log2 Fold Change")
+    
+    if(is.na(n.fdr)) {
+        g = g + 
+            ylab("-log10 p-value") +
+            scale_colour_discrete(
+                name = "Significance (p < 0.05)",
+                labels=c("Significant", "Not Significant")
+            )
+    } else {
+        g = g + 
+            ylab("-log10 q-value") +
+            scale_colour_discrete(
+                name = "Significance (q < 0.05)",
+                labels=c("Significant", "Not Significant")
+            )
+    }
+    g = g + labs(
         title = title,
          subtitle = subtitle,
-         legend= "HELLO",
          fill = "pvalue"
         ) +
     theme(
@@ -59,10 +77,6 @@ plotVolcano = function(data, title=NA, subtitle=NA) {
         axis.title = element_text(size=12),
         legend.title = element_text(size=12),
         legend.text = element_text(size=12)
-        ) +
-    scale_colour_discrete(
-        name = "Significance (alpha = 0.05)",
-        labels=c("Significant", "Not Significant")
         ) +
     geom_text_repel(
         data = subset(data, p.value < 0.05),
@@ -111,14 +125,22 @@ plotLollipop = function(data, n=10, title=NA, subtitle=NA) {
         subtitle = ''
     }
 
-    ggplot(data, aes(x=label, y=log2(estimate), label=sprintf('%.2f',log2(estimate)))) +
+    ggplot(data, aes(x=label, 
+                     y=log2(estimate), 
+                     label=sprintf('%.2f',log2(estimate)))) +
         geom_hline(yintercept=0) +
-        geom_segment(aes(y=0, x=reorder(label, -estimate), yend=log2(estimate), xend=label), color='black') +
-        geom_point(aes(fill=pmax(-1.5,log2(estimate))), stat='identity', size=10, alpha=0.95, shape=21) +
+        geom_segment(aes(y=0, 
+                         x=reorder(label, -estimate), 
+                         yend=log2(estimate), xend=label), color='black') +
+        geom_point(aes(fill=pmax(-1.5,log2(estimate))), 
+                   stat='identity', 
+                   size=10, 
+                   alpha=0.95, 
+                   shape=21) +
         scale_fill_gradientn(name='Fold Change',
                              colours=c('#2166ac','#333333','#b2182b'),
-                             limits=c(0,
-                                      max(log2(data$estimate + 1)))) +
+                             limits=c(min(log2(data$estimate + 1)),
+                                      max(log2(data$estimate + 1)) )) +
         geom_text(color='white', size=3) +
         labs(title=title, subtitle=subtitle) +
         geom_label(aes(x=label,
@@ -138,7 +160,7 @@ plotLollipop = function(data, n=10, title=NA, subtitle=NA) {
 #' createGeneNetwork creates databaseSet network using the given similarity
 #' metric.
 #'
-#' @param databaseSet Vector of probes corresponding to a single database set
+#' @param databaseSets Vector of probes corresponding to a single database set
 #' of interest.
 #' @param metric String representing the similarity score to use. Optional.
 #' (Default: "Jaccard").
@@ -149,15 +171,18 @@ plotLollipop = function(data, n=10, title=NA, subtitle=NA) {
 #' @import reshape2
 #'
 #' @examples
-#' createDatabaseSetNetwork(list(a=c("a", "b"), b=c("a", "e", "f"), c=c("q", "a")))
+#' databaseSets = list(a=c("a", "b"), b=c("a", "e", "f"), c=c("q", "a"))
+#' createDatabaseSetNetwork(databaseSets)
 #'
 #' @export
-createDatabaseSetNetwork = function(databaseSets, title="Database Interaction Network", collection="DatabaseSets") {
-    m = getDatabaseSetPairwiseDistance(databaseSets, metric=metric)
+createDatabaseSetNetwork = function(databaseSets, 
+                                    title="Database Interaction Network", 
+                                    collection="DatabaseSets") {
+    m = getDatabaseSetPairwiseDistance(databaseSets, metric="jaccard")
     saveRDS(m, "/Users/ethanmoyer/Dropbox/Ongoing_knowYourCpG/data/databaseSetNetwork.rds")
 
     m_ = m
-    m = m_[1:50, 1:50]
+    m = m_[seq(50), seq(50)]
 
     m_melted = melt(m); colnames(m_melted) = c("gene1", "gene2", "metric")
     m_melted = m_melted[m_melted$metric != 0, ]

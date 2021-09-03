@@ -9,9 +9,9 @@ getSampleSheet(array, release = 1, dev = TRUE, verbose = TRUE)
 }
 \arguments{
 \item{array}{string representing the array (EPIC, HM450, HM27, MM285)
-for which databaseSets will be returned.}
+for which database sets will be returned.}
 
-\item{release}{Integer indicating the release number of the databaseSet
+\item{release}{Integer indicating the release number of the database set
 manifest to use. Optional. (Defualt: 2).}
 
 \item{dev}{Logical value indiciating whether to use development version

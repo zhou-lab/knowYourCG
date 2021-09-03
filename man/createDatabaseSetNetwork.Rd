@@ -12,7 +12,7 @@ createDatabaseSetNetwork(
 )
 }
 \arguments{
-\item{databaseSet}{Vector of probes corresponding to a single database set
+\item{databaseSets}{Vector of probes corresponding to a single database set
 of interest.}
 
 \item{metric}{String representing the similarity score to use. Optional.
@@ -26,6 +26,7 @@ createGeneNetwork creates databaseSet network using the given similarity
 metric.
 }
 \examples{
-createDatabaseSetNetwork(list(a=c("a", "b"), b=c("a", "e", "f"), c=c("q", "a")))
+databaseSets = list(a=c("a", "b"), b=c("a", "e", "f"), c=c("q", "a"))
+createDatabaseSetNetwork(databaseSets)
 
 }

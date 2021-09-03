@@ -1,26 +1,28 @@
 baseurl = "http://zhouserver.research.chop.edu"
 
-#' getDatabaseSets retrieves database sets from a meta data sheet by querying the
-#' group, array, reference columns. The data is returned as a list where the
-#' names correspond to chosen databaseSets.
+#' getDatabaseSets retrieves database sets from a meta data sheet by querying 
+#' the group, array, reference columns. The data is returned as a list where the
+#' names correspond to chosen database sets.
 #'
-#' @param accessions vector containing the characters associated with the
-#' selected databaseSets; only non-NA locations will be returned. Optional.
+#' @param keys vector containing the characters associated with the
+#' selected database sets; only non-NA locations will be returned. Optional.
 #' (Default: c("20210810_MM285_TFBS_ENCODE").
-#' @param group string representing the group for which the databaseSets will
+#' @param group string representing the group for which the database sets will
 #' be returned. Optional. (Default: NA).
 #' @param array string representing the array (EPIC, HM450, HM27, MM285)
-#' for which databaseSets will be returned. Optional. (Default: NA).
+#' for which database sets will be returned. Optional. (Default: NA).
+#' @param reference string representing the reference (hg19, hg38, mm9, mm10) 
+#' for which the database sets will be returned. Optional. (Default NA).
 #' @param cacheLoc String corresponding to the local filesystem location of
 #' where the cache should be stored. Optional. (Default: "").
-#' @param release Integer indicating the release number of the databaseSet
+#' @param release Integer indicating the release number of the database set
 #' manifest to use. Optional. (Defualt: 2).
 #' @param dev Logical value indiciating whether to use development version
 #' of the manifest file. Optional. (Default: TRUE).
 #' @param verbose Logical value indicating whether intermediate outputs will be
 #' displayed to console. Optional. (Default: TRUE).
 #'
-#' @return One list of vectors corresponding to aggregated databaseSets.
+#' @return One list of vectors corresponding to aggregated database sets.
 #'
 #' @examples
 #' getDatabaseSets()
@@ -28,16 +30,18 @@ baseurl = "http://zhouserver.research.chop.edu"
 #' @import readxl
 #'
 #' @export
-getDatabaseSets = function(keys=NA, group=NA, array=NA, reference=NA,
-                          cacheLoc="", release=2, dev=TRUE, verbose=TRUE) {
+getDatabaseSets = function(keys=NA, group=NA, array=NA, reference=NA, 
+                           cacheLoc="", release=2, dev=TRUE, verbose=TRUE) {
     options(timeout=1000)
 
     if (verbose) {
-        print(sprintf("Loading in databaseSet manifest release %d...", release))
+        print(sprintf("Loading in database set manifest release %d...",
+                      release))
     }
 
     if (dev) {
-        meta = read_excel(sprintf("%s/Dropbox/Ongoing_knowYourCpG/20210710_databaseSets.xlsx", Sys.getenv("HOME")), "R2 In Progress")
+        meta = read_excel(
+            sprintf("%s/Dropbox/Ongoing_knowYourCpG/20210710_databaseSets.xlsx", Sys.getenv("HOME")), "R2 In Progress")
         meta = meta[as.logical(meta$Development), ]
     } else {
         meta = read.table(url(sprintf("%s/kyCG/RELEASE_%s.csv",
@@ -66,8 +70,8 @@ getDatabaseSets = function(keys=NA, group=NA, array=NA, reference=NA,
 
     cacheDatabaseSets(release=release)
 
-    path = Sys.getenv("KYCG_DATABASESETS_LOC")
-    if (path == "") {
+    path = getOption("KYCG_DATABASESETS_LOC")
+    if (is.null(path)) {
         path = file.path('databaseSets')
     }
 
@@ -76,9 +80,16 @@ getDatabaseSets = function(keys=NA, group=NA, array=NA, reference=NA,
     bfc = BiocFileCache(path, ask = FALSE)
     bfcinfoAll = bfcinfo(bfc)
 
-    filelocations = lapply(meta$Accession, function(acc) bfcquery(bfc, acc, field=c("rname"))$rpath)
+    filelocations = lapply(meta$Accession, 
+                           function(acc) {
+                               bfcquery(bfc, acc, field=c("rname"))$rpath
+                           })
 
-    databaseSets = flattenlist(lapply(filelocations, function(filelocation) readRDS(filelocation)))
+    databaseSets = flattenlist(lapply(filelocations, 
+                                      function(filelocation) {
+                                          readRDS(filelocation)
+                                      })
+                               )
 
     return(databaseSets)
 }
@@ -86,7 +97,11 @@ getDatabaseSets = function(keys=NA, group=NA, array=NA, reference=NA,
 
 #' flattenlist flattens a multidimensional list into a single dimensional list.
 #'
+#' @param x Multidimensional list.
+#'
 #' @return A single dimensional list.
+#'
+#' @import methods
 #'
 #' @examples
 #' flattenlist(list(a=list(1,2,3), b=list(4,5,6)))
@@ -101,16 +116,16 @@ flattenlist = function(x) {
 }
 
 
-#' listDatabaseSets prints which databaseSets are available for a given release
+#' listDatabaseSets prints which database sets are available for a given release
 #'
-#' @param release Integer indicating the release number of the databaseSet
+#' @param release Integer indicating the release number of the database et.
 #' manifest to use. Optional. (Defualt: 2).
-#' @param dev Logical value indiciating whether to use development version
+#' @param dev Logical value indiciating whether to use development version.
 #' of the manifest file. Optional. (Default: TRUE).
 #' @param verbose Logical value indicating whether intermediate outputs will be
 #' displayed to console. Optional. (Default: TRUE).
 #'
-#' @return One list of vectors corresponding to aggregated databaseSets.
+#' @return One list of vectors corresponding to aggregated database sets.
 #'
 #' @examples
 #' listDatabaseSets(release=2)
@@ -127,43 +142,36 @@ listDatabaseSets = function(release=2, dev=TRUE, verbose=TRUE) {
                                       baseurl, release)), header=TRUE)
     }
 
-    x = apply(meta, 1, function(row) {if (dev & !as.logical(row["Development"])) return(NULL)
-        cat(sprintf("Accession: %s (n: %s)\n", format(row["Accession"], width = 50, justify = "l"), row["N"]))})
-}
-
-
-#' getQuerySets retrieves sample query sets.
-#'
-#' @return List of categorical vectors, each of which corresponding to a query
-#' set.
-#'
-#' @examples
-#' getQuerySets()
-#'
-#' @export
-getQuerySets = function() {
-    return(readRDS(url(sprintf("%s/kyCG/20210726_querySets.rds", baseurl))))
+    # TODO: think about how to justify the aligntment of database set count
+    
+    x = apply(meta, 1, function(row) {
+        if (dev & !as.logical(row["Development"])) return(NULL)
+        cat(sprintf("Accession: %s (n: %s)\n", 
+                    format(row["Accession"], width = 50, justify = "l"), 
+                    row["N"]))})
 }
 
 
 #' getUniverseSet retrieves universe set of a given array.
 #'
 #' @param array string representing the array (EPIC, HM450, HM27, MM285)
-#' for which databaseSets will be returned.
+#' for which database sets will be returned.
 #' @param verbose Logical value indicating whether intermediate outputs will be
 #' displayed to console. Optional. (Default: TRUE).
 #'
 #' @return Vector of strings corresponding to the ProbeIDs on a given array.
 #'
 #' @examples
-#' getUniverseSet("MM285.mm10.manifest")
+#' getUniverseSet("MM285")
+#'
+#' @import data.table
 #'
 #' @export
 getUniverseSet = function(array, verbose=TRUE) {
     tools::R_user_dir("", which="cache")
 
-    path = Sys.getenv("KYCG_UNIVERSESETS_LOC")
-    if (path == "") {
+    path = getOption("KYCG_UNIVERSESETS_LOC")
+    if (is.null(path)) {
         path = file.path("universeSets")
     }
 
@@ -187,7 +195,8 @@ getUniverseSet = function(array, verbose=TRUE) {
         return(readRDS(bfcquery(bfc, manifest, field=c("rname"))$rpath))
 
     manifest_data = fread(
-        sprintf("%s/InfiniumAnnotation/current/%s/%s.tsv.gz", baseurl, array, manifest))
+        sprintf("%s/InfiniumAnnotation/current/%s/%s.tsv.gz", 
+                baseurl, array, manifest))
     
     universeSet = manifest_data$probeID
     
@@ -205,7 +214,7 @@ getUniverseSet = function(array, verbose=TRUE) {
 #' array.
 #' 
 #' @param array string representing the array (EPIC, HM450, HM27, MM285)
-#' for which databaseSets will be returned.
+#' for which database sets will be returned.
 #'
 #' @return List with each probe mapped to its respective gene.?
 #'
@@ -229,16 +238,16 @@ getProbeID2Gene = function(array) {
 }
 
 
-#' cacheDatabaseSets cache databaseSets into memory
+#' cacheDatabaseSets cache database sets into memory
 #'
-#' @param release Integer indicating the release number of the databaseSet
+#' @param release Integer indicating the release number of the database set
 #' manifest to use. Optional. (Defualt: 2).
 #' @param dev Logical value indiciating whether to use development version
 #' of the manifest file. Optional. (Default: TRUE).
 #' @param verbose Logical value indicating whether intermediate outputs will be
 #' displayed to console. Optional. (Default: TRUE).
 #'
-#' @return One list of vectors corresponding to aggregated databaseSets.
+#' @return One list of vectors corresponding to aggregated database sets.
 #'
 #' @import tools
 #' @import dbplyr
@@ -249,8 +258,8 @@ getProbeID2Gene = function(array) {
 cacheDatabaseSets = function(release=2, dev=TRUE, verbose=TRUE) {
     tools::R_user_dir("", which="cache")
 
-    path = Sys.getenv("KYCG_DATABASESETS_LOC")
-    if (path == "") {
+    path = getOption("KYCG_DATABASESETS_LOC")
+    if (is.null(path)) {
         path = file.path("databaseSets")
     }
 
@@ -267,7 +276,11 @@ cacheDatabaseSets = function(release=2, dev=TRUE, verbose=TRUE) {
                                   baseurl), sprintf("R%d", release))
     }
 
-    remotelocations = unlist(lapply(meta$Accession, function(acc) sprintf("%s/kyCG/%s.rds", baseurl, acc)))
+    remotelocations = unlist(lapply(meta$Accession, 
+                                    function(acc) {
+                                        sprintf("%s/kyCG/%s.rds", baseurl, acc)
+                                    })
+                             )
 
     ridsQuery = setNames(remotelocations, unlist(lapply(
         remotelocations,
@@ -285,7 +298,7 @@ cacheDatabaseSets = function(release=2, dev=TRUE, verbose=TRUE) {
     nrids = length(rids)
 
     if (nrids > 0) {
-        for (irid in 1:nrids) {
+        for (irid in seq(nrids)) {
             if (verbose)
                 cat(sprintf("Downloading ... [%d of %d].\r", irid, nrids))
             rid = rids[irid]
@@ -306,8 +319,6 @@ cacheDatabaseSets = function(release=2, dev=TRUE, verbose=TRUE) {
 #' @param verbose Logical value indicating whether intermediate outputs will be
 #' displayed to console. Optional. (Default: TRUE).
 #'
-#' @return NULL
-#'
 #' @import dbplyr
 #' @import BiocFileCache
 #'
@@ -326,8 +337,6 @@ clearCache = function(verbose=TRUE) {
 #' @param verbose Logical value indicating whether intermediate outputs will be
 #' displayed to console. Optional. (Default: TRUE).
 #'
-#' @return NULL
-#'
 #' @import dbplyr
 #' @import BiocFileCache
 #'
@@ -338,8 +347,8 @@ clearCache = function(verbose=TRUE) {
 clearDatabaseSetCache = function(verbose=TRUE) {
     if (verbose)
         cat(sprintf("Clearing database set cache ...\r"))
-    path = Sys.getenv("KYCG_DATABASESETS_LOC")
-    if (path == "") {
+    path = getOption("KYCG_DATABASESETS_LOC")
+    if (is.null(path)) {
         path = "databaseSets"
     }
     
@@ -355,8 +364,6 @@ clearDatabaseSetCache = function(verbose=TRUE) {
 #' @param verbose Logical value indicating whether intermediate outputs will be
 #' displayed to console. Optional. (Default: TRUE).
 #'
-#' @return NULL
-#'
 #' @import dbplyr
 #' @import BiocFileCache
 #'
@@ -367,8 +374,8 @@ clearDatabaseSetCache = function(verbose=TRUE) {
 clearUniverseSetCache = function(verbose=TRUE) {
     if (verbose)
         cat(sprintf("Clearing universe set cache ...\r"))
-    path = Sys.getenv("KYCG_UNIVERSESETS_LOC")
-    if (path == "") {
+    path = getOption("KYCG_UNIVERSESETS_LOC")
+    if (is.null(path)) {
         path = "universeSets"
     }
     bfc = BiocFileCache(path, ask = FALSE)
@@ -384,8 +391,6 @@ clearUniverseSetCache = function(verbose=TRUE) {
 #' @param verbose Logical value indicating whether intermediate outputs will be
 #' displayed to console. Optional. (Default: TRUE).
 #'
-#' @return NULL
-#'
 #' @import dbplyr
 #' @import BiocFileCache
 #'
@@ -397,8 +402,8 @@ clearFeatureEngineeringCache = function(verbose=TRUE) {
     if (verbose)
         cat(sprintf("Clearing feature engineering cache ...\r"))
     
-    path = Sys.getenv("KYCG_FEATURE_ENGINEERING_LOC")
-    if (path == "") {
+    path = getOption("KYCG_FEATURE_ENGINEERING_LOC")
+    if (is.null(path)) {
         path = "featureEngineering"
     }
     bfc = BiocFileCache(path, ask = FALSE)
@@ -413,11 +418,11 @@ clearFeatureEngineeringCache = function(verbose=TRUE) {
 #' 20 samples.
 #'
 #' @param array string representing the array (EPIC, HM450, HM27, MM285)
-#' for which databaseSets will be returned.
+#' for which database sets will be returned.
 #' 
 #' @param array string representing the array (EPIC, HM450, HM27, MM285)
-#' for which databaseSets will be returned.
-#' @param release Integer indicating the release number of the databaseSet
+#' for which database sets will be returned.
+#' @param release Integer indicating the release number of the database set
 #' manifest to use. Optional. (Defualt: 2).
 #' @param dev Logical value indiciating whether to use development version
 #' of the manifest file. Optional. (Default: TRUE).
@@ -444,8 +449,8 @@ getSampleSheet = function(array, release=1, dev=TRUE, verbose=TRUE) {
         meta = NULL
     }
         
-    path = Sys.getenv("KYCG_FEATURE_ENGINEERING_LOC")
-    if (path == "") {
+    path = getOption("KYCG_FEATURE_ENGINEERING_LOC")
+    if (is.null(path)) {
         path = file.path("featureEngineering")
     }
     
@@ -473,8 +478,8 @@ getSampleSheet = function(array, release=1, dev=TRUE, verbose=TRUE) {
 #' getBetas retrieves an example betas matrix composed of 20 samples.
 #'
 #' @param array string representing the array (EPIC, HM450, HM27, MM285)
-#' for which databaseSets will be returned.
-#' @param release Integer indicating the release number of the databaseSet
+#' for which database sets will be returned.
+#' @param release Integer indicating the release number of the database set
 #' manifest to use. Optional. (Defualt: 2).
 #' @param dev Logical value indiciating whether to use development version
 #' of the manifest file. Optional. (Default: TRUE).
@@ -501,8 +506,8 @@ getBetas = function(array, release=1, dev=TRUE, verbose=TRUE) {
         meta = NULL
     }
     
-    path = Sys.getenv("KYCG_FEATURE_ENGINEERING_LOC")
-    if (path == "") {
+    path = getOption("KYCG_FEATURE_ENGINEERING_LOC")
+    if (is.null(path)) {
         path = file.path("featureEngineering")
     }
     

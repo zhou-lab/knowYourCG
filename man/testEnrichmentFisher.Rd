@@ -10,11 +10,11 @@ testEnrichmentFisher(querySet, databaseSet, universeSet)
 \arguments{
 \item{querySet}{Vector of probes of interest (e.g., significant probes)}
 
+\item{databaseSet}{Vectors corresponding to the database set of
+interest with associated meta data as an attribute to each element.}
+
 \item{universeSet}{Vector of probes in the universe set containing all of
 the probes to be considered in the test. (Default: NULL)}
-
-\item{databaseSets}{List of vectors corresponding to the databaseSets of
-interest with associated meta data as an attribute to each element.}
 }
 \value{
 A DataFrame with the estimate/statistic, p-value, and name of test

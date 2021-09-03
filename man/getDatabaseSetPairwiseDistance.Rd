@@ -3,7 +3,7 @@
 \name{getDatabaseSetPairwiseDistance}
 \alias{getDatabaseSetPairwiseDistance}
 \title{getDatabaseSetPairwiseDistance tests for the pariwise overlap between given
-list of databaseSets using a distance metric.}
+list of database sets using a distance metric.}
 \usage{
 getDatabaseSetPairwiseDistance(
   databaseSets = NA,
@@ -12,7 +12,7 @@ getDatabaseSetPairwiseDistance(
 )
 }
 \arguments{
-\item{databaseSets}{List of vectors corresponding to the databaseSets of
+\item{databaseSets}{List of vectors corresponding to the database sets of
 interest with associated meta data as an attribute to each element. Optional.
 (Default: NA)}
 
@@ -28,9 +28,10 @@ the pairwise distances between database sets.
 }
 \description{
 getDatabaseSetPairwiseDistance tests for the pariwise overlap between given
-list of databaseSets using a distance metric.
+list of database sets using a distance metric.
 }
 \examples{
-getDatabaseSetPairwiseDistance(list(a=c("a", "b"), b=c("a", "e", "f"), c=c("q", "a")))
+databaseSets = list(a=c("a", "b"), b=c("a", "e", "f"), c=c("q", "a"))
+getDatabaseSetPairwiseDistance(databaseSets)
 
 }

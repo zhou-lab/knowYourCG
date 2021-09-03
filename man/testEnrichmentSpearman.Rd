@@ -10,7 +10,7 @@ testEnrichmentSpearman(querySet, databaseSet)
 \arguments{
 \item{querySet}{Vector of probes of interest (e.g., significant probes)}
 
-\item{databaseSets}{List of vectors corresponding to the databaseSets of
+\item{databaseSet}{List of vectors corresponding to the database set of
 interest with associated meta data as an attribute to each element.}
 }
 \value{

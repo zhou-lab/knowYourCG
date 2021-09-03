@@ -5,13 +5,13 @@
 \title{testEnrichmentGene tests for the enrichment of set of probes
 (querySet) in gene regions.}
 \usage{
-testEnrichmentGene(querySet, platform = NA, verbose = FALSE)
+testEnrichmentGene(querySet, array = NA, verbose = FALSE)
 }
 \arguments{
 \item{querySet}{Vector of probes of interest (e.g., probes belonging to a
-given platform)}
+given array)}
 
-\item{platform}{String corresponding to the type of platform to use. Either
+\item{array}{String corresponding to the type of array to use. Either
 MM285, EPIC, HM450, or HM27. If it is not provided, it will be inferred
 from the query set querySet (Default: NA)}
 
@@ -27,6 +27,6 @@ testEnrichmentGene tests for the enrichment of set of probes
 (querySet) in gene regions.
 }
 \examples{
-testEnrichmentGene(c("cg0000029"), platform="EPIC")
+testEnrichmentGene(c("cg0000029"), array="EPIC")
 
 }

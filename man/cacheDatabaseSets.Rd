@@ -2,12 +2,12 @@
 % Please edit documentation in R/data.R
 \name{cacheDatabaseSets}
 \alias{cacheDatabaseSets}
-\title{cacheDatabaseSets cache databaseSets into memory}
+\title{cacheDatabaseSets cache database sets into memory}
 \usage{
 cacheDatabaseSets(release = 2, dev = TRUE, verbose = TRUE)
 }
 \arguments{
-\item{release}{Integer indicating the release number of the databaseSet
+\item{release}{Integer indicating the release number of the database set
 manifest to use. Optional. (Defualt: 2).}
 
 \item{dev}{Logical value indiciating whether to use development version
@@ -17,10 +17,10 @@ of the manifest file. Optional. (Default: TRUE).}
 displayed to console. Optional. (Default: TRUE).}
 }
 \value{
-One list of vectors corresponding to aggregated databaseSets.
+One list of vectors corresponding to aggregated database sets.
 }
 \description{
-cacheDatabaseSets cache databaseSets into memory
+cacheDatabaseSets cache database sets into memory
 }
 \examples{
 cacheDatabaseSets(release=2)
