@@ -42,7 +42,7 @@ getDatabaseSets = function(keys=NA, group=NA, array=NA, reference=NA,
     if (dev) {
         meta = read_excel(
             sprintf("%s/Dropbox/Ongoing_knowYourCpG/20210710_databaseSets.xlsx", Sys.getenv("HOME")), "R2 In Progress")
-        meta = meta[as.logical(meta$Development), ]
+        # meta = meta[as.logical(meta$Development), ]
     } else {
         meta = read.table(url(sprintf("%s/kyCG/RELEASE_%s.csv",
                                    baseurl, release)), header=TRUE)
@@ -85,7 +85,7 @@ getDatabaseSets = function(keys=NA, group=NA, array=NA, reference=NA,
                                bfcquery(bfc, acc, field=c("rname"))$rpath
                            })
 
-    databaseSets = flattenlist(lapply(filelocations, 
+    databaseSets = flattenlist(lapply(unlist(filelocations), 
                                       function(filelocation) {
                                           readRDS(filelocation)
                                       })
@@ -142,10 +142,15 @@ listDatabaseSets = function(release=2, dev=TRUE, verbose=TRUE) {
                                       baseurl, release)), header=TRUE)
     }
 
-    # TODO: think about how to justify the aligntment of database set count
+    # TODO: think about how to justify the alignment of database set count
+    
+    #x = apply(meta, 1, function(row) {
+    #    if (dev & !as.logical(row["Development"])) return(NULL)
+    #    cat(sprintf("Accession: %s (n: %s)\n", 
+    #                format(row["Accession"], width = 50, justify = "l"), 
+    #                row["N"]))})
     
     x = apply(meta, 1, function(row) {
-        if (dev & !as.logical(row["Development"])) return(NULL)
         cat(sprintf("Accession: %s (n: %s)\n", 
                     format(row["Accession"], width = 50, justify = "l"), 
                     row["N"]))})
@@ -256,7 +261,7 @@ getProbeID2Gene = function(array) {
 #' @examples
 #' cacheDatabaseSets(release=2)
 cacheDatabaseSets = function(release=2, dev=TRUE, verbose=TRUE) {
-    tools::R_user_dir("", which="cache")
+    # tools::R_user_dir("", which="cache")
 
     path = getOption("KYCG_DATABASESETS_LOC")
     if (is.null(path)) {
@@ -268,7 +273,7 @@ cacheDatabaseSets = function(release=2, dev=TRUE, verbose=TRUE) {
     if (dev) {
         meta = read_excel(sprintf("%s/Dropbox/Ongoing_knowYourCpG/20210710_databaseSets.xlsx", Sys.getenv("HOME")),
                           "R2 In Progress")
-        meta = meta[as.logical(meta$Development), ]
+       # meta = meta[as.logical(meta$Development), ]
     } else {
         meta = readRDS(url(sprintf("%s/kyCG/20210710_databaseSets.rds",
                                    baseurl)))
@@ -276,7 +281,7 @@ cacheDatabaseSets = function(release=2, dev=TRUE, verbose=TRUE) {
                                   baseurl), sprintf("R%d", release))
     }
 
-    remotelocations = unlist(lapply(meta$Accession, 
+    remotelocations = unlist(lapply(na.omit(meta$Accession), 
                                     function(acc) {
                                         sprintf("%s/kyCG/%s.rds", baseurl, acc)
                                     })

@@ -6,16 +6,16 @@
 #'
 #' @import stats
 calcDatabaseSetStatistics1 = function(x) {
-    a = data.frame(mean=apply(x, 2, stats::mean, na.rm=TRUE),
-      median=apply(x, 2, stats::median, na.rm=TRUE),
-      var=apply(x, 2, stats::var, na.rm=TRUE),
-      sd=apply(x, 2, stats::sd, na.rm=TRUE),
-      skew=apply(x, 2, stats::var, na.rm=TRUE),
-      iqr=apply(x, 2, stats::IQR, na.rm=TRUE),
+    a = data.frame(mean=apply(x, 2, mean, na.rm=TRUE),
+      median=apply(x, 2, median, na.rm=TRUE),
+      var=apply(x, 2, var, na.rm=TRUE),
+      sd=apply(x, 2, sd, na.rm=TRUE),
+      skew=apply(x, 2, var, na.rm=TRUE),
+      iqr=apply(x, 2, IQR, na.rm=TRUE),
       range=apply(x, 2, max, na.rm=TRUE) - apply(x, 2, min, na.rm=TRUE),
       min=apply(x, 2, min, na.rm=TRUE),
       max=apply(x, 2, max, na.rm=TRUE))
-  b = apply(x, 2, stats::quantile, na.rm=TRUE, probs=seq(0, 1, 0.1))
+  b = apply(x, 2, quantile, na.rm=TRUE, probs=seq(0, 1, 0.1))
   return(cbind(a, t(b)))
 }
     
@@ -44,7 +44,7 @@ calcDatabaseSetStatisticsAll = function(betas, databaseSets) {
     a = do.call(cbind, 
             lapply(names(databaseSets),
                    function(databaseSetName) {
-                      databaseSet = databaseSets[[databaseSetName]]
+                       databaseSet = databaseSets[[databaseSetName]]
                       if (length(databaseSet) >= nrow(betas)) return(FALSE)
                       if (is.numeric(databaseSet)) {
                           probes = names(databaseSet)

@@ -262,8 +262,15 @@ testEnrichmentAll = function(querySet, databaseSets=NA, universeSet=NA,
                        })
                 )
         )
-
-    output = cbind(results, metadata)
+    
+    rank = list()
+    rank$estimate.rank = rank(-results$estimate, ties.method='first')
+    rank$p.value.rank = rank(results$p.value, ties.method='first')
+    rank$overlap.rank = rank(results$overlap, ties.method='first')
+    rank$max.rank = apply(data.frame(rank), 1, max)
+    rank$mean.rank = apply(data.frame(rank), 1, mean)
+    rank = data.frame(rank, row.names=row.names(results))
+    output = cbind(results, rank, metadata)
 
     output = output[order(output$p.value, decreasing=FALSE), ]
     return(output)
@@ -461,8 +468,8 @@ testEnrichmentFGSEA = function(querySet, databaseSet, p.value.adj=FALSE,
 }
 
 
-#' testEnrichmentSpearman uses the spearman test to estimate the association
-#' between two continuous variables.
+#' testEnrichmentSpearman uses the Spearman statistical test to estimate the 
+#' association between two continuous variables.
 #'
 #' @param querySet Vector of probes of interest (e.g., significant probes)
 #' @param databaseSet List of vectors corresponding to the database set of

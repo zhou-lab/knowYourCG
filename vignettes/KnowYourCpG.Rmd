@@ -43,25 +43,6 @@ First, load the package.
 suppressWarnings(library(knowYourCpG))
 ```
 
-``` {r load-dependencies, eval=FALSE, echo=FALSE}
-suppressMessages(library(GenomicRanges))
-suppressMessages(library(stats4))
-suppressMessages(library(BiocGenerics))
-suppressMessages(library(parallel))
-suppressMessages(library(S4Vectors))
-suppressMessages(library(IRanges))
-suppressMessages(library(GenomeInfoDb))
-suppressMessages(library(fgsea))
-suppressMessages(library(ggplot2))
-suppressMessages(library(readxl))
-suppressMessages(library(ggrepel))
-suppressMessages(library(BiocFileCache))
-suppressMessages(library(dbplyr))
-suppressMessages(library(data.table))
-suppressMessages(library(RCy3))
-options(warn=-1)
-```
-
 ## Input Data
 
 ### Database Sets
@@ -109,11 +90,6 @@ And display a summary of its contents.
 
 ``` {r view-data2, eval=TRUE, echo=FALSE}
 summary(databaseSets[1:3])
-```
-
-``` {r eval=FALSE, echo=FALSE}
-# TODO: use temp dir instead in vignette
-# TODO: can we make this more presentable?
 ```
 
 On subsequent runs of the ```getDatabaseSet()``` function, loading specific database sets from the same release will be much faster. These database sets will be persistent between R sessions so long as the directory to which they are downloaded is not deleted. Otherwise, the database sets will have to be downloaded again.
@@ -171,6 +147,9 @@ resultsAll = testEnrichmentAll(querySet=querySet,
                                databaseSets=databaseSets, 
                                verbose=FALSE)
 print(head(resultsAll))
+
+rank(resultsAll$estimate)
+
 ```
 
 The output of each test contains at least four variables: the estimate, p-value, type of test, and whether meta data is included in the tested database set. The name of the database set is also recorded as well. By default, the p-value column is sorted. 
@@ -192,12 +171,6 @@ plotLollipop(data=resultsAll, title="Top Database Set Enrichment",
 ```
 
 ### Example Testing Scenarios
-
-``` {r, eval=FALSE, echo=FALSE}
-# TODO: break this into another section... different testing scenarios
-# TODO: also break up the code with explanations so it looks less messy in between
-
-```
 
 The querySet may be a named continuous vector. In that case, either a gene enrichment score will be calculated (if the databaseSet is discrete) or a Spearman correlation will be calculated (if the databaseSet is continuous as well). The three other cases are shown below using biologically relevant examples.
 
@@ -302,7 +275,7 @@ In addition to hypothesis testing, knowYourCpG also uses the curated database se
 A third environmental variable, ```KYCG_FEATURE_ENGINEERING_LOC```, controls the location where data related to feature engineering where will be cached.
 
 ``` {r run-feature-engineering-get-data, echo=TRUE, eval=TRUE}
-Sys.setenv(KYCG_FEATURE_ENGINEERING_LOC = file.path('..', 'featureEngineering'))
+options(KYCG_FEATURE_ENGINEERING_LOC = file.path('..', 'featureEngineering'))
 
 samplesheet = getSampleSheet("MM285", release=1, dev=TRUE, verbose=TRUE)
 betas = getBetas("MM285", release=1, dev=TRUE, verbose=TRUE)
