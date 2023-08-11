@@ -1,5 +1,0 @@
-# 20210807 Meeting
-
-Mouse array
-1. Find probes related to SNPs for backlist
-2. Explore additive effect of different factors in interaction

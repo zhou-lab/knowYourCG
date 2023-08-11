@@ -1,50 +1,45 @@
-Package: knowYourCpG
+Package: knowYourCG
 Type: Package
-Title: Automatic Hypothesis Testing & Methylome Feature Engineering
+Title: Automated Analysis of DNA Methylation Data
 Version: 0.1.0
-Authors: Ethan Jacob Moyer, Wanding Zhou, Fredrick Dong
-Authors@R: c(person("Moyer", "Ethan", role=c("aut","cre"),
-             email="ejm374@drexel.edu"),
-             person("Zhou", "Wanding", role=c("aut"),
+Authors: Wanding Zhou, David Goldberg, Ethan Jacob Moyer
+Authors@R: c(person("Zhou", "Wanding", role=c("aut","cre"),
              email="ZHOUW3@chop.edu"),
-             person("Dong", "Fredrick", role=c("aut"),
-             email="fdong2@gmail.com"))
-Description: Automates the hypothesis testing process by testing
-    the enrichment of different pre-curated sets of CpGs. Each CpG set, or 
-    databaseSet, corresponds to a genomic or technical element that aims
-    to describe variability in a CpG set of interest, also know as a querySet. 
-    This is another sentence. This is another sentence. 
-    This is another sentence. This is another sentence.
+             person("Goldberg", "David", role=c("aut"),
+             email="golddc72@pennmedicine.upenn.edu"),
+             person("Moyer", "Ethan", role=c("aut"),
+             email="ejm374@drexel.edu"))
+Description: Automates the discovery of biological and technical links in DNA 
+    methylation data. knowYourCG tests enrichment of discrete or continuous input
+    query sets across thousands of curated biological and technical features. 
+    Unsupervised analyses of beta matrices may also be performed to discover
+    methylation correlation networks. 
+Depends: R (>= 4.3.0),
+          sesameData
 License: MIT + file LICENSE
 VignetteBuilder: knitr
 Encoding: UTF-8
 LazyData: true
-RoxygenNote: 7.1.1
+RoxygenNote: 7.2.3
 Imports:
-    fgsea,
-    ggplot2,
-    ggrepel,
+    dplyr,
+    methods,
     GenomicRanges,
-    BiocGenerics,
-    S4Vectors,
-    readxl, 
-    stats,
-    utils,
-    BiocFileCache,
-    dbplyr,
-    tools,
-    GenomeInfoDb,
     IRanges,
-    RCy3,
+    ggplot2,
     reshape2,
-    data.table,
-    methods
+    S4Vectors,
+    stats,
+    stringr,
+    tibble
 biocViews:
     Epigenetics, 
     DNAMethylation, 
     MethylationArray
 Suggests: 
     testthat (>= 3.0.0),
+    ggrepel,
+    SummarizedExperiment,
     rmarkdown,
     markdown,
     knitr

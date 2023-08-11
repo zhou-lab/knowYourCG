@@ -1,218 +1,69 @@
-#' plotVolcano creates a volcano plot of -log2(p.value) and log(estimate)
-#' given data with fields estimate and p.value.
+#' plot enrichment test result
 #'
-#' @param data DataFrame where each field is a database name with two fields
-#' for the estimate and p.value.
-#' @param title String representing the title label. Optional. (Default: NA)
-#' @param subtitle String representing the subtitle label. Optional. (Default:
-#' NA)
-#'
-#' @return ggplot volcano plot
-#'
+#' @param df test enrichment result data frame
+#' @param fdr_max maximum fdr for capping
+#' @param n_label number of database to label
+#' @param min_estimate minimum estimate
+#' @return grid object
+#' @import utils
+#' @importFrom stringr str_replace
+#' @importFrom tibble rownames_to_column
 #' @import ggplot2
-#' @import ggrepel
-#'
 #' @examples
-#' data=data.frame(estimate=c(runif(10)), p.value=c(runif(10)))
-#' plotVolcano(data)
+#' query <- KYCG_getDBs("MM285.designGroup")[["PGCMeth"]]
+#' res <- testEnrichment(query, platform="MM285")
+#' KYCG_plotEnrichAll(res)
 #'
 #' @export
-plotVolcano = function(data, title=NA, subtitle=NA, n.fdr=FALSE) {
-    options(ggrepel.max.overlaps = 10)
-    
-    if ("Target" %in% colnames(data))
-        data["label"] = unlist(data[["Target"]])
-    else
-        data["label"] = rownames(data)
+KYCG_plotEnrichAll <- function(
+        df, fdr_max = 25, n_label = 15, min_estimate = 0) {
 
-    if (is.na(title)) {
-        title = "Volcano plot"
-    }
-    title = gsub('(.{1,80})(\\s|$)', '\\1\n', title)
+    gp_size <- sort(table(df$group))
+    gp_width <- log(2+gp_size)
+    e1 <- df[order(factor(df$group, levels=names(gp_size)), df$dbname),]
+    e1$inc <- (gp_width / gp_size)[e1$group]
+    e1$inc1 <- c(0,ifelse(e1$group[-1] != e1$group[-nrow(e1)], 1, 0))
+    e1$inc2 <- cumsum(e1$inc + e1$inc1)
 
-    if (is.na(subtitle)) {
-        subtitle = ''
-    }
-    
-    if (n.fdr) {
-        data$p.value = data$p.adjust.fdr
-    }
+    e1$group <- str_replace(e1$group,"KYCG.","")
+    e1$group <- vapply(strsplit(e1$group, "\\."),
+                       function(x) paste0(x[2:(length(x)-1)], collapse="."), character(1))
+    if ("gene_name" %in% colnames(e1)) {
+        e1$dbname[e1$group == "gene"] <- e1$gene_name[e1$group == "gene"] }
 
-    subtitle = gsub('(.{1,80})(\\s|$)', '\\1\n', subtitle)
+    e2 <- e1[e1$estimate > min_estimate & e1$FDR < 0.01 ,]
+    e2$FDR[e2$FDR < 10**-fdr_max] <- 10**-(fdr_max*1.1)
 
-    # TODO: repalce with column specifying sig vs non sig
-    
-    if (any(data$p.value <= 0.05)) {
-        g = ggplot(data=data, aes(x=log2(estimate), y=-log10(p.value),
-                                  color = cut(p.value, c(-Inf, 0.05))))
-    } else {
-        g = ggplot(data=data, aes(x=estimate, y=p.value))
-    }
-    g = g + geom_point() + 
-        xlab("log2 Fold Change")
-    
-    if(is.na(n.fdr)) {
-        g = g + 
-            ylab("-log10 p-value") +
-            scale_colour_discrete(
-                name = "Significance (p < 0.05)",
-                labels=c("Significant", "Not Significant")
-            )
-    } else {
-        g = g + 
-            ylab("-log10 q-value") +
-            scale_colour_discrete(
-                name = "Significance (q < 0.05)",
-                labels=c("Significant", "Not Significant")
-            )
-    }
-    g = g + labs(
-        title = title,
-         subtitle = subtitle,
-         fill = "pvalue"
-        ) +
-    theme(
-        plot.title = element_text(size=16, face = "bold"),
-        axis.text = element_text(size=12),
-        axis.title = element_text(size=12),
-        legend.title = element_text(size=12),
-        legend.text = element_text(size=12)
-        ) +
-    geom_text_repel(
-        data = subset(data, p.value < 0.05),
-        aes(label = label),
-        size = 5,
-        box.padding = unit(0.35, "lines"),
-        point.padding = unit(0.3, "lines")
-        )
-    g
-}
+    e3 <- rownames_to_column(as.data.frame(do.call(rbind, lapply(
+        split(e1$inc2, e1$group), function(x)
+            c(beg=min(x), middle=mean(x), end=max(x))))), "group")
 
-#' plotLollipop creates a lollipop plot of log(estimate) given data with fields
-#' estimate.
-#'
-#' @param data DataFrame where each field is a database name with its estimate.
-#' @param n Integer representing the number of top enrichments to report.
-#' Optional. (Default: 10)
-#' @param title String representing the title label. Optional. (Default: NA)
-#' @param subtitle String representing the subtitle label. Optional. (Default:
-#' NA)
-#'
-#' @return ggplot lollipop plot
-#'
-#' @import ggplot2
-#'
-#' @examples
-#' data=data.frame(estimate=c(runif(10, 0, 10)))
-#' plotLollipop(data)
-#'
-#' @export
-plotLollipop = function(data, n=10, title=NA, subtitle=NA) {
-    # data = data[which(as.logical(data$meta)), ]
-    
-    if ("Target" %in% colnames(data))
-        data["label"] = unlist(data[["Target"]])
-    else
-        data["label"] = rownames(data)
-
-    data = head(data[order(data$estimate, decreasing=TRUE), ], n=n)
-
-    if (is.na(title)) {
-        title = 'Lollipop Plot'
-    }
-
-    if (is.na(subtitle)) {
-        subtitle = ''
-    }
-
-    ggplot(data, aes(x=label, 
-                     y=log2(estimate), 
-                     label=sprintf('%.2f',log2(estimate)))) +
-        geom_hline(yintercept=0) +
-        geom_segment(aes(y=0, 
-                         x=reorder(label, -estimate), 
-                         yend=log2(estimate), xend=label), color='black') +
-        geom_point(aes(fill=pmax(-1.5,log2(estimate))), 
-                   stat='identity', 
-                   size=10, 
-                   alpha=0.95, 
-                   shape=21) +
-        scale_fill_gradientn(name='Fold Change',
-                             colours=c('#2166ac','#333333','#b2182b'),
-                             limits=c(min(log2(data$estimate + 1)),
-                                      max(log2(data$estimate + 1)) )) +
-        geom_text(color='white', size=3) +
-        labs(title=title, subtitle=subtitle) +
-        geom_label(aes(x=label,
-                       y=ifelse(estimate>1,
-                                log2(estimate) + 0.8,
-                                log2(estimate) - 0.5),
-                       label=label),
-                   alpha=0.8) +
-        # new_scale("fill") +
-        # scale_fill_manual(values=hmm_colors) +
-        ylab("Log2 Enrichment") +
+    inc2 <- FDR <- estimate <- group <- dbname <- beg <- middle <- NULL
+    requireNamespace("ggrepel")
+    ggplot(e2, aes(inc2, -log10(FDR))) +
+        geom_point(aes(size=estimate, color=group), alpha=0.5) +
+        ggrepel::geom_text_repel(data = e2[head(order(e2$FDR), n = n_label),],
+                                 aes(label=dbname, color=group), size = 3,
+                                 ## box.padding = unit(0.35, "lines"),
+                                 ## point.padding = unit(0.3, "lines"),
+                                 direction="y", nudge_y=0.2, max.overlaps=100) +
+        annotate("text", -1, fdr_max*0.96,
+                 label="Values above this line are capped.",
+                 hjust=0, vjust=1, color="grey60") +
+        geom_hline(yintercept = fdr_max, linetype="dotted", color="grey60") +
+        geom_segment(aes(x = beg, y = 0, xend = end, yend = 0, color=group),
+                     size=3, data=e3) +
+        geom_text(data=e3,aes(middle, -1, label=group, color=group),
+                  vjust=1, hjust=1, angle=30) + scale_color_discrete(guide="none") +
+        ylim(-6, fdr_max*1.2) + xlab("") +
+        scale_size_continuous(guide=guide_legend(title="log2(OR)")) +
+        coord_cartesian(clip="off") + theme_minimal() +
         theme(axis.title.x = element_blank(),
               axis.text.x = element_blank(),
-              axis.ticks.x = element_blank())
+              axis.ticks.x = element_blank(),
+              panel.grid.minor.x = element_blank())
 }
 
-#' createGeneNetwork creates databaseSet network using the given similarity
-#' metric.
-#'
-#' @param databaseSets Vector of probes corresponding to a single database set
-#' of interest.
-#' @param metric String representing the similarity score to use. Optional.
-#' (Default: "Jaccard").
-#'
-#' @return ggplot lollipop plot
-#'
-#' @import RCy3
-#' @import reshape2
-#'
-#' @examples
-#' databaseSets = list(a=c("a", "b"), b=c("a", "e", "f"), c=c("q", "a"))
-#' createDatabaseSetNetwork(databaseSets)
-#'
-#' @export
-createDatabaseSetNetwork = function(databaseSets, 
-                                    title="Database Interaction Network", 
-                                    collection="DatabaseSets") {
-    m = getDatabaseSetPairwiseDistance(databaseSets, metric="jaccard")
-    saveRDS(m, "/Users/ethanmoyer/Dropbox/Ongoing_knowYourCpG/data/databaseSetNetwork.rds")
 
-    m_ = m
-    m = m_[seq(50), seq(50)]
 
-    m_melted = melt(m); colnames(m_melted) = c("gene1", "gene2", "metric")
-    m_melted = m_melted[m_melted$metric != 0, ]
-
-    # Used for additional attributes like color, size, name. This is for GSM
-    nodes <- data.frame(id=colnames(m),
-                        # group=c("A","A","B","B"), # categorical strings
-                        # score=as.integer(c(20,10,15,5)), # integers
-                        stringsAsFactors=FALSE)
-    # This is for Target
-    edges <- data.frame(source=m_melted$gene1,
-                        target=m_melted$gene2,
-                        # interaction=NULL, Maybe for positive/negative assocation
-                        weight=m_melted$metric, # numeric
-                        stringsAsFactors=FALSE)
-
-    # Return nodes and edges
-    return(list(nodes=nodes, edges=edges))
-
-    # createNetworkFromDataFrames(nodes, edges, title=title, collection=collection)
-    #
-    # filename = file.path("images","text.png")
-    # if(file.exists(filename)){
-    #     file.remove(filename)
-    # }
-    #
-    # layoutNetwork('force-directed defaultSpringLength=70 defaultSpringCoefficient=0.000003')
-    #
-    # #export the network
-    # exportImage(filename, type = "png")
-
-}
 
