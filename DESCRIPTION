@@ -31,7 +31,9 @@ Imports:
     S4Vectors,
     stats,
     stringr,
-    tibble
+    tibble,
+    rnndescent,
+    igraph
 biocViews:
     Epigenetics, 
     DNAMethylation, 
