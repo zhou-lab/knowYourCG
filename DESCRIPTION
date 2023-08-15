@@ -24,6 +24,7 @@ RoxygenNote: 7.2.3
 Imports:
     dplyr,
     methods,
+    rlang,
     GenomicRanges,
     IRanges,
     ggplot2,

@@ -31,7 +31,7 @@ returnDiffCpGs <- function (betas, query, k=50, metric="correlation", diffThresh
 }
 
 
-prepareSampleSet <- function (betas,k=50,impute=TRUE)
+prepareSampleSet <- function (betas,k=50,impute=TRUE,num_row=75000,diffThreshold=0.5)
 {
 
     if (is(betas, "numeric")) {
@@ -40,28 +40,28 @@ prepareSampleSet <- function (betas,k=50,impute=TRUE)
     if (impute) {
         betas <- cleanMatrix(betas)
     }
-    num_row <- ifelse(nrow(betas) < 75000,nrow(betas),75000)
-    var_rows <- order(-apply(betas,1,sd))[1:num_row]
+    num <- ifelse(nrow(betas) < num_row,nrow(betas),num_row)
+    var_rows <- order(-apply(betas,1,sd))[1:num]
     betas <- betas[var_rows,]
-    sample_size <- round(.33 * num_row)
+    sample_size <- round(.33 * num)
     betas_sample <- betas[sample(rownames(betas), size=sample_size), ]
     query <- betas[!rownames(betas) %in% rownames(betas_sample),]
-    betas_sample <- rbind(betas_sample, returnDiffCpGs(betas=betas_sample, query=query,k=k))
+    betas_sample <- rbind(betas_sample, returnDiffCpGs(betas=betas_sample, query=query,k=k,diffThreshold = diffThreshold))
     betas_sample
 }
 
 
 detectCommunity <- function(el,edgeThreshold=.1,nodeThreshold=0) {
-    g <- graph_from_data_frame(
+    g <- igraph::graph_from_data_frame(
         el,
         directed = FALSE
     )
-    g <- delete.edges(
+    g <- igraph::delete.edges(
         g,
-        which(E(g)$dist > edgeThreshold)
+        which(igraph::E(g)$dist > edgeThreshold)
     )
-    isolated = which(degree(g)==nodeThreshold)
-    g <- delete.vertices(g, isolated)
+    isolated = which(igraph::degree(g)==nodeThreshold)
+    g <- igraph::delete.vertices(g, isolated)
     lc <- cluster_louvain(g)
     lc
 }
@@ -71,15 +71,15 @@ detectCommunity <- function(el,edgeThreshold=.1,nodeThreshold=0) {
 #'
 #' @param betas matrix of beta values where probes are on the rows and
 #' @param k # of neighbors to return from reference graph for query CpGs
-#' samples are on the columns
-#' @param impute whether to impute missing values using the row mean
+#' @param diffThreshold Distance to nearest neighbor to determine if query gets added to reference graph
+#' @param impute whether to impute missing values using the row mean (Default: TRUE)
 #' @param edgeThreshold minimum inter - CpG distance threshold for community detection (1 - correlation)
 #' @param nodeThreshold minimum node degree for removal from graph
 #' @param metric metric for computing neighbor distance (Default: correlation)
 #' @param moduleSize minimum number of CpGs for module consideration
 #' @return matrix with samples on the rows and database set on the columns
 #' @import rnndescent
-#' @import igraph
+#' @importFrom igraph graph_from_data_frame delete.edges delete.vertices cluster_louvain degree communities sizes
 #' @examples
 #' library(SummarizedExperiment)
 #' se <- sesameDataGet('MM285.467.SE.tissue20Kprobes')
@@ -88,14 +88,18 @@ detectCommunity <- function(el,edgeThreshold=.1,nodeThreshold=0) {
 #' sesameDataGet_resetEnv()
 #'
 #' @export
-findCpGModules <- function (betas,k=50,metric="correlation", edgeThreshold=.1,nodeThreshold=0,moduleSize = 5)
+findCpGModules <- function (betas,impute=TRUE,diffThreshold=.5,k=50,metric="correlation", edgeThreshold=.1,nodeThreshold=0,moduleSize = 5)
 {
-    beta_sample <- prepareSampleSet(betas=betas)
+    beta_sample <- prepareSampleSet(
+        betas=betas,
+        impute=impute,
+        diffThreshold=diffThreshold
+    )
     nnr <- nnd_knn(beta_sample, k = k, metric=metric)
     nbr_mtx <- nnr$idx[,-1]
     nbrs <- as.vector(nbr_mtx)
     dist <- as.vector(nnr$dist[,-1])
-    el <- matrix(, nrow = nrow(nbr_mtx) * ncol(nbr_mtx), ncol = 2)
+    el <- matrix(0, nrow = nrow(nbr_mtx) * ncol(nbr_mtx), ncol = 2)
     el[,2] <- nbrs
     el[,1] <- rep(1:nrow(nbr_mtx), times=ncol(nbr_mtx))
     el_df <- as.data.frame(el);
@@ -107,7 +111,7 @@ findCpGModules <- function (betas,k=50,metric="correlation", edgeThreshold=.1,no
         edgeThreshold = edgeThreshold,
         nodeThreshold = nodeThreshold
     )
-    modules <- lapply(communities(lc)[sizes(lc) >= moduleSize],function(x) {
+    modules <- lapply(igraph::communities(lc)[igraph::sizes(lc) >= moduleSize],function(x) {
         indices <- as.numeric(x)
         rownames(beta_sample)[indices]
     })

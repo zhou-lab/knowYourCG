@@ -8,8 +8,8 @@ getDistance <- function(v) {
 getPairwiseDistance <- function(gr,q) #takes in GRanges
 {
     df <- as.data.frame(sort(gr[q,])) %>%
-        dplyr::group_by(seqnames) %>%
-        dplyr::mutate(distance=getDistance(start))
+        dplyr::group_by(.data$seqnames) %>%
+        dplyr::mutate(distance=getDistance(.data$start))
 }
 
 
@@ -27,6 +27,7 @@ getPairwiseDistance <- function(gr,q) #takes in GRanges
 #' @return list containing a dataframe for the poisson statistics and a
 #' data frame for the probes in close proximity
 #' @importFrom dplyr mutate group_by %>%
+#' @importFrom rlang .data
 #' @examples
 #'
 #' library(SummarizedExperiment)
@@ -92,7 +93,7 @@ testProbeProximity <- function (query,gr=NULL,platform=NULL,iterations=100,
 
     clusters <- gr_q[ind,] %>%
         as.data.frame() %>%
-        dplyr::select(seqnames,start,end,distance)
+        dplyr::select(.data$seqnames,.data$start,.data$end,.data$distance)
 
     list(Stats=stats,Clusters=clusters)
 

@@ -6,6 +6,8 @@
 \usage{
 findCpGModules(
   betas,
+  impute = TRUE,
+  diffThreshold = 0.5,
   k = 50,
   metric = "correlation",
   edgeThreshold = 0.1,
@@ -16,8 +18,11 @@ findCpGModules(
 \arguments{
 \item{betas}{matrix of beta values where probes are on the rows and}
 
-\item{k}{# of neighbors to return from reference graph for query CpGs
-samples are on the columns}
+\item{impute}{whether to impute missing values using the row mean (Default: TRUE)}
+
+\item{diffThreshold}{Distance to nearest neighbor to determine if query gets added to reference graph}
+
+\item{k}{# of neighbors to return from reference graph for query CpGs}
 
 \item{metric}{metric for computing neighbor distance (Default: correlation)}
 
@@ -26,8 +31,6 @@ samples are on the columns}
 \item{nodeThreshold}{minimum node degree for removal from graph}
 
 \item{moduleSize}{minimum number of CpGs for module consideration}
-
-\item{impute}{whether to impute missing values using the row mean}
 }
 \value{
 matrix with samples on the rows and database set on the columns
