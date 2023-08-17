@@ -1,5 +1,2 @@
 ^.*\.Rproj$
 ^\.Rproj\.user$
-databaseSets
-universeSets
-featureEngineering

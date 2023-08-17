@@ -61,7 +61,7 @@ testProbeProximity <- function (query,gr=NULL,platform=NULL,iterations=100,
         return(list(Stats=stats,Clusters=NA))
     }
 
-    null_dist <- do.call(c, lapply(1:iterations, function(x) {
+    null_dist <- do.call(c, lapply(seq(iterations), function(x) {
         query2 <- sample(names(gr), length(query))
         gr_q2 <- getPairwiseDistance(gr,query2)
         q2d <- gr_q2[["distance"]]

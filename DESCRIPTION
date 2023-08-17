@@ -5,10 +5,11 @@ Version: 0.1.0
 Authors: Wanding Zhou, David Goldberg, Ethan Jacob Moyer
 Authors@R: c(person("Zhou", "Wanding", role=c("aut","cre"),
              email="ZHOUW3@chop.edu"),
-             person("Goldberg", "David", role=c("aut"),
+             person("Goldberg", "David", role=c("aut","ctb"),
              email="golddc72@pennmedicine.upenn.edu"),
-             person("Moyer", "Ethan", role=c("aut"),
-             email="ejm374@drexel.edu"))
+             person("Moyer","Ethan",role=c("aut"),
+             email="ejm374@drexel.edu")
+             )
 Description: Automates the discovery of biological and technical links in DNA 
     methylation data. knowYourCG tests enrichment of discrete or continuous input
     query sets across thousands of curated biological and technical features. 
@@ -34,7 +35,8 @@ Imports:
     stringr,
     tibble,
     rnndescent,
-    igraph
+    igraph,
+    utils
 biocViews:
     Epigenetics, 
     DNAMethylation, 

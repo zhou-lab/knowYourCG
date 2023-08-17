@@ -41,7 +41,7 @@ prepareSampleSet <- function (betas,k=50,impute=TRUE,num_row=75000,diffThreshold
         betas <- cleanMatrix(betas)
     }
     num <- ifelse(nrow(betas) < num_row,nrow(betas),num_row)
-    var_rows <- order(-apply(betas,1,sd))[1:num]
+    var_rows <- order(-apply(betas,1,sd))[seq(num)]
     betas <- betas[var_rows,]
     sample_size <- round(.33 * num)
     betas_sample <- betas[sample(rownames(betas), size=sample_size), ]
@@ -101,7 +101,7 @@ findCpGModules <- function (betas,impute=TRUE,diffThreshold=.5,k=50,metric="corr
     dist <- as.vector(nnr$dist[,-1])
     el <- matrix(0, nrow = nrow(nbr_mtx) * ncol(nbr_mtx), ncol = 2)
     el[,2] <- nbrs
-    el[,1] <- rep(1:nrow(nbr_mtx), times=ncol(nbr_mtx))
+    el[,1] <- rep(seq(nrow(nbr_mtx)), times=ncol(nbr_mtx))
     el_df <- as.data.frame(el);
     select <- !duplicated(t(apply(el_df,1,sort)))
     el_df <- el_df[select,]
