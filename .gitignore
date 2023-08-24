@@ -20,6 +20,9 @@
 # RStudio files
 .Rproj.user/
 
+# RStudio project
+knowYourCGPackage.Rproj
+
 # produced vignettes
 vignettes/*.pdf
 

@@ -36,7 +36,9 @@ Imports:
     tibble,
     rnndescent,
     igraph,
-    utils
+    utils,
+    wheatmap,
+    GenomeInfoDb
 biocViews:
     Epigenetics, 
     DNAMethylation, 
@@ -46,6 +48,6 @@ Suggests:
     ggrepel,
     SummarizedExperiment,
     rmarkdown,
-    markdown,
-    knitr
+    knitr,
+    sesame
 Config/testthat/edition: 3

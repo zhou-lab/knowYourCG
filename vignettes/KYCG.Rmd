@@ -1,7 +1,7 @@
 ---
 title: "KnowYourCG"
 shorttitle: "KYCG"
-package: sesame
+package: knowYourCG
 output: rmarkdown::html_vignette
 fig_width: 6
 fig_height: 5
@@ -17,7 +17,7 @@ links
 # Quick Start
 
 knowYourCG is a tool for evaluating CpG feature enrichment using Illumina probe
-IDs. Tthis tool automates the hypothesis testing by asking whether a set of
+IDs. This tool automates the hypothesis testing by asking whether a set of
 CpGs (indexed by Illumina methylation chip IDs, hence a sparse representation
 of the methylome) is enriched in certain categories or features. These
 categories or features can be categorical (e.g., CpGs located at specific
@@ -28,11 +28,11 @@ applied can be categorical or continuous as well.
 The set of CpGs that will be tested for enrichment is called the query set, and
 the set of CpGs that will be used to determine enrichment is called the
 database set. A query set, for example, might be the results of a differential
-methylation analysis or from an epigenome-wide association study. We have taken
+methylation analysis or an epigenome-wide association study. We have taken
 the time to curate our own database sets from a variety of sources that
-describe different categorical and continuous features such as technical
-characterization of the probes, CpGs associated with certain chromatin states,
-gene association, transcription factor binding sites, CpG density, etc.
+describe different categorical and continuous features such as CpGs associated 
+with certain chromatin states, technical artifacts, gene association, 
+transcription factor binding sites, CpG density, etc.
 
 Additionally, knowYourCG has support for feature selection and feature
 engineering, which is currently in development.
@@ -40,7 +40,7 @@ engineering, which is currently in development.
 The following commands prepares the use of KnowYourCG:
 
 ```{r ky1, load-depenencies, results="hide", message=FALSE, warning=FALSE}
-library(sesame)
+library(knowYourCG)
 sesameDataCache()
 ```
 
@@ -53,7 +53,7 @@ head(query)
 ```
 
 Now test the enrichment over database groups. By default, KYCG will select all
-the categorical groups and overlapping genes (CpGs associated with a gene).
+the categorical groups and overlapping genes (genes associated with CpGs in the query).
 
 ```{r ky3, fig.width=8, fig.height=5, message=FALSE}
 results_pgc <- testEnrichment(query, platform="MM285")
@@ -67,7 +67,7 @@ function:
 KYCG_plotEnrichAll(results_pgc)
 ```
 
-This plot groups different database sets along the x-axis and plot -log10(FDR)
+This plot groups different database sets along the x-axis and plots -log10(FDR)
 on the y-axis. As expected, the PGCMeth group itself appear on the top of the
 list. But one can also find histone H3K9me3, chromHMM `Het` and transcription
 factor `Trim28` binding enriched in this CG group.
@@ -88,20 +88,20 @@ rownames(df) = c("Continuous Query", "Discrete Query")
 kable(df, caption="Four KnowYourCG Testing Scenarios")
 ```
 
-# Set Enrichment Analysis
+# Enrichment Testing
 
-The main work horse function for test enrichment of a categorical query against
+The main work horse function for testing enrichment of a categorical query against
 categorical databases is the `testEnrichment` function. This function
-calculates the extent of overlap and apply different statistics for enrichment
+calculates the extent of overlap and applies different statistics for enrichment
 testing. The ```testEnrichment()``` will perform Fisher's exact test
 (one-tailed by default, but two-tailed optionally) and report metrics about
 each of the the loaded database sets.
 
-> **Choice of universal set:** Universal set is the set of all probes for a
+> **Choice of universe set:** Universe set is the set of all probes for a
 given platform. It can either be passed in as an argument called
 ```universeSet``` or the platform name can be passed with argument
 ```platform```. If neither of these are supplied, the universe set will be
-implied from the probes.
+inferred from the probes.
 
 ```{r ky10, run-test-single, echo=TRUE, eval=TRUE, message=FALSE}
 library(SummarizedExperiment)
@@ -120,27 +120,26 @@ results %>% dplyr::filter(overlap>10) %>%
     dplyr::select(dbname, estimate, test, FDR) %>% head
 ```
 
-The output of each test contains at least four variables: the estimate (fold
-enrichment, not the test statistics), p-value, type of test, and whether meta
-data is included in the tested database set (hasMeta), as well as the name of
-the database set and the database group. By default, the estimate column is
-sorted.
-
-It should be noted that the estimate (or test statistic) is test dependent and
-comparison between p-values should be limited to within the same type of
-test. For instance, the test statistics for Fisher's exact test and SEA are
-log fold change and the test statistic for Spearman's test is simply the rank
-order correlation coefficient. For simplicity, we report all of the test types
-in one data frame.
+The output of each test contains multiple variables including: the estimate (fold
+enrichment, not the test statistics), p-value, overlap statistics,type of test,
+as well as the name of the database set and the database group. By default, the 
+results are sorted by -log10 of the of p-value and the fold enrichment.
 
 The ```nQ``` and ```nD``` columns identify the length of the query set and the
 database set, respectively. Often, it's important to examine the extent of
 overlap between the two sets, so that metric is reported as well in the
 ```overlap``` column.
 
-See [Supplemental
-Vignette](https://zhou-lab.github.io/sesame/v1.16/supplemental.html#kycg_vis)
-for other ways of visualizing enrichment results.
+Additional methods are available for visualizing enrichment results:
+
+```{r ky4}
+KYCG_plotWaterfall(results)
+```
+
+```{r ky4}
+KYCG_plotBar(results)
+```
+
 
 # Database Sets
 
