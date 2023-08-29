@@ -132,11 +132,11 @@ overlap between the two sets, so that metric is reported as well in the
 
 Additional methods are available for visualizing enrichment results:
 
-```{r ky4}
+```{r ky26}
 KYCG_plotWaterfall(results)
 ```
 
-```{r ky4}
+```{r ky27}
 KYCG_plotBar(results)
 ```
 
@@ -233,6 +233,18 @@ KYCG_plotLollipop(results, label="gene_name")
 ```
 
 As expected, we recover our targeted gene (Dnmt3a).
+
+Gene enrichment testing can be included with the enrichment testing of default or
+user specified database sets by setting include_genes=TRUE:
+
+```{r}
+query <- names(sesameData_getProbesByGene("Dnmt3a", "MM285"))
+results <- testEnrichment(query,platform="MM285",include_genes=TRUE)
+results[,c("dbname","estimate","gene_name","FDR", "nQ", "nD", "overlap")]
+```
+
+In this case gene enrichment and other database set enrichments are included together:
+
 
 # Get more database Sets
 
