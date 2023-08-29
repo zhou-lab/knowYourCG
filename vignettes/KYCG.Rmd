@@ -11,18 +11,18 @@ vignette: >
   %\VignetteEncoding{UTF-8}
 ---
 
-An automated discovery tool for discovering hidden biological and technical
-links
+An automated tool for discovering hidden biological and technical
+links in DNA methylation data
 
 # Quick Start
 
-knowYourCG is a tool for evaluating CpG feature enrichment using Illumina probe
-IDs. This tool automates the hypothesis testing by asking whether a set of
-CpGs (indexed by Illumina methylation chip IDs, hence a sparse representation
+knowYourCG is a tool for evaluating the enrichment of CpG probes in different
+methylation feature sets. This tool automates hypothesis testing by asking 
+whether a set of CpGs (indexed by Illumina methylation chip IDs, hence a sparse representation
 of the methylome) is enriched in certain categories or features. These
 categories or features can be categorical (e.g., CpGs located at specific
 tissue-specific transcription factors) or continuous (e.g., the local CpG
-density of CpGs). Additionally, the set of CpGs to which the test will be
+density at a regulatory element). Additionally, the set of CpGs to which the test will be
 applied can be categorical or continuous as well.
 
 The set of CpGs that will be tested for enrichment is called the query set, and
@@ -44,8 +44,8 @@ library(knowYourCG)
 sesameDataCache()
 ```
 
-Our example uses a specific mouse design group as input (PGCMeth, methylated in
-primoridal germ cells). First get the CG list using the following code:
+The following example uses a query of CpGs methylated in mouse primordial germ 
+cells (design group PGCMeth). First get the CG list using the following code:
 
 ```{r ky2, message=FALSE}
 query <- KYCG_getDBs("MM285.designGroup")[["PGCMeth"]]
@@ -53,7 +53,7 @@ head(query)
 ```
 
 Now test the enrichment over database groups. By default, KYCG will select all
-the categorical groups and overlapping genes (genes associated with CpGs in the query).
+the categorical groups.
 
 ```{r ky3, fig.width=8, fig.height=5, message=FALSE}
 results_pgc <- testEnrichment(query, platform="MM285")
@@ -63,12 +63,12 @@ head(results_pgc)
 We can visualize the result of this test using the `KYCG_plotEnrichAll`
 function:
 
-```{r ky4}
+```{r ky4, fig.width=7, fig.height=4.5,message=FALSE}
 KYCG_plotEnrichAll(results_pgc)
 ```
 
 This plot groups different database sets along the x-axis and plots -log10(FDR)
-on the y-axis. As expected, the PGCMeth group itself appear on the top of the
+on the y-axis. As expected, the PGCMeth group itself appears on the top of the
 list. But one can also find histone H3K9me3, chromHMM `Het` and transcription
 factor `Trim28` binding enriched in this CG group.
 
@@ -121,7 +121,7 @@ results %>% dplyr::filter(overlap>10) %>%
 ```
 
 The output of each test contains multiple variables including: the estimate (fold
-enrichment, not the test statistics), p-value, overlap statistics,type of test,
+enrichment, not the test statistics), p-value, overlap statistics, type of test,
 as well as the name of the database set and the database group. By default, the 
 results are sorted by -log10 of the of p-value and the fold enrichment.
 
@@ -130,13 +130,13 @@ database set, respectively. Often, it's important to examine the extent of
 overlap between the two sets, so that metric is reported as well in the
 ```overlap``` column.
 
-Additional methods are available for visualizing enrichment results:
+Additional plotting functions are available for visualizing enrichment results:
 
-```{r ky26}
+```{r ky26, fig.width=7, fig.height=4.5,message=FALSE}
 KYCG_plotWaterfall(results)
 ```
 
-```{r ky27}
+```{r ky27, fig.width=7, fig.height=4.5,message=FALSE}
 KYCG_plotBar(results)
 ```
 
@@ -186,6 +186,30 @@ can be faster thanks to the sesameData [in-memory
 caching](https://tinyurl.com/2wh9tyzk), if the corresponding database has been
 loaded.
 
+# Get more database Sets
+
+Some commonly used database sets are stored in ExperimentHub/sesameData package. 
+But more database sets can be found 
+[here](https://github.com/zhou-lab/KYCG_knowledgebase_EPICv2). You can use a 
+convenience function to download these database sets to a local folder.
+
+```{r eval=FALSE}
+KYCG_listDBGroups(path = "~/Downloads/KYCG_knowledgebase_EPICv2")
+##  [1] "ABCompartment.20220911.gz" "Blacklist.20220304.gz"    
+##  [3] "CGI.20220904.gz"           "ChromHMM.20220303.gz"     
+##  [5] "CTCFbind.20220911.gz"      "HM.20221013.gz"           
+##  [7] "ImprintingDMR.20220818.gz" "MetagenePC.20220911.gz"   
+##  [9] "nFlankCG.20220321.gz"      "PMD.20220911.gz"          
+## [11] "ProbeType.gz"              "REMCChromHMM.20220911.gz" 
+## [13] "rmsk1.20220307.gz"         "rmsk2.20220321.gz"        
+## [15] "Tetranuc2.20220321.gz"     "TFBS.20220921.gz"         
+## [17] "TFBSrm.20221005.gz"
+## load all database files in the folder
+dbs <- KYCG_loadDBs("~/Downloads/KYCG_knowledgebase_EPICv2/")
+## or one database file
+dbs <- KYCG_loadDBs("~/Downloads/KYCG_knowledgebase_EPICv2/hg38/CGI.20220904.gz")
+```
+
 # Query Set(s)
 
 A query set represents probes of interest. It may either be in the form of a
@@ -234,41 +258,15 @@ KYCG_plotLollipop(results, label="gene_name")
 
 As expected, we recover our targeted gene (Dnmt3a).
 
-Gene enrichment testing can be included with the enrichment testing of default or
+Gene enrichment testing can easily be included with default or
 user specified database sets by setting include_genes=TRUE:
 
-```{r}
+```{r ky28, warning=FALSE, message=FALSE, fig.width=5, fig.height=4}
 query <- names(sesameData_getProbesByGene("Dnmt3a", "MM285"))
 results <- testEnrichment(query,platform="MM285",include_genes=TRUE)
-results[,c("dbname","estimate","gene_name","FDR", "nQ", "nD", "overlap")]
+results[,c("dbname","gene_name","estimate","FDR", "nQ", "nD", "overlap")] %>% head()
 ```
 
-In this case gene enrichment and other database set enrichments are included together:
-
-
-# Get more database Sets
-
-Some commonly used database sets are stored in ExperimentHub/sesameData package. 
-But more database sets can be found 
-[here](https://github.com/zhou-lab/KYCG_knowledgebase_EPICv2). You can use a 
-convenience function to download these database sets to a local folder.
-
-```{r eval=FALSE}
-KYCG_listDBGroups(path = "~/Downloads/KYCG_knowledgebase_EPICv2")
-##  [1] "ABCompartment.20220911.gz" "Blacklist.20220304.gz"    
-##  [3] "CGI.20220904.gz"           "ChromHMM.20220303.gz"     
-##  [5] "CTCFbind.20220911.gz"      "HM.20221013.gz"           
-##  [7] "ImprintingDMR.20220818.gz" "MetagenePC.20220911.gz"   
-##  [9] "nFlankCG.20220321.gz"      "PMD.20220911.gz"          
-## [11] "ProbeType.gz"              "REMCChromHMM.20220911.gz" 
-## [13] "rmsk1.20220307.gz"         "rmsk2.20220321.gz"        
-## [15] "Tetranuc2.20220321.gz"     "TFBS.20220921.gz"         
-## [17] "TFBSrm.20221005.gz"
-## load all database files in the folder
-dbs <- KYCG_loadDBs("~/Downloads/KYCG_knowledgebase_EPICv2/")
-## or one database file
-dbs <- KYCG_loadDBs("~/Downloads/KYCG_knowledgebase_EPICv2/hg38/CGI.20220904.gz")
-```
 
 # GO/Pathway Enrichment
 
