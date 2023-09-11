@@ -33,7 +33,7 @@ findCpGModules(
 \item{moduleSize}{minimum number of CpGs for module consideration}
 }
 \value{
-matrix with samples on the rows and database set on the columns
+A list of CpG modules
 }
 \description{
 findCpGModules identifies modules of co-methylated CpGs

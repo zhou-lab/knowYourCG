@@ -17,9 +17,9 @@ cleanMatrix <- function(mtx, f_row = 0.5, f_col = 0.5) {
 
 
 returnDiffCpGs <- function (betas, query, k=50, metric="correlation", diffThreshold=0.5) {
-    refGraph <- nnd_knn(betas, k = k, metric=metric)
-    searchGraph <- prepare_search_graph(betas, refGraph, metric=metric, verbose = TRUE)
-    query_nn <- graph_knn_query(
+    refGraph <- rnndescent::nnd_knn(betas, k = k, metric=metric)
+    searchGraph <- rnndescent::prepare_search_graph(betas, refGraph, metric=metric, verbose = TRUE)
+    query_nn <- rnndescent::graph_knn_query(
         query = query,
         reference = betas,
         reference_graph = searchGraph,
@@ -77,8 +77,7 @@ detectCommunity <- function(el,edgeThreshold=.1,nodeThreshold=0) {
 #' @param nodeThreshold minimum node degree for removal from graph
 #' @param metric metric for computing neighbor distance (Default: correlation)
 #' @param moduleSize minimum number of CpGs for module consideration
-#' @return matrix with samples on the rows and database set on the columns
-#' @import rnndescent
+#' @return A list of CpG modules
 #' @importFrom igraph graph_from_data_frame delete.edges delete.vertices cluster_louvain degree communities sizes
 #' @examples
 #' library(SummarizedExperiment)
@@ -95,7 +94,7 @@ findCpGModules <- function (betas,impute=TRUE,diffThreshold=.5,k=50,metric="corr
         impute=impute,
         diffThreshold=diffThreshold
     )
-    nnr <- nnd_knn(beta_sample, k = k, metric=metric)
+    nnr <- rnndescent::nnd_knn(beta_sample, k = k, metric=metric)
     nbr_mtx <- nnr$idx[,-1]
     nbrs <- as.vector(nbr_mtx)
     dist <- as.vector(nnr$dist[,-1])

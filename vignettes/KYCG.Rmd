@@ -37,7 +37,7 @@ transcription factor binding sites, CpG density, etc.
 Additionally, knowYourCG has support for feature selection and feature
 engineering, which is currently in development.
 
-The following commands prepares the use of KnowYourCG:
+The following commands prepare the use of knowYourCG:
 
 ```{r ky1, load-depenencies, results="hide", message=FALSE, warning=FALSE}
 library(knowYourCG)
@@ -72,7 +72,7 @@ on the y-axis. As expected, the PGCMeth group itself appears on the top of the
 list. But one can also find histone H3K9me3, chromHMM `Het` and transcription
 factor `Trim28` binding enriched in this CG group.
 
-# 4 Testing Scenarios
+# Testing Scenarios
 
 There are four testing scenarios depending on the type format of the query set
 and database sets. They are shown with the respective testing scenario in the
@@ -270,32 +270,31 @@ results[,c("dbname","gene_name","estimate","FDR", "nQ", "nD", "overlap")] %>% he
 
 # GO/Pathway Enrichment
 
-One can get all the genes associated with a probe set by
+One can get all the genes associated with a probe set and test the Gene Ontology of 
+the probe-associated genes using the ```testGO()``` function, which internally utilizes
+[g:Profiler2](https://biit.cs.ut.ee/gprofiler/gost) for the enrichment analysis: 
 
 ```{r ky18, message=FALSE}
+library(gprofiler2)
 df <- rowData(sesameDataGet('MM285.tissueSignature'))
 query <- df$Probe_ID[df$branch == "fetal_liver" & df$type == "Hypo"]
-genes <- sesameData_getGenesByProbes(query, platform="MM285")
-genes
+res <- testGO(query, platform="MM285",organism = "mmusculus")
+head(res$result)
+gostplot(res)
 ```
 
-Here we demonstrate the use of
-[g:Profiler2](https://biit.cs.ut.ee/gprofiler/gost) to perform Gene ontology
-enrichment analysis:
 
-```{r ky19, eval = FALSE}
-library(gprofiler2)
+# Genomic Proximity Testing
 
-## use gene name
-gostres <- gost(genes$gene_name, organism = "mmusculus")
-gostres$result[order(gostres$result$p_value),]
-gostplot(gostres)
+Sometimes it may be of interest whether a query set of probes share close genomic 
+proximity. Co-localization may suggest co-regulation or co-occupancy in the same regulatory element. KYCG can test for genomic proximity using the ```testProbeProximity()```
+function. Poisson statistics for the expected # of co-localized hits from the given query size (lambda) and the actual co-localized CpG pairs along with the p value are returned: 
 
-## use Ensembl gene ID, note we need to remove the version suffix
-gene_ids <- sapply(strsplit(names(genes),"\\."), function(x) x[1])
-gostres <- gost(gene_ids, organism = "mmusculus")
-gostres$result[order(gostres$result$p_value),]
-gostplot(gostres)
+```{r ky29, eval = TRUE}
+df <- rowData(sesameDataGet('MM285.tissueSignature'))
+query <- df$Probe_ID[df$branch == "fetal_liver" & df$type == "Hypo"]
+res <- testProbeProximity(query)
+head(res)
 ```
 
 # Set Enrichment Analysis
@@ -382,6 +381,18 @@ ggplot(df_plot) +
     theme(axis.text.x=element_blank(),
           axis.ticks.x=element_blank())
 
+```
+
+
+CpG modules can be identified by passing a betas matrix to the ```findCpGModules()```
+function. This will return a list of vectors, each of which contains highly correlated
+CpG probes:
+
+```{r, ky=30,eval=FALSE}
+library(SummarizedExperiment)
+se <- sesameDataGet('MM285.467.SE.tissue20Kprobes')
+betas <- assay(se)
+findCpGModules(betas)
 ```
 
 # Session Info

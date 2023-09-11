@@ -82,10 +82,10 @@ testProbeProximity <- function (query,gr=NULL,platform=NULL,iterations=100,
     )
 
     stats <- data.frame(
-        num_query=length(query),
-        hits_query=q_hits,
-        lambda=lambda,
-        p.val=pval
+        nQ=length(query),
+        Hits=q_hits,
+        Lambda=lambda,
+        P.val=pval
     )
 
     ind <- which(abs(gr_q[["distance"]]) <= bin_size)

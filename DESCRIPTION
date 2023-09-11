@@ -27,6 +27,7 @@ Imports:
     methods,
     rlang,
     GenomicRanges,
+    gprofiler2,
     IRanges,
     ggplot2,
     reshape2,
@@ -34,7 +35,6 @@ Imports:
     stats,
     stringr,
     tibble,
-    rnndescent,
     igraph,
     utils,
     wheatmap,
@@ -49,5 +49,6 @@ Suggests:
     SummarizedExperiment,
     rmarkdown,
     knitr,
-    sesame
+    sesame,
+    rnndescent
 Config/testthat/edition: 3
