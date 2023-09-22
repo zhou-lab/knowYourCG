@@ -69,7 +69,7 @@ detectCommunity <- function(el,edgeThreshold=.1,nodeThreshold=0) {
 
 #' findCpGModules identifies modules of co-methylated CpGs
 #'
-#' @param betas matrix of beta values where probes are on the rows and
+#' @param betas matrix of beta values where probes are on the rows and samples on the columns
 #' @param k # of neighbors to return from reference graph for query CpGs
 #' @param diffThreshold Distance to nearest neighbor to determine if query gets added to reference graph
 #' @param impute whether to impute missing values using the row mean (Default: TRUE)

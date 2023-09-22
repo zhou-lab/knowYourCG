@@ -16,7 +16,7 @@ findCpGModules(
 )
 }
 \arguments{
-\item{betas}{matrix of beta values where probes are on the rows and}
+\item{betas}{matrix of beta values where probes are on the rows and samples on the columns}
 
 \item{impute}{whether to impute missing values using the row mean (Default: TRUE)}
 
