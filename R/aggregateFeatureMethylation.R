@@ -1,6 +1,3 @@
-
-
-
 #' dbStats builds dataset for a given betas matrix
 #' composed of engineered features from the given database sets
 #'

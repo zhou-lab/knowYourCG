@@ -1,11 +1,9 @@
-
-
 getDistance <- function(v) {
     if (length(v) == 1) return(NA)
     vapply(seq(v), function(x) v[x + 1] - v[x], numeric(1))
 }
 
-getPairwiseDistance <- function(gr,q) #takes in GRanges
+getPairwiseDistance <- function(gr,q)
 {
     df <- as.data.frame(sort(gr[q,])) %>%
         dplyr::group_by(.data$seqnames) %>%
@@ -98,7 +96,3 @@ testProbeProximity <- function (query,gr=NULL,platform=NULL,iterations=100,
     list(Stats=stats,Clusters=clusters)
 
 }
-
-
-
-

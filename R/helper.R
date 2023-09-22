@@ -1,4 +1,3 @@
-
 databases_getMeta <- function(dbs) {
     meta <- do.call(bind_rows, lapply(dbs, function(db) {
         m1 <- attributes(db)
@@ -238,15 +237,3 @@ KYCG_annoProbes <- function(query, databases, db_names = NULL,
         return(anno)
     }
 }
-
-
-
-
-
-
-
-
-
-
-
-

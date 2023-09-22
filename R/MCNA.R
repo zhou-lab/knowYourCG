@@ -1,4 +1,3 @@
-
 imputeRowMean <- function(mtx) {
     k <- which(is.na(mtx), arr.ind=TRUE)
     mtx[k] <- rowMeans(mtx, na.rm=TRUE)[k[,1]]
@@ -117,5 +116,3 @@ findCpGModules <- function (betas,impute=TRUE,diffThreshold=.5,k=50,metric="corr
     names(modules) <- as.character(seq(modules))
     modules
 }
-
-

@@ -1,4 +1,3 @@
-
 convertGeneName <- function(gene) {
     first <- substr(gene, 1, 1)
     rest <- substr(gene, 2, nchar(gene))

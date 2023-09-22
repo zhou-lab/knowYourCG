@@ -1,4 +1,3 @@
-
 calcES_Significance <- function(dCont, dDisc, permut=100, precise=FALSE) {
 
     dCont <- sort(dCont)
@@ -142,5 +141,4 @@ testEnrichmentSEA <- function(query, databases,
     res <- cbind(res, databases_getMeta(dbs))
     res[order(res$p.value, -abs(res$estimate)), ]
 }
-
 
