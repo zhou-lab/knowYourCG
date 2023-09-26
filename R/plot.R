@@ -27,7 +27,9 @@ KYCG_plotEnrichAll <- function(
 
     e1$group <- str_replace(e1$group,"KYCG.","")
     e1$group <- vapply(strsplit(e1$group, "\\."),
-                       function(x) paste0(x[2:(length(x)-1)], collapse="."), character(1))
+                       function(x) paste0(x[2:(length(x)-1)], collapse="."),
+                           character(1)
+                       )
     if ("gene_name" %in% colnames(e1)) {
         e1$dbname[e1$group == "gene"] <- e1$gene_name[e1$group == "gene"] }
 
@@ -42,11 +44,13 @@ KYCG_plotEnrichAll <- function(
     requireNamespace("ggrepel")
     ggplot(e2, aes(inc2, -log10(FDR))) +
         geom_point(aes(size=estimate, color=group), alpha=0.5) +
-        ggrepel::geom_text_repel(data = e2[head(order(e2$FDR), n = n_label),],
-                                 aes(label=dbname, color=group), size = 3,
-                                 ## box.padding = unit(0.35, "lines"),
-                                 ## point.padding = unit(0.3, "lines"),
-                                 direction="y", nudge_y=0.2, max.overlaps=100) +
+        ggrepel::geom_text_repel(
+            data = e2[head(order(e2$FDR), n = n_label),],
+            aes(label=dbname, color=group), size = 3,
+             ## box.padding = unit(0.35, "lines"),
+             ## point.padding = unit(0.3, "lines"),
+             direction="y", nudge_y=0.2, max.overlaps=100
+            ) +
         annotate("text", -1, fdr_max*0.96,
                  label="Values above this line are capped.",
                  hjust=0, vjust=1, color="grey60") +
@@ -54,7 +58,8 @@ KYCG_plotEnrichAll <- function(
         geom_segment(aes(x = beg, y = 0, xend = end, yend = 0, color=group),
                      size=3, data=e3) +
         geom_text(data=e3,aes(middle, -1, label=group, color=group),
-                  vjust=1, hjust=1, angle=30) + scale_color_discrete(guide="none") +
+                  vjust=1, hjust=1, angle=30) +
+        scale_color_discrete(guide="none") +
         ylim(-6, fdr_max*1.2) + xlab("") +
         scale_size_continuous(guide=guide_legend(title="log2(OR)")) +
         coord_cartesian(clip="off") + theme_minimal() +
@@ -206,7 +211,12 @@ KYCG_plotVolcano <- function(df, label_by="dbname", alpha=0.05) {
         df$FDR < alpha, "Significant", "Not significant")
     ## TODO: replace with column specifying sig vs non sig
     g <- ggplot(data=df,
-                aes_string(x = "estimate", y = "-log10(FDR)", color = "Significance"))
+                aes_string(
+                    x = "estimate",
+                    y = "-log10(FDR)",
+                    color = "Significance"
+                    )
+                )
     g <- g + geom_point() + xlab("log2(OR)")
     g <- g + ylab("-log10 FDR") +
         scale_colour_manual(
@@ -423,8 +433,8 @@ KYCG_plotPointRange <- function(result_list) {
     df <- summarize(group_by(df, state),
                     ave = mean(pmax(-4, est),na.rm=TRUE),
                     sd = sd(pmax(-10,est),na.rm=TRUE))
-    df$ymin = df$ave - df$sd
-    df$ymax = df$ave + df$sd
+    df$ymin <- df$ave - df$sd
+    df$ymax <- df$ave + df$sd
 
     df$state <- factor(df$state, levels = df$state[order(df$ave)])
 
@@ -537,7 +547,12 @@ KYCG_plotSetEnrichment <- function(
 
     WGG(ggplot(data.frame(index=index, cs=cs[index])) +
             geom_segment(data=data.frame(pos=pos),
-                         aes_string(x = "pos", xend = "pos", y = -0.02, yend = 0.02),
+                         aes_string(
+                             x = "pos",
+                             xend = "pos",
+                             y = -0.02,
+                             yend = 0.02
+                             ),
                          color="grey50") +
             geom_line(aes_string(x="index", y="cs"), color="darkred") +
             xlab("") + ylab("ES(S)")) +

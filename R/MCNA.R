@@ -6,18 +6,24 @@ imputeRowMean <- function(mtx) {
 
 
 cleanMatrix <- function(mtx, f_row = 0.5, f_col = 0.5) {
-    cat("Before: ", nrow(mtx), "rows\n")
-    namtx = !is.na(mtx)
-    good_row = rowSums(namtx) > 1
-    cat("After: ", sum(good_row), "rows\n")
+    message("Before: ", nrow(mtx), " rows\n")
+    namtx <- !is.na(mtx)
+    good_row <- rowSums(namtx) > 1
+    message("After: ", sum(good_row), " rows\n")
     mtx <- mtx[good_row,]
     imputeRowMean(mtx)
 }
 
 
-returnDiffCpGs <- function (betas, query, k=50, metric="correlation", diffThreshold=0.5) {
+returnDiffCpGs <- function(
+        betas, query, k=50, metric="correlation", diffThreshold=0.5) {
     refGraph <- rnndescent::nnd_knn(betas, k = k, metric=metric)
-    searchGraph <- rnndescent::prepare_search_graph(betas, refGraph, metric=metric, verbose = TRUE)
+    searchGraph <- rnndescent::prepare_search_graph(
+        betas,
+        refGraph,
+        metric=metric,
+        verbose = TRUE
+    )
     query_nn <- rnndescent::graph_knn_query(
         query = query,
         reference = betas,
@@ -30,8 +36,8 @@ returnDiffCpGs <- function (betas, query, k=50, metric="correlation", diffThresh
 }
 
 
-prepareSampleSet <- function (betas,k=50,impute=TRUE,num_row=75000,diffThreshold=0.5)
-{
+prepareSampleSet <- function(
+        betas,k=50,impute=TRUE,num_row=75000,diffThreshold=0.5) {
 
     if (is(betas, "numeric")) {
         betas <- cbind(sample = betas)
@@ -45,7 +51,15 @@ prepareSampleSet <- function (betas,k=50,impute=TRUE,num_row=75000,diffThreshold
     sample_size <- round(.33 * num)
     betas_sample <- betas[sample(rownames(betas), size=sample_size), ]
     query <- betas[!rownames(betas) %in% rownames(betas_sample),]
-    betas_sample <- rbind(betas_sample, returnDiffCpGs(betas=betas_sample, query=query,k=k,diffThreshold = diffThreshold))
+    betas_sample <- rbind(
+        betas_sample,
+        returnDiffCpGs(
+            betas=betas_sample,
+            query=query,
+            k=k,
+            diffThreshold = diffThreshold
+            )
+        )
     betas_sample
 }
 
@@ -59,7 +73,7 @@ detectCommunity <- function(el,edgeThreshold=.1,nodeThreshold=0) {
         g,
         which(igraph::E(g)$dist > edgeThreshold)
     )
-    isolated = which(igraph::degree(g)==nodeThreshold)
+    isolated <- which(igraph::degree(g)==nodeThreshold)
     g <- igraph::delete.vertices(g, isolated)
     lc <- cluster_louvain(g)
     lc
@@ -68,16 +82,21 @@ detectCommunity <- function(el,edgeThreshold=.1,nodeThreshold=0) {
 
 #' findCpGModules identifies modules of co-methylated CpGs
 #'
-#' @param betas matrix of beta values where probes are on the rows and samples on the columns
+#' @param betas matrix of beta values where probes are on the rows and
+#' samples on the columns
 #' @param k # of neighbors to return from reference graph for query CpGs
-#' @param diffThreshold Distance to nearest neighbor to determine if query gets added to reference graph
-#' @param impute whether to impute missing values using the row mean (Default: TRUE)
-#' @param edgeThreshold minimum inter - CpG distance threshold for community detection (1 - correlation)
+#' @param diffThreshold Distance to nearest neighbor to determine if
+#' query gets added to reference graph
+#' @param impute whether to impute missing values using the row mean
+#' (Default: TRUE)
+#' @param edgeThreshold minimum inter - CpG distance threshold for community
+#' detection (1 - correlation)
 #' @param nodeThreshold minimum node degree for removal from graph
 #' @param metric metric for computing neighbor distance (Default: correlation)
 #' @param moduleSize minimum number of CpGs for module consideration
 #' @return A list of CpG modules
-#' @importFrom igraph graph_from_data_frame delete.edges delete.vertices cluster_louvain degree communities sizes
+#' @importFrom igraph graph_from_data_frame delete.edges delete.vertices
+#' @importFrom igraph cluster_louvain degree communities sizes
 #' @examples
 #' library(SummarizedExperiment)
 #' se <- sesameDataGet('MM285.467.SE.tissue20Kprobes')
@@ -86,8 +105,10 @@ detectCommunity <- function(el,edgeThreshold=.1,nodeThreshold=0) {
 #' sesameDataGet_resetEnv()
 #'
 #' @export
-findCpGModules <- function (betas,impute=TRUE,diffThreshold=.5,k=50,metric="correlation", edgeThreshold=.1,nodeThreshold=0,moduleSize = 5)
-{
+findCpGModules <- function (
+        betas,impute=TRUE,diffThreshold=.5,k=50,metric="correlation",
+        edgeThreshold=.1,nodeThreshold=0,moduleSize = 5) {
+
     beta_sample <- prepareSampleSet(
         betas=betas,
         impute=impute,
@@ -109,7 +130,8 @@ findCpGModules <- function (betas,impute=TRUE,diffThreshold=.5,k=50,metric="corr
         edgeThreshold = edgeThreshold,
         nodeThreshold = nodeThreshold
     )
-    modules <- lapply(igraph::communities(lc)[igraph::sizes(lc) >= moduleSize],function(x) {
+    communities <- igraph::communities(lc)[igraph::sizes(lc) >= moduleSize]
+    modules <- lapply(communities,function(x) {
         indices <- as.numeric(x)
         rownames(beta_sample)[indices]
     })

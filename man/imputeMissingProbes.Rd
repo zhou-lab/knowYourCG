@@ -2,24 +2,29 @@
 % Please edit documentation in R/imputeMissingCpGs.R
 \name{imputeMissingProbes}
 \alias{imputeMissingProbes}
-\title{imputeMissingProbes predicts missing beta values based on co-methylated probes}
+\title{imputeMissingProbes imputes missing values based on co-methylated probes}
 \usage{
 imputeMissingProbes(betas, graphSize = 10000, corr = 0.8, delta = 0.3)
 }
 \arguments{
-\item{betas}{matrix of beta values where probes are on the rows and samples on columns}
+\item{betas}{matrix of beta values where probes are on the
+rows and samples on columns}
 
 \item{graphSize}{# of probes to use for search graph construction}
 
-\item{corr}{correlation threshold to determine imputation strategy. If correlation with neighbor is below threshold, row mean imputation is performed}
+\item{corr}{correlation threshold to determine imputation
+strategy. If correlation with neighbor is below threshold, row mean
+imputation is performed}
 
-\item{delta}{mean difference threshold between imputation target and neighbor. If mean difference exceeds threshold, row mean imputation is performed}
+\item{delta}{mean difference threshold between imputation target
+and neighbor. If mean difference exceeds threshold, row mean
+imputation is performed}
 }
 \value{
 A betas matrix with missing values imputed
 }
 \description{
-imputeMissingProbes predicts missing beta values based on co-methylated probes
+imputeMissingProbes imputes missing values based on co-methylated probes
 }
 \examples{
 library(SummarizedExperiment)

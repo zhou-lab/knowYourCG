@@ -13,11 +13,12 @@ convertGeneName <- function(gene) {
 #' @param query Vector of CpG probes IDs or a data frame with gene_name column,
 #' usually the output of testEnrichment() function
 #' @param platform EPIC, MM285, ..., infer if not given
-#' @param organism The organism corresponding to the CpG platform or genes in gene_name
-#' column
-#' @param gene_name If query is data frame from enrichment testing, whether to use the
-#' gene_name column. If set to FALSE, TFBS will be used (default: FALSE)
-#' @param ... Additional arguments passed to sesameData_getGenesByProbes and gost()
+#' @param organism The organism corresponding to the CpG platform
+#' or genes in gene_name column
+#' @param gene_name If query is data frame from testEnrichment output,
+#' whether to use the gene_name column. If set to FALSE,
+#' TFBS will be used (default: FALSE)
+#' @param ... Additional arguments to sesameData_getGenesByProbes and gost()
 #' @importFrom gprofiler2 gost
 #' @return A list of enriched terms and meta data from gprofiler2 output
 #' @examples
@@ -26,7 +27,8 @@ convertGeneName <- function(gene) {
 #' query <- df$Probe_ID[df$branch == "fetal_liver" & df$type == "Hypo"]
 #' res <- testGO(query)
 #' @export
-testGO <- function(query, platform=NULL, organism="hsapiens",gene_name=TRUE,...) {
+testGO <- function(
+        query, platform=NULL, organism="hsapiens",gene_name=TRUE,...) {
 
     if (is.character(query)) {
         query <- sesameData_getGenesByProbes(query, platform=platform,...)

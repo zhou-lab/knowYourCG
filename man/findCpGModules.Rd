@@ -16,17 +16,21 @@ findCpGModules(
 )
 }
 \arguments{
-\item{betas}{matrix of beta values where probes are on the rows and samples on the columns}
+\item{betas}{matrix of beta values where probes are on the rows and
+samples on the columns}
 
-\item{impute}{whether to impute missing values using the row mean (Default: TRUE)}
+\item{impute}{whether to impute missing values using the row mean
+(Default: TRUE)}
 
-\item{diffThreshold}{Distance to nearest neighbor to determine if query gets added to reference graph}
+\item{diffThreshold}{Distance to nearest neighbor to determine if
+query gets added to reference graph}
 
 \item{k}{# of neighbors to return from reference graph for query CpGs}
 
 \item{metric}{metric for computing neighbor distance (Default: correlation)}
 
-\item{edgeThreshold}{minimum inter - CpG distance threshold for community detection (1 - correlation)}
+\item{edgeThreshold}{minimum inter - CpG distance threshold for community
+detection (1 - correlation)}
 
 \item{nodeThreshold}{minimum node degree for removal from graph}
 

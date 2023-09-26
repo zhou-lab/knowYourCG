@@ -106,7 +106,8 @@ testEnrichmentSEA1 <- function(query, database, precise=FALSE, full=FALSE) {
 #' res <- testEnrichmentSEA(query, "MM285.seqContextN")
 #' @export
 testEnrichmentSEA <- function(query, databases,
-                              platform = NULL, silent = FALSE, precise = FALSE, prepPlot = FALSE) {
+                              platform = NULL, silent = FALSE,
+                              precise = FALSE, prepPlot = FALSE) {
 
     platform <- queryCheckPlatform(platform, query, silent = silent)
     stopifnot(!is.null(databases))

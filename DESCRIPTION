@@ -1,26 +1,27 @@
 Package: knowYourCG
 Type: Package
-Title: Automated Analysis of DNA Methylation Data
-Version: 0.1.0
+Title: Functional analysis of DNA methylome datasets
+Version: 1.0.0
 Authors: Wanding Zhou, David Goldberg, Ethan Jacob Moyer
-Authors@R: c(person("Zhou", "Wanding", role=c("aut","cre"),
+Authors@R: c(person("Zhou", "Wanding", role=c("aut"),
              email="ZHOUW3@chop.edu"),
-             person("Goldberg", "David", role=c("aut","ctb"),
-             email="golddc72@pennmedicine.upenn.edu"),
-             person("Moyer","Ethan",role=c("aut"),
+             person("Goldberg", "David", role=c("aut","cre"),
+             email="golddc72@pennmedicine.upenn.edu",
+             comment=c(ORCID="0000-0002-9622-4708")),
+             person("Moyer","Ethan",role=c("ctb"),
              email="ejm374@drexel.edu")
              )
 Description: knowYourCG automates the functional enrichment analysis of DNA 
     methylation data. The enrichment of both discrete and continuous input
-    query sets can be tested across thousands of curated biological and technical features. 
-    knowYourCG can also perform unsupervised analyses of beta matrices for the discovery of
-    methylation correlation networks. 
+    query sets can be tested across thousands of curated biological 
+    and technical features. knowYourCG can also perform unsupervised analyses 
+    of beta matrices for the discovery of methylation correlation networks. 
 Depends: R (>= 4.3.0),
           sesameData
 License: MIT + file LICENSE
 VignetteBuilder: knitr
 Encoding: UTF-8
-LazyData: true
+LazyData: false
 RoxygenNote: 7.2.3
 Imports:
     dplyr,

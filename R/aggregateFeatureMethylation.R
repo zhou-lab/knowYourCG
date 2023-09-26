@@ -20,7 +20,8 @@
 #'
 #' @export
 dbStats <- function(
-        betas, databases, fun = mean, na.rm = TRUE, n_min = NULL, f_min = 0.1) {
+        betas, databases, fun = mean, na.rm = TRUE,
+        n_min = NULL, f_min = 0.1) {
 
     if (is(betas, "numeric")) { betas <- cbind(sample = betas); }
     if (is.character(databases)) {

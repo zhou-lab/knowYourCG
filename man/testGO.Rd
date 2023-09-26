@@ -12,13 +12,14 @@ usually the output of testEnrichment() function}
 
 \item{platform}{EPIC, MM285, ..., infer if not given}
 
-\item{organism}{The organism corresponding to the CpG platform or genes in gene_name
-column}
+\item{organism}{The organism corresponding to the CpG platform
+or genes in gene_name column}
 
-\item{gene_name}{If query is data frame from enrichment testing, whether to use the
-gene_name column. If set to FALSE, TFBS will be used (default: FALSE)}
+\item{gene_name}{If query is data frame from testEnrichment output,
+whether to use the gene_name column. If set to FALSE,
+TFBS will be used (default: FALSE)}
 
-\item{...}{Additional arguments passed to sesameData_getGenesByProbes and gost()}
+\item{...}{Additional arguments to sesameData_getGenesByProbes and gost()}
 }
 \value{
 A list of enriched terms and meta data from gprofiler2 output

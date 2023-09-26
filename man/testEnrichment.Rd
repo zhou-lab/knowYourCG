@@ -19,8 +19,8 @@ testEnrichment(
 \item{query}{Vector of probes of interest (e.g., significant probes)}
 
 \item{databases}{List of vectors corresponding to the database sets of
-interest with associated meta data as an attribute to each element. Optional.
-(Default: NA)}
+interest with associated meta data as an attribute to each element.
+Optional. (Default: NA)}
 
 \item{universe}{Vector of probes in the universe set containing all of
 the probes to be considered in the test. If it is not provided, it will be

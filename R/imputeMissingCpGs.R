@@ -9,7 +9,7 @@ remove_all_na <- function(betas) {
     remove <- rowSums(namtx) > ncol(betas) - 2
     if (sum(remove) != 0) {
         betas <- betas[-which(remove),]
-        message(sprintf("removing %i rows (too many missing values)",sum(remove)))
+        message(sprintf("removing %i rows (too many missing)",sum(remove)))
     }
     betas
 }
@@ -18,7 +18,7 @@ prepare_graph_mtx <- function(betas,graphSize=10000) {
     if (nrow(betas) < graphSize) {
         graphSize <- nrow(betas)
     }
-    sds <- order(-apply(betas,1,sd,na.rm=TRUE))[1:graphSize]
+    sds <- order(-apply(betas,1,sd,na.rm=TRUE))[seq(graphSize)]
     graph_mtx <- imputeRowMean(betas[sds,])
     graph_mtx
 }
@@ -60,7 +60,7 @@ query_imputation_graph <- function(betas,qry,graph_mtx,searchGraph,k=2) {
 
 
 getDelta <- function(betas,nn_df) {
-    vapply(1:nrow(nn_df), function(x) {
+    vapply(seq(nrow(nn_df)), function(x) {
         c1 <- mean(betas[nn_df[x,1],],na.rm=TRUE)
         c2 <- mean(betas[nn_df[x,2],],na.rm=TRUE)
         c2 - c1
@@ -91,12 +91,17 @@ impute <- function(mtx,nn_df,corr=0.8,delta=0.3) {
 }
 
 
-#' imputeMissingProbes predicts missing beta values based on co-methylated probes
+#' imputeMissingProbes imputes missing values based on co-methylated probes
 #'
-#' @param betas matrix of beta values where probes are on the rows and samples on columns
+#' @param betas matrix of beta values where probes are on the
+#' rows and samples on columns
 #' @param graphSize # of probes to use for search graph construction
-#' @param corr correlation threshold to determine imputation strategy. If correlation with neighbor is below threshold, row mean imputation is performed
-#' @param delta mean difference threshold between imputation target and neighbor. If mean difference exceeds threshold, row mean imputation is performed
+#' @param corr correlation threshold to determine imputation
+#' strategy. If correlation with neighbor is below threshold, row mean
+#' imputation is performed
+#' @param delta mean difference threshold between imputation target
+#' and neighbor. If mean difference exceeds threshold, row mean
+#' imputation is performed
 #' @return A betas matrix with missing values imputed
 #' @examples
 #' library(SummarizedExperiment)
@@ -119,9 +124,14 @@ imputeMissingProbes <- function(betas,graphSize=10000,corr=0.8,delta=0.3) {
         graph_mtx = graph_mtx,
         searchGraph = sg
     )
-    nbr_col <- ifelse(rownames(query_nn$idx) == rownames(g$idx)[query_nn$idx[,1]],2,1)
-    nbrs <- vapply(seq(nbr_col), function(x) rownames(g$idx)[query_nn$idx[x,nbr_col[x]]],character(1))
-    nbr_corr <- 1 - vapply(seq(nbr_col), function(x) query_nn$dist[x,nbr_col[x]],numeric(1))
+    nbr_col_lgl <- rownames(query_nn$idx) == rownames(g$idx)[query_nn$idx[,1]]
+    nbr_col <- ifelse(nbr_col_lgl,2,1)
+    nbrs <- vapply(seq(nbr_col), function(x) {
+        rownames(g$idx)[query_nn$idx[x,nbr_col[x]]]
+    },character(1))
+    nbr_corr <- 1 - vapply(seq(nbr_col), function(x) {
+        query_nn$dist[x,nbr_col[x]]
+    },numeric(1))
     nn_df <- data.frame(
         qry=qry,
         nbr=nbrs,

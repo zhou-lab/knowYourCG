@@ -1,4 +1,4 @@
-# knowYourCG - automating the functional enrichment analysis of methylation data
+# knowYourCG - Functional analysis of DNA methylome datasets
 
 ## Install knowYourCG
 

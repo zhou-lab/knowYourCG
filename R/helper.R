@@ -22,7 +22,10 @@ queryCheckPlatform <- function(platform, query = NULL, silent = FALSE) {
     if (is.null(platform)) {
         stopifnot(!is.null(query))
         if (is.numeric(query)) {
-            platform <- inferPlatformFromProbeIDs(names(query), silent = silent)
+            platform <- inferPlatformFromProbeIDs(
+                names(query),
+                silent = silent
+            )
         } else {
             platform <- inferPlatformFromProbeIDs(query, silent = silent)
         }
@@ -51,8 +54,9 @@ subsetDBs <- function(dbs, universe) {
 }
 
 
-guess_dbnames <- function(nms, platform = NULL,
-                          allow_multi = FALSE, type = NULL, silent = FALSE) {
+guess_dbnames <- function(
+        nms, platform = NULL,allow_multi = FALSE, type = NULL,
+        silent = FALSE) {
 
     gps <- KYCG_listDBGroups(type = type)
     nms <- do.call(c, lapply(nms, function(nm) {
@@ -165,15 +169,17 @@ KYCG_loadDBs <- function(in_paths) {
 #' dbs <- KYCG_getDBs("MM285.chromHMM")
 #' dbs <- KYCG_getDBs(c("MM285.chromHMM", "MM285.probeType"))
 #' @export
-KYCG_getDBs <- function(group_nms, db_names = NULL, platform = NULL,
-                        summary = FALSE, allow_multi = FALSE, type = NULL, silent = FALSE) {
+KYCG_getDBs <- function(
+        group_nms, db_names = NULL, platform = NULL,
+        summary = FALSE, allow_multi = FALSE, type = NULL, silent = FALSE) {
 
     if (!is.character(group_nms)) {
         return(group_nms)
     }
 
     group_nms <- guess_dbnames(group_nms, platform = platform,
-                               allow_multi = TRUE, type = type, silent = silent)
+                               allow_multi = TRUE, type = type,
+                               silent = silent)
     ## group_nms <- group_nms[sesameDataHas(group_nms)]
     group_nms <- group_nms[group_nms %in% sesameDataList()$Title]
     if (length(group_nms) == 0) {
@@ -218,12 +224,14 @@ KYCG_getDBs <- function(group_nms, db_names = NULL, platform = NULL,
 #' anno <- KYCG_annoProbes(query, "designGroup", silent = TRUE)
 #' @export
 KYCG_annoProbes <- function(query, databases, db_names = NULL,
-                            platform = NULL, sep = ",", indicator = FALSE, silent = FALSE) {
+                            platform = NULL, sep = ",",
+                            indicator = FALSE, silent = FALSE) {
 
     platform <- queryCheckPlatform(platform, query, silent = silent)
     if (is.character(databases)) {
         dbs <- KYCG_getDBs(databases, db_names = db_names,
-                           platform = platform, silent = silent, type = "categorical")
+                           platform = platform, silent = silent,
+                           type = "categorical")
     } else {
         dbs <- databases
     }

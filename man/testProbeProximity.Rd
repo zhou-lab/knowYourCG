@@ -2,8 +2,8 @@
 % Please edit documentation in R/testProbeProximity.R
 \name{testProbeProximity}
 \alias{testProbeProximity}
-\title{testProbeProximity tests if a query set of probes share closer genomic proximity than
-if randomly distributed}
+\title{testProbeProximity tests if a query set of probes share closer
+genomic proximity than if randomly distributed}
 \usage{
 testProbeProximity(
   query,
@@ -32,8 +32,8 @@ list containing a dataframe for the poisson statistics and a
 data frame for the probes in close proximity
 }
 \description{
-testProbeProximity tests if a query set of probes share closer genomic proximity than
-if randomly distributed
+testProbeProximity tests if a query set of probes share closer
+genomic proximity than if randomly distributed
 }
 \examples{
 

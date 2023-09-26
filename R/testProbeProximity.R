@@ -11,8 +11,8 @@ getPairwiseDistance <- function(gr,q)
 }
 
 
-#' testProbeProximity tests if a query set of probes share closer genomic proximity than
-#' if randomly distributed
+#' testProbeProximity tests if a query set of probes share closer
+#' genomic proximity than if randomly distributed
 #'
 #' @param query Vector of probes of interest (e.g., significant probes)
 #' @param gr GRanges to draw samples and compute genomic distances
@@ -40,7 +40,7 @@ testProbeProximity <- function (query,gr=NULL,platform=NULL,iterations=100,
 {
     if (is.null(gr)) {
         if (is.null(platform)) {
-            platform = inferPlatformFromProbeIDs(query)
+            platform <- inferPlatformFromProbeIDs(query)
         }
         gr <- sesameData_getManifestGRanges(platform)
     }
