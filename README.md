@@ -1,6 +1,6 @@
-# knowYourCG - automating the hypothesis testing of CpG methylation data
+# knowYourCG - automating the functional enrichment analysis of methylation data
 
-## Install KnowYourCG
+## Install knowYourCG
 
 Development version can be installed from github.
 ```{r, eval=FALSE}
