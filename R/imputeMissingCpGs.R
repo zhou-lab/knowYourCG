@@ -9,7 +9,7 @@ remove_all_na <- function(betas) {
     remove <- rowSums(namtx) > ncol(betas) - 2
     if (sum(remove) != 0) {
         betas <- betas[-which(remove),]
-        message(sprintf("removing %i rows (all missing)",sum(remove)))
+        message(sprintf("removing %i rows (too many missing values)",sum(remove)))
     }
     betas
 }

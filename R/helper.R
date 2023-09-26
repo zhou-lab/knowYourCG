@@ -88,23 +88,29 @@ guess_dbnames <- function(nms, platform = NULL,
 #' List database group names
 #'
 #' @param filter keywords for filtering
+#' @param path file path to downloaded knowledgebase sets
 #' @param type categorical, numerical (default: all)
 #' @return a list of db group names
 #' @examples
 #' head(KYCG_listDBGroups("chromHMM"))
+#' ## or KYCG_listDBGroups(path = "~/Downloads")
 #' @export
-KYCG_listDBGroups <- function(filter = NULL, type = NULL) {
+KYCG_listDBGroups <- function(filter = NULL, path = NULL, type = NULL) {
 
-    gps <- sesameDataList("KYCG", full=TRUE)[,c("Title","Description")]
-    gps$type <- vapply(strsplit(
-        gps$Description, " "), function(x) x[2], character(1))
-    gps$Description <- str_replace(
-        gps$Description, "KYCG categorical database holding ", "")
-    if (!is.null(filter)) {
-        gps <- gps[grepl(filter, gps$Title),]
-    }
-    if (!is.null(type)) {
-        gps <- gps[gps$type %in% type,]
+    if (is.null(path)) {
+        gps <- sesameDataList("KYCG", full=TRUE)[,c("Title","Description")]
+        gps$type <- vapply(strsplit(
+            gps$Description, " "), function(x) x[2], character(1))
+        gps$Description <- str_replace(
+            gps$Description, "KYCG categorical database holding ", "")
+        if (!is.null(filter)) {
+            gps <- gps[grepl(filter, gps$Title),]
+        }
+        if (!is.null(type)) {
+            gps <- gps[gps$type %in% type,]
+        }
+    } else {
+        gps <- basename(list.files(path, recursive = TRUE))
     }
     gps
 }

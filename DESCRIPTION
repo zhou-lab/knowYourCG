@@ -10,10 +10,10 @@ Authors@R: c(person("Zhou", "Wanding", role=c("aut","cre"),
              person("Moyer","Ethan",role=c("aut"),
              email="ejm374@drexel.edu")
              )
-Description: Automates the discovery of biological and technical links in DNA 
-    methylation data. knowYourCG tests enrichment of discrete or continuous input
-    query sets across thousands of curated biological and technical features. 
-    Unsupervised analyses of beta matrices may also be performed to discover
+Description: knowYourCG automates the functional enrichment analysis of DNA 
+    methylation data. The enrichment of both discrete and continuous input
+    query sets can be tested across thousands of curated biological and technical features. 
+    knowYourCG can also perform unsupervised analyses of beta matrices for the discovery of
     methylation correlation networks. 
 Depends: R (>= 4.3.0),
           sesameData

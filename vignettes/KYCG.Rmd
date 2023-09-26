@@ -1,5 +1,5 @@
 ---
-title: "KnowYourCG"
+title: "knowYourCG"
 shorttitle: "KYCG"
 package: knowYourCG
 output: rmarkdown::html_vignette
@@ -11,31 +11,24 @@ vignette: >
   %\VignetteEncoding{UTF-8}
 ---
 
-An automated tool for discovering hidden biological and technical
-links in DNA methylation data
+A tool for automated functional enrichment analysis of DNA methylation data
 
 # Quick Start
 
 knowYourCG is a tool for evaluating the enrichment of CpG probes in different
-methylation feature sets. This tool automates hypothesis testing by asking 
-whether a set of CpGs (indexed by Illumina methylation chip IDs, hence a sparse representation
-of the methylome) is enriched in certain categories or features. These
-categories or features can be categorical (e.g., CpGs located at specific
-tissue-specific transcription factors) or continuous (e.g., the local CpG
-density at a regulatory element). Additionally, the set of CpGs to which the test will be
-applied can be categorical or continuous as well.
+methylation feature sets. These categories or features can be categorical 
+(e.g., CpGs located at specific tissue-specific transcription factors) or continuous 
+(e.g., the local CpG density at a regulatory element). Additionally, the set of CpGs 
+to which the test will be applied can be categorical or continuous as well.
 
-The set of CpGs that will be tested for enrichment is called the query set, and
-the set of CpGs that will be used to determine enrichment is called the
-database set. A query set, for example, might be the results of a differential
-methylation analysis or an epigenome-wide association study. We have taken
-the time to curate our own database sets from a variety of sources that
-describe different categorical and continuous features such as CpGs associated 
-with certain chromatin states, technical artifacts, gene association, 
-transcription factor binding sites, CpG density, etc.
-
-Additionally, knowYourCG has support for feature selection and feature
-engineering, which is currently in development.
+The set of CpGs tested for enrichment is called the query set, and
+the curated target features are called the database sets. A query set, 
+for example, might be the results of a differential methylation analysis or an 
+epigenome-wide association study. We have curated a variety of database sets that 
+represent different categorical and continuous methylation features such as CpGs 
+associated with particular chromatin states, technical artifacts, gene association and
+gene expression correlation, transcription factor binding sites, tissue specific
+methylation, CpG density, etc.
 
 The following commands prepare the use of knowYourCG:
 
@@ -82,26 +75,27 @@ and Set Enrichment Analysis respectively.
 ```{r ky9, echo = FALSE, results="asis"}
 library(knitr)
 df = data.frame(
-    "Continuous DB"=c("Correlation-based","Set Enrichment Analysis"),
-    "Discrete DB"=c("Set Enrichment Analysis","Fisher's Exact Test"))
-rownames(df) = c("Continuous Query", "Discrete Query")
-kable(df, caption="Four KnowYourCG Testing Scenarios")
+    c("Correlation-based","Set Enrichment Analysis"),
+    c("Set Enrichment Analysis","Fisher's Exact Test")
+)
+colnames(df) <- c("Continuous Database Set", "Discrete Database Set")
+rownames(df) <- c("Continuous Query", "Discrete Query")
+kable(df, caption="Four knowYourCG Testing Scenarios")
 ```
 
 # Enrichment Testing
 
 The main work horse function for testing enrichment of a categorical query against
-categorical databases is the `testEnrichment` function. This function
-calculates the extent of overlap and applies different statistics for enrichment
-testing. The ```testEnrichment()``` will perform Fisher's exact test
-(one-tailed by default, but two-tailed optionally) and report metrics about
-each of the the loaded database sets.
+categorical databases is the `testEnrichment` function. This function will perform 
+Fisher's exact testing of the query against each database set 
+(one-tailed by default, but two-tailed optionally) and reports overlap and 
+enrichment statistics. 
 
 > **Choice of universe set:** Universe set is the set of all probes for a
 given platform. It can either be passed in as an argument called
 ```universeSet``` or the platform name can be passed with argument
 ```platform```. If neither of these are supplied, the universe set will be
-inferred from the probes.
+inferred from the probes in the query.
 
 ```{r ky10, run-test-single, echo=TRUE, eval=TRUE, message=FALSE}
 library(SummarizedExperiment)
@@ -121,7 +115,7 @@ results %>% dplyr::filter(overlap>10) %>%
 ```
 
 The output of each test contains multiple variables including: the estimate (fold
-enrichment, not the test statistics), p-value, overlap statistics, type of test,
+enrichment), p-value, overlap statistics, type of test,
 as well as the name of the database set and the database group. By default, the 
 results are sorted by -log10 of the of p-value and the fold enrichment.
 
@@ -140,10 +134,9 @@ KYCG_plotWaterfall(results)
 KYCG_plotBar(results)
 ```
 
-
 # Database Sets
 
-The success of enrichment testing depends critically on the availability of
+The success of enrichment testing depends on the availability of
 biologically-relevant databases. To reflect the biological meaning of databases
 and facilitate selective testing, we have organized our database sets into
 different groups. Each group contains one or multiple databases. Here is how to
@@ -164,7 +157,7 @@ amount of time the user needs to wait when re-downloading database sets. For
 this reason, one should run ```sesameDataCache()``` before loading in any
 database sets. This will take some time to download all of the database sets
 but this only needs to be done once per installation.  During the analysis the
-database sets can be identified using these accessions. Sesame also does some
+database sets can be identified using these accessions. knowYourCG also does some
 guessing when a unique substring is given. For example, the following
 "MM285.designGroup" retrieves the "KYCG.MM285.designGroup.20210210"
 database. Let's look at the database group which we had used as the query
@@ -186,15 +179,15 @@ can be faster thanks to the sesameData [in-memory
 caching](https://tinyurl.com/2wh9tyzk), if the corresponding database has been
 loaded.
 
-# Get more database Sets
+# Retrieving more database sets
 
 Some commonly used database sets are stored in ExperimentHub/sesameData package. 
 But more database sets can be found 
-[here](https://github.com/zhou-lab/KYCG_knowledgebase_EPICv2). You can use a 
-convenience function to download these database sets to a local folder.
+[here](https://github.com/zhou-lab/KYCG_knowledgebase_EPICv2). You can download 
+these database sets to a local folder and easily load them into memory:
 
 ```{r eval=FALSE}
-KYCG_listDBGroups(path = "~/Downloads/KYCG_knowledgebase_EPICv2")
+KYCG_listDBGroups(path = "~/Downloads/KYCG_knowledgebase_EPICv2/hg38/")
 ##  [1] "ABCompartment.20220911.gz" "Blacklist.20220304.gz"    
 ##  [3] "CGI.20220904.gz"           "ChromHMM.20220303.gz"     
 ##  [5] "CTCFbind.20220911.gz"      "HM.20221013.gz"           
@@ -205,7 +198,7 @@ KYCG_listDBGroups(path = "~/Downloads/KYCG_knowledgebase_EPICv2")
 ## [15] "Tetranuc2.20220321.gz"     "TFBS.20220921.gz"         
 ## [17] "TFBSrm.20221005.gz"
 ## load all database files in the folder
-dbs <- KYCG_loadDBs("~/Downloads/KYCG_knowledgebase_EPICv2/")
+dbs <- KYCG_loadDBs("~/Downloads/KYCG_knowledgebase_EPICv2/hg38/")
 ## or one database file
 dbs <- KYCG_loadDBs("~/Downloads/KYCG_knowledgebase_EPICv2/hg38/CGI.20220904.gz")
 ```
@@ -392,8 +385,41 @@ CpG probes:
 library(SummarizedExperiment)
 se <- sesameDataGet('MM285.467.SE.tissue20Kprobes')
 betas <- assay(se)
-findCpGModules(betas)
+modules <- findCpGModules(betas)
 ```
+
+To link co-methylated CpGs to potential biology, one can test the enrichment of the modules:
+
+```{r, ky=31, eval=FALSE}
+mod_enr <- do.call(rbind, lapply(names(modules),function(x) {
+    res <- testEnrichment(modules[[x]],platform = "MM285")
+    res$Module <- paste0("Module",x)
+    res
+})) 
+
+mod_enr %>% dplyr::filter(FDR < .05)
+```
+
+We see modules that are enriched in sex, tissue specific methylation, SNPs, transcription
+factor binding sites and other genomic features
+
+# Missing Data Imputation
+
+One can impute missing values in a betas matrix using the correlation network workflow. Highly correlated
+CpGs can be imputed with greater accuracy compared to traditional mean based imputation. If a 
+missing probe does not have a co-methylated neighbor in the data, then the mean is used. This hybrid approach
+improves overall imputation accuracy and is especially effective at imputing values that show variation across
+the data and thus may have biological significance
+
+```{r, ky=32,eval=FALSE}
+library(SummarizedExperiment)
+se <- sesameDataGet('MM285.467.SE.tissue20Kprobes')
+betas <- assay(se)
+betas <- imputeMissingProbes(betas)
+```
+
+Note: imputation can be time and memory consuming if the data set is large or 
+the graphSize parameter is too high
 
 # Session Info
 
