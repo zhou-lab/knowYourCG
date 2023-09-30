@@ -22,7 +22,7 @@ returnDiffCpGs <- function(
         betas,
         refGraph,
         metric=metric,
-        verbose = TRUE
+        verbose = FALSE
     )
     query_nn <- rnndescent::graph_knn_query(
         query = query,
@@ -30,7 +30,7 @@ returnDiffCpGs <- function(
         reference_graph = searchGraph,
         k = 1,
         metric = metric,
-        verbose = TRUE
+        verbose = FALSE
     )
     query[which(query_nn$dist > diffThreshold), ]
 }

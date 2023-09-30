@@ -11,13 +11,13 @@ vignette: >
   %\VignetteEncoding{UTF-8}
 ---
 
-A tool for automated functional enrichment analysis of DNA methylation data
+A tool for functional analysis of DNA methylomes
 
 # Quick Start
 
 knowYourCG is a tool for evaluating the enrichment of CpG probes in different
-methylation feature sets. These categories or features can be categorical 
-(e.g., CpGs located at specific tissue-specific transcription factors) 
+methylation feature sets. These features can be categorical 
+(e.g., CpGs located at tissue-specific transcription factors) 
 or continuous (e.g., the local CpG density at a regulatory element). 
 Additionally, the set of CpGs to which the test will be applied can be 
 categorical or continuous as well.
@@ -27,8 +27,8 @@ the curated target features are called the database sets. A query set,
 for example, might be the results of a differential methylation analysis or an 
 epigenome-wide association study. We have curated a variety of database sets 
 that represent different categorical and continuous methylation features 
-such as CpGs associated with particular chromatin states, technical artifacts, 
-gene association andgene expression correlation, transcription factor 
+such as CpGs associated with chromatin states, technical artifacts, 
+gene association and gene expression correlation, transcription factor 
 binding sites, tissue specific methylation, CpG density, etc.
 
 The following commands prepare the use of knowYourCG:
@@ -159,7 +159,7 @@ this reason, one should run ```sesameDataCache()``` before loading in any
 database sets. This will take some time to download all of the database sets
 but this only needs to be done once per installation.  During the analysis the
 database sets can be identified using these accessions. knowYourCG also does 
-some guessing when a unique substring is given. For example, the following
+some guessing when a unique substring is given. For example, the string
 "MM285.designGroup" retrieves the "KYCG.MM285.designGroup.20210210"
 database. Let's look at the database group which we had used as the query
 (query and database are reciprocal) in our first example:
@@ -391,10 +391,14 @@ which contains highly correlated CpG probes:
 
 ```{r, ky=30,eval=FALSE}
 library(SummarizedExperiment)
+set.seed(123)
 se <- sesameDataGet('MM285.467.SE.tissue20Kprobes')
 betas <- assay(se)
 modules <- findCpGModules(betas)
 ```
+
+Note: Module identification can be time and memory consuming if the data 
+set is large or the graphSize parameter is too high
 
 To link co-methylated CpGs to potential biology, one can test the 
 enrichment of the modules:
@@ -424,13 +428,14 @@ biological significance
 
 ```{r, ky=32,eval=FALSE}
 library(SummarizedExperiment)
+set.seed(123)
 se <- sesameDataGet('MM285.467.SE.tissue20Kprobes')
 betas <- assay(se)
 betas <- imputeMissingProbes(betas)
 ```
 
-Note: imputation can be time and memory consuming if the data set is large or 
-the graphSize parameter is too high
+Note: imputation can also be time and memory consuming if the data set is 
+large or the graphSize parameter is too high
 
 # Session Info
 
