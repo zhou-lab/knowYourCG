@@ -8,7 +8,7 @@ against the same set of databases}
 KYCG_plotPointRange(result_list)
 }
 \arguments{
-\item{result_list}{a list of testEnrichment resultsx}
+\item{result_list}{a list of testEnrichment results}
 }
 \value{
 grid plot object

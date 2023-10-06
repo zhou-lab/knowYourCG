@@ -33,7 +33,6 @@ queryCheckPlatform <- function(platform, query = NULL, silent = FALSE) {
     platform
 }
 
-#inferUniverse: Given a platform, it identifies and returns the corresponding ordering of Probe_IDs.
 inferUniverse <- function(platform) {
     mfts <- c(
         "MM285.address", "EPIC.address",
