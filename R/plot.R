@@ -409,7 +409,7 @@ KYCG_plotMeta <- function(betas, platform = NULL) {
 #' Plot point range for a list of enrichment testing results
 #' against the same set of databases
 #'
-#' @param result_list a list of testEnrichment resultsx
+#' @param result_list a list of testEnrichment results
 #' @return grid plot object
 #' @importFrom reshape2 melt
 #' @importFrom dplyr summarize
@@ -458,11 +458,6 @@ KYCG_plotPointRange <- function(result_list) {
 #' of probes. Either MM285, EPIC, HM450, or HM27. If it is not provided, it
 #' will be inferred from the query set probeIDs (Default: NA).
 #' @param genome hg38, mm10, ..., will infer if not given.
-#' For additional mapping, download the GRanges object from
-#' http://zwdzwd.github.io/InfiniumAnnotation
-#' and provide the following argument
-#' ..., genome = sesameAnno_buildManifestGRanges("downloaded_file"),...
-#' to this function.
 #' @param title title for plot
 #' @param label_min Threshold above which data points will be labelled with
 #' Probe ID

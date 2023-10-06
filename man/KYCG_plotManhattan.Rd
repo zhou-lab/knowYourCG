@@ -22,12 +22,7 @@ retrieving GRanges coordinates
 of probes. Either MM285, EPIC, HM450, or HM27. If it is not provided, it
 will be inferred from the query set probeIDs (Default: NA).}
 
-\item{genome}{hg38, mm10, ..., will infer if not given.
-For additional mapping, download the GRanges object from
-http://zwdzwd.github.io/InfiniumAnnotation
-and provide the following argument
-..., genome = sesameAnno_buildManifestGRanges("downloaded_file"),...
-to this function.}
+\item{genome}{hg38, mm10, ..., will infer if not given.}
 
 \item{title}{title for plot}
 

@@ -180,11 +180,6 @@ testEnrichmentFisherN <- function(
 #' @param platform HM450, EPIC, MM285, Mammal40, will infer from
 #' query if not given
 #' @param genome hg38, mm10, ..., will infer if not given.
-#' For additional mapping, download the GRanges object from
-#' http://zwdzwd.github.io/InfiniumAnnotation
-#' and provide the following argument
-#' ..., genome = sesameAnno_buildManifestGRanges("downloaded_file"),...
-#' to this function.
 #' @param max_distance probe-gene distance for association
 #' @param silent suppress messages
 #' @return gene databases

@@ -120,19 +120,7 @@ KYCG_listDBGroups <- function(filter = NULL, path = NULL, type = NULL) {
 }
 
 
-#' Load database groups
-#'
-#' @param in_paths folder that contains all databases
-#' @return a list of db group names
-#' @examples
-#'
-#' ## download regulatory annotations from
-#' ## http://zwdzwd.github.io/InfiniumAnnotation
-#' ## unzip the file
-#' if (FALSE) {
-#' dbs <- KYCG_loadDBs(path_to_unzipped_folder)
-#' }
-#' @export
+
 KYCG_loadDBs <- function(in_paths) {
     if (length(in_paths)==1 && dir.exists(in_paths)) {
         groupnms <- list.files(in_paths)
