@@ -16,7 +16,7 @@ Description: knowYourCG automates the functional analysis of DNA
     across thousands of curated biological and technical features. GSEA-like 
     analysis can be performed on continuous methylation data query sets. 
     knowYourCG can also take beta matrices as input to perform feature 
-    aggregation and unsupervised methylation module detection.
+    aggregation and plotting over the curated database sets.
 Depends: R (>= 4.3.0),
           sesameData
 License: MIT + file LICENSE
@@ -37,7 +37,6 @@ Imports:
     stats,
     stringr,
     tibble,
-    igraph,
     utils,
     wheatmap,
     GenomeInfoDb
@@ -52,5 +51,4 @@ Suggests:
     rmarkdown,
     knitr,
     sesame,
-    rnndescent
 Config/testthat/edition: 3
