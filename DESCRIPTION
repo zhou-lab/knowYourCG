@@ -1,7 +1,7 @@
 Package: knowYourCG
 Type: Package
 Title: Functional analysis of DNA methylome datasets
-Version: 0.99.0
+Version: 0.99.1
 Authors: Wanding Zhou, David Goldberg, Ethan Jacob Moyer
 Authors@R: c(person("Zhou", "Wanding", role=c("aut"),
              email="ZHOUW3@chop.edu"),
