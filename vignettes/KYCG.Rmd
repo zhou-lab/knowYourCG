@@ -252,7 +252,6 @@ df <- rowData(sesameDataGet('MM285.tissueSignature'))
 query <- df$Probe_ID[df$branch == "fetal_liver" & df$type == "Hypo"]
 res <- testGO(query, platform="MM285",organism = "mmusculus")
 head(res$result)
-gostplot(res)
 ```
 
 
