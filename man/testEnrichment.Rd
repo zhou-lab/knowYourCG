@@ -6,7 +6,7 @@
 a number of features (database sets).}
 \usage{
 testEnrichment(
-  query,
+  probeIDs,
   databases = NULL,
   universe = NULL,
   alternative = "greater",
@@ -16,7 +16,7 @@ testEnrichment(
 )
 }
 \arguments{
-\item{query}{Vector of probes of interest (e.g., significant probes)}
+\item{probeIDs}{Vector of probes of interest (e.g., significant probes)}
 
 \item{databases}{List of vectors corresponding to the database sets of
 interest with associated meta data as an attribute to each element.
@@ -47,9 +47,9 @@ a number of features (database sets).
 \examples{
 
 library(SummarizedExperiment)
-df <- rowData(sesameDataGet('MM285.tissueSignature'))
-query <- df$Probe_ID[df$branch == "B_cell"]
-res <- testEnrichment(query, "chromHMM", platform="MM285")
-sesameDataGet_resetEnv()
+df <- rowData(sesameData::sesameDataGet('MM285.tissueSignature'))
+probes <- df$Probe_ID[df$branch == "B_cell"]
+res <- testEnrichment(probes, "chromHMM", platform="MM285")
+sesameData::sesameDataGet_resetEnv()
 
 }

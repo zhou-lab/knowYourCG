@@ -1,8 +1,7 @@
 Package: knowYourCG
 Type: Package
 Title: Functional analysis of DNA methylome datasets
-Version: 0.99.3
-Authors: Wanding Zhou, David Goldberg, Ethan Jacob Moyer
+Version: 0.99.4
 Authors@R: c(person("Zhou", "Wanding", role=c("aut"),
              email="ZHOUW3@chop.edu"),
              person("Goldberg", "David", role=c("aut","cre"),
@@ -17,14 +16,16 @@ Description: knowYourCG automates the functional analysis of DNA
     analysis can be performed on continuous methylation data query sets. 
     knowYourCG can also take beta matrices as input to perform feature 
     aggregation and plotting over the curated database sets.
-Depends: R (>= 4.3.0),
-          sesameData
+Depends: R (>= 4.3.0)
+URL: https://github.com/zhou-lab/knowYourCG
+BugReports: https://github.com/zhou-lab/knowYourCG/issues
 License: MIT + file LICENSE
 VignetteBuilder: knitr
 Encoding: UTF-8
 LazyData: false
 RoxygenNote: 7.2.3
 Imports:
+    sesameData,
     dplyr,
     methods,
     rlang,

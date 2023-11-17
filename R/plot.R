@@ -10,12 +10,12 @@
 #' @importFrom tibble rownames_to_column
 #' @import ggplot2
 #' @examples
-#' query <- KYCG_getDBs("MM285.designGroup")[["PGCMeth"]]
+#' query <- getDBs("MM285.designGroup")[["PGCMeth"]]
 #' res <- testEnrichment(query, platform="MM285")
-#' KYCG_plotEnrichAll(res)
+#' plotEnrichAll(res)
 #'
 #' @export
-KYCG_plotEnrichAll <- function(
+plotEnrichAll <- function(
         df, fdr_max = 25, n_label = 15, min_estimate = 0) {
 
     gp_size <- sort(table(df$group))
@@ -111,11 +111,11 @@ preparePlotDF <- function(df, n, order_by) {
 #' @importFrom stringr str_split
 #' @import ggplot2
 #' @examples
-#' KYCG_plotBar(data.frame(
+#' plotBar(data.frame(
 #'   estimate=runif(10,0,10), FDR=runif(10,0,1), nD=10,
 #'   overlap=as.integer(runif(10,0,30)), group="g", dbname=seq_len(10)))
 #' @export
-KYCG_plotBar <- function(df, y = "-log10(FDR)",
+plotBar <- function(df, y = "-log10(FDR)",
                          n = 20, order_by = "FDR", label = FALSE) {
 
     stopifnot("estimate" %in% colnames(df) && "FDR" %in% colnames(df))
@@ -164,11 +164,11 @@ KYCG_plotBar <- function(df, y = "-log10(FDR)",
 #'
 #' @import ggplot2
 #' @examples
-#' KYCG_plotDot(data.frame(
+#' plotDot(data.frame(
 #'   estimate=runif(10,0,10), FDR=runif(10,0,1), nD=runif(10,10,20),
 #'   overlap=as.integer(runif(10,0,30)), group="g", dbname=seq_len(10)))
 #' @export
-KYCG_plotDot <- function(df, y = "-log10(FDR)",
+plotDot <- function(df, y = "-log10(FDR)",
                          n = 20, order_by = "FDR",
                          size_by = "overlap", color_by = "estimate") {
 
@@ -195,12 +195,12 @@ KYCG_plotDot <- function(df, y = "-log10(FDR)",
 #' @import ggplot2
 #' @examples
 #'
-#' KYCG_plotVolcano(data.frame(
+#' plotVolcano(data.frame(
 #'   estimate=runif(10,0,10), FDR=runif(10,0,1), nD=runif(10,10,20),
 #'   overlap=as.integer(runif(10,0,30)), group="g", dbname=seq_len(10)))
 #'
 #' @export
-KYCG_plotVolcano <- function(df, label_by="dbname", alpha=0.05) {
+plotVolcano <- function(df, label_by="dbname", alpha=0.05) {
     ## suppress R CMD CHECK no visible binding warning
     estimate <- FDR <- label <- NULL
 
@@ -245,13 +245,13 @@ KYCG_plotVolcano <- function(df, label_by="dbname", alpha=0.05) {
 #' @import ggplot2
 #' @examples
 #'
-#' KYCG_plotLollipop(data.frame(
+#' plotLollipop(data.frame(
 #'   estimate=runif(10,0,10), FDR=runif(10,0,1), nD=runif(10,10,20),
 #'   overlap=as.integer(runif(10,0,30)), group="g",
 #'   dbname=as.character(seq_len(10))))
 #'
 #' @export
-KYCG_plotLollipop <- function(df, label_column="dbname", n=20) {
+plotLollipop <- function(df, label_column="dbname", n=20) {
     ## suppress R CMD CHECK no visible binding warning
     estimate <- label <- NULL
 
@@ -295,13 +295,13 @@ KYCG_plotLollipop <- function(df, label_column="dbname", n=20) {
 #' @examples
 #'
 #' library(SummarizedExperiment)
-#' df <- rowData(sesameDataGet('MM285.tissueSignature'))
+#' df <- rowData(sesameData::sesameDataGet('MM285.tissueSignature'))
 #' query <- df$Probe_ID[df$branch == "fetal_brain" & df$type == "Hypo"]
 #' results <- testEnrichment(query, "TFBS", platform="MM285")
-#' KYCG_plotWaterfall(results)
+#' plotWaterfall(results)
 #'
 #' @export
-KYCG_plotWaterfall <- function(df,
+plotWaterfall <- function(df,
                                order_by="estimate", size_by="-log10(FDR)",
                                label_by="dbname", n_label=10) {
 
@@ -334,14 +334,14 @@ KYCG_plotWaterfall <- function(df,
 #' @param result_list one or a list of testEnrichment
 #' @return a grid plot object
 #' @examples
-#' cg_lists <- KYCG_getDBs("MM285.TFBS")
+#' cg_lists <- getDBs("MM285.TFBS")
 #' queries <- cg_lists[(sapply(cg_lists, length) > 40000)]
 #' result_list <- lapply(queries, testEnrichment,
 #'     "MM285.metagene", silent=TRUE, platform="MM285")
 #'
-#' KYCG_plotMetaEnrichment(result_list)
+#' plotMetaEnrichment(result_list)
 #' @export
-KYCG_plotMetaEnrichment <- function(result_list) {
+plotMetaEnrichment <- function(result_list) {
 
     if (is.data.frame(result_list)) { # 1 testEnrichment result
         result_list <- list(result_list)
@@ -375,10 +375,10 @@ KYCG_plotMetaEnrichment <- function(result_list) {
 #' @return a grid plot object
 #' @examples
 #' library(sesame)
-#' sdf <- sesameDataGet("EPIC.1.SigDF")
-#' KYCG_plotMeta(getBetas(sdf))
+#' sdf <- sesameData::sesameDataGet("EPIC.1.SigDF")
+#' plotMeta(getBetas(sdf))
 #' @export
-KYCG_plotMeta <- function(betas, platform = NULL) {
+plotMeta <- function(betas, platform = NULL) {
 
     if (!is.matrix(betas)) {
         betas <- cbind(sample=betas)
@@ -388,7 +388,7 @@ KYCG_plotMeta <- function(betas, platform = NULL) {
     }
     stopifnot(!is.null(platform))
 
-    meta <- KYCG_getDBs(sprintf("%s.metagene", platform))
+    meta <- getDBs(sprintf("%s.metagene", platform))
     mb <- do.call(cbind, lapply(
         meta, function(m1) apply(betas[m1,,drop=FALSE],2, mean, na.rm=TRUE)))
     df <- melt(mb, varnames=c("query","db"), value.name="mean_betas")
@@ -416,15 +416,15 @@ KYCG_plotMeta <- function(betas, platform = NULL) {
 #' @examples
 #'
 #' ## pick some big TFBS-overlapping CpG groups
-#' cg_lists <- KYCG_getDBs("MM285.TFBS")
+#' cg_lists <- getDBs("MM285.TFBS")
 #' queries <- cg_lists[(sapply(cg_lists, length) > 40000)]
 
 #' result_list <- lapply(queries, testEnrichment,
 #'     "MM285.chromHMM", platform="MM285")
-#' KYCG_plotPointRange(result_list)
+#' plotPointRange(result_list)
 #'
 #' @export
-KYCG_plotPointRange <- function(result_list) {
+plotPointRange <- function(result_list) {
 
     ord <- mean_betas <- state <- est <- NULL
 
@@ -450,7 +450,7 @@ KYCG_plotPointRange <- function(result_list) {
         coord_flip()
 }
 
-#' KYCG_plotManhattan makes a manhattan plot to summarize EWAS results
+#' plotManhattan makes a manhattan plot to summarize EWAS results
 #'
 #' @param vals named vector of values (P,Q etc), vector name is Probe ID.
 #' @param platform String corresponding to the type of platform to use for
@@ -464,15 +464,16 @@ KYCG_plotPointRange <- function(result_list) {
 #' @param col color
 #' @param ylabel y-axis label
 #' @return a ggplot object
+#' @import sesameData 
 #' @importFrom tibble as_tibble
 #' @importFrom GenomeInfoDb seqnames
 #' @examples
 #'
 #' ## see vignette for examples
-#' sesameDataGet_resetEnv()
+#' sesameData::sesameDataGet_resetEnv()
 #'
 #' @export
-KYCG_plotManhattan <- function(
+plotManhattan <- function(
         vals, platform = NULL, genome = NULL, title = NULL,
         label_min = 100, col = c("wheat1", "sienna3"), ylabel="Value") {
 
@@ -521,13 +522,13 @@ KYCG_plotManhattan <- function(
 #' @return grid object for plot
 #' @importFrom wheatmap WGG Beneath
 #' @examples
-#' query <- KYCG_getDBs("KYCG.MM285.designGroup")[["VMR"]]
-#' db <- KYCG_getDBs("MM285.seqContextN", "distToTSS")
+#' query <- getDBs("KYCG.MM285.designGroup")[["VMR"]]
+#' db <- getDBs("MM285.seqContextN", "distToTSS")
 #' res <- testEnrichmentSEA(query, db, prepPlot = TRUE)
-#' KYCG_plotSetEnrichment(res[[1]])
+#' plotSetEnrichment(res[[1]])
 #'
 #' @export
-KYCG_plotSetEnrichment <- function(
+plotSetEnrichment <- function(
         result, n_sample = 1000, n_presence = 200) {
 
     stopifnot("dDisc" %in% names(result))

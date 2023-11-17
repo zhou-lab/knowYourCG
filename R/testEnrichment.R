@@ -1,7 +1,7 @@
 #' testEnrichment tests for the enrichment of set of probes (query set) in
 #' a number of features (database sets).
 #'
-#' @param query Vector of probes of interest (e.g., significant probes)
+#' @param probeIDs Vector of probes of interest (e.g., significant probes)
 #' @param databases List of vectors corresponding to the database sets of
 #' interest with associated meta data as an attribute to each element.
 #' Optional. (Default: NA)
@@ -20,29 +20,29 @@
 #' @examples
 #'
 #' library(SummarizedExperiment)
-#' df <- rowData(sesameDataGet('MM285.tissueSignature'))
-#' query <- df$Probe_ID[df$branch == "B_cell"]
-#' res <- testEnrichment(query, "chromHMM", platform="MM285")
-#' sesameDataGet_resetEnv()
+#' df <- rowData(sesameData::sesameDataGet('MM285.tissueSignature'))
+#' probes <- df$Probe_ID[df$branch == "B_cell"]
+#' res <- testEnrichment(probes, "chromHMM", platform="MM285")
+#' sesameData::sesameDataGet_resetEnv()
 #'
 #' @export
 testEnrichment <- function(
-        query, databases = NULL, universe = NULL, alternative = "greater",
+        probeIDs, databases = NULL, universe = NULL, alternative = "greater",
         include_genes = FALSE, platform = NULL, silent = FALSE) {
 
-    platform <- queryCheckPlatform(platform, query, silent = silent)
+    platform <- queryCheckPlatform(platform, probeIDs, silent = silent)
 
     if (is.null(databases)) {
-        dbs <- c(KYCG_getDBs(KYCG_listDBGroups( # by default, all dbs + gene
+        dbs <- c(getDBs(listDBGroups( # by default, all dbs + gene
             platform, type="categorical")$Title, silent = silent))
     } else if (is.character(databases)) {
-        dbs <- KYCG_getDBs(databases, platform = platform, silent = silent)
+        dbs <- getDBs(databases, platform = platform, silent = silent)
     } else {
         dbs <- databases
     }
 
     if (include_genes) {
-        dbs <- c(dbs, KYCG_buildGeneDBs(query, platform, silent = silent))
+        dbs <- c(dbs, buildGeneDBs(probeIDs, platform, silent = silent))
     }
 
     ## there shouldn't be empty databases, but just in case
@@ -57,7 +57,7 @@ testEnrichment <- function(
         dbs <- subsetDBs(dbs, universe) }
 
     res <- do.call(bind_rows, lapply(dbs, function(db) {
-        testEnrichmentFisher(query = query, database = db,
+        testEnrichmentFisher(query = probeIDs, database = db,
                              universe = universe, alternative = alternative)}))
 
     ## adjust p.value after merging
@@ -70,6 +70,7 @@ testEnrichment <- function(
 }
 
 
+
 #' Aggregate test enrichment results
 #'
 #' @param result_list a list of results from testEnrichment
@@ -80,7 +81,7 @@ testEnrichment <- function(
 #' @examples
 #'
 #' ## pick some big TFBS-overlapping CpG groups
-#' cg_lists <- KYCG_getDBs("MM285.TFBS")
+#' cg_lists <- getDBs("MM285.TFBS")
 #' queries <- cg_lists[(sapply(cg_lists, length) > 40000)]
 #' result_list <- lapply(queries, testEnrichment, "MM285.chromHMM")
 #' mtx <- aggregateTestEnrichments(result_list)
@@ -175,7 +176,7 @@ testEnrichmentFisherN <- function(
 
 #' build gene-probe association database
 #'
-#' @param query the query probe list. If NULL, use all the probes
+#' @param probeIDs the query probe list. If NULL, use all the probes
 #' on the platform
 #' @param platform HM450, EPIC, MM285, Mammal40, will infer from
 #' query if not given
@@ -190,20 +191,20 @@ testEnrichmentFisherN <- function(
 #' @importFrom S4Vectors queryHits
 #' @examples
 #' query <- c("cg04707299", "cg13380562", "cg00480749")
-#' dbs <- KYCG_buildGeneDBs(query, platform = "EPIC")
+#' dbs <- buildGeneDBs(query, platform = "EPIC")
 #' testEnrichment(query, dbs, platform = "EPIC")
 #' @export
-KYCG_buildGeneDBs <- function(
-        query = NULL, platform = NULL,
+buildGeneDBs <- function(
+    probeIDs = NULL, platform = NULL,
         genome = NULL, max_distance = 10000, silent = FALSE) {
 
-    platform <- queryCheckPlatform(platform, query, silent = silent)
+    platform <- queryCheckPlatform(platform, probeIDs, silent = silent)
     genes <- sesameData_txnToGeneGRanges(
         sesameData_getTxnGRanges(
             sesameData_check_genome(NULL, platform)))
     all_probes <- sesameData_getManifestGRanges(platform, genome = genome)
-    if (!is.null(query)) {
-        probes <- all_probes[names(all_probes) %in% query] }
+    if (!is.null(probeIDs)) {
+        probes <- all_probes[names(all_probes) %in% probeIDs] }
 
     ## skip non-overlapping genes, strand always ignored
     genes <- subsetByOverlaps(

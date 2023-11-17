@@ -57,7 +57,7 @@ guess_dbnames <- function(
         nms, platform = NULL,allow_multi = FALSE, type = NULL,
         silent = FALSE) {
 
-    gps <- KYCG_listDBGroups(type = type)
+    gps <- listDBGroups(type = type)
     nms <- do.call(c, lapply(nms, function(nm) {
         if (nm %in% gps$Title) {
             return(nm)
@@ -95,10 +95,10 @@ guess_dbnames <- function(
 #' @param type categorical, numerical (default: all)
 #' @return a list of db group names
 #' @examples
-#' head(KYCG_listDBGroups("chromHMM"))
-#' ## or KYCG_listDBGroups(path = "~/Downloads")
+#' head(listDBGroups("chromHMM"))
+#' ## or listDBGroups(path = "~/Downloads")
 #' @export
-KYCG_listDBGroups <- function(filter = NULL, path = NULL, type = NULL) {
+listDBGroups <- function(filter = NULL, path = NULL, type = NULL) {
 
     if (is.null(path)) {
         gps <- sesameDataList("KYCG", full=TRUE)[,c("Title","Description")]
@@ -120,7 +120,7 @@ KYCG_listDBGroups <- function(filter = NULL, path = NULL, type = NULL) {
 
 
 
-KYCG_loadDBs <- function(in_paths) {
+loadDBs <- function(in_paths) {
     if (length(in_paths)==1 && dir.exists(in_paths)) {
         groupnms <- list.files(in_paths)
         in_paths <- file.path(in_paths, groupnms)
@@ -153,10 +153,10 @@ KYCG_loadDBs <- function(in_paths) {
 #' each query.
 #' @return a list of databases, return NULL if no database is found
 #' @examples
-#' dbs <- KYCG_getDBs("MM285.chromHMM")
-#' dbs <- KYCG_getDBs(c("MM285.chromHMM", "MM285.probeType"))
+#' dbs <- getDBs("MM285.chromHMM")
+#' dbs <- getDBs(c("MM285.chromHMM", "MM285.probeType"))
 #' @export
-KYCG_getDBs <- function(
+getDBs <- function(
         group_nms, db_names = NULL, platform = NULL,
         summary = FALSE, allow_multi = FALSE, type = NULL, silent = FALSE) {
 
@@ -197,7 +197,7 @@ KYCG_getDBs <- function(
 #'
 #' see sesameData_annoProbes if you'd like to annotate by genomic coordinates
 #' (in GRanges)
-#' @param query probe IDs in a character vector
+#' @param probeIDs probe IDs in a character vector
 #' @param databases character or actual database (i.e. list of probe IDs)
 #' @param db_names specific database (default to all databases)
 #' @param platform EPIC, MM285 etc. will infer from probe IDs if not given
@@ -207,16 +207,16 @@ KYCG_getDBs <- function(
 #' @param silent suppress message
 #' @return named annotation vector, or indicator matrix
 #' @examples
-#' query <- names(sesameData_getManifestGRanges("MM285"))
-#' anno <- KYCG_annoProbes(query, "designGroup", silent = TRUE)
+#' probes <- names(sesameData::sesameData_getManifestGRanges("MM285"))
+#' anno <- annoProbes(probeIDs=probes, "designGroup", silent = TRUE)
 #' @export
-KYCG_annoProbes <- function(query, databases, db_names = NULL,
+annoProbes <- function(probeIDs, databases, db_names = NULL,
                             platform = NULL, sep = ",",
                             indicator = FALSE, silent = FALSE) {
 
-    platform <- queryCheckPlatform(platform, query, silent = silent)
+    platform <- queryCheckPlatform(platform, probeIDs, silent = silent)
     if (is.character(databases)) {
-        dbs <- KYCG_getDBs(databases, db_names = db_names,
+        dbs <- getDBs(databases, db_names = db_names,
                            platform = platform, silent = silent,
                            type = "categorical")
     } else {
@@ -225,16 +225,16 @@ KYCG_annoProbes <- function(query, databases, db_names = NULL,
 
     ind <- do.call(cbind, lapply(names(dbs), function(db_nm) {
         db <- dbs[[db_nm]]
-        query %in% db
+        probeIDs %in% db
     }))
     if (indicator) {
-        rownames(ind) <- query
+        rownames(ind) <- probeIDs
         colnames(ind) <- names(dbs)
         return(ind)
     } else {
         anno <- apply(ind, 1, function(x) paste(names(dbs)[x], collapse=sep))
         anno <- ifelse(anno == "", NA, anno)
-        names(anno) <- query
+        names(anno) <- probeIDs
         return(anno)
     }
 }

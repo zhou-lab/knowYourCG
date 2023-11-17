@@ -4,10 +4,10 @@
 \alias{testGO}
 \title{tests Gene Ontology of genes overlapping CpG query}
 \usage{
-testGO(query, platform = NULL, organism = "hsapiens", gene_name = TRUE, ...)
+testGO(probeIDs, platform = NULL, organism = "hsapiens", gene_name = TRUE, ...)
 }
 \arguments{
-\item{query}{Vector of CpG probes IDs or a data frame with gene_name column,
+\item{probeIDs}{Vector of CpG probes IDs or a data frame with gene_name column,
 usually the output of testEnrichment() function}
 
 \item{platform}{EPIC, MM285, ..., infer if not given}
@@ -30,7 +30,7 @@ test for depletion
 }
 \examples{
 library(SummarizedExperiment)
-df <- rowData(sesameDataGet('MM285.tissueSignature'))
+df <- rowData(sesameData::sesameDataGet('MM285.tissueSignature'))
 query <- df$Probe_ID[df$branch == "fetal_liver" & df$type == "Hypo"]
 res <- testGO(query)
 }

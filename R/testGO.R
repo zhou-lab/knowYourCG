@@ -10,8 +10,8 @@ convertGeneName <- function(gene) {
 #' estimate represent enrichment score and negative estimate indicate a
 #' test for depletion
 #'
-#' @param query Vector of CpG probes IDs or a data frame with gene_name column,
-#' usually the output of testEnrichment() function
+#' @param probeIDs Vector of CpG probes IDs or a data frame with 
+#' gene_name column, usually the output of testEnrichment() function
 #' @param platform EPIC, MM285, ..., infer if not given
 #' @param organism The organism corresponding to the CpG platform
 #' or genes in gene_name column
@@ -23,14 +23,14 @@ convertGeneName <- function(gene) {
 #' @return A list of enriched terms and meta data from gprofiler2 output
 #' @examples
 #' library(SummarizedExperiment)
-#' df <- rowData(sesameDataGet('MM285.tissueSignature'))
+#' df <- rowData(sesameData::sesameDataGet('MM285.tissueSignature'))
 #' query <- df$Probe_ID[df$branch == "fetal_liver" & df$type == "Hypo"]
 #' res <- testGO(query)
 #' @export
 testGO <- function(
-        query, platform=NULL, organism="hsapiens",gene_name=TRUE,...) {
+    probeIDs, platform=NULL, organism="hsapiens",gene_name=TRUE,...) {
 
-    if (is.character(query)) {
+    if (is.character(probeIDs)) {
         query <- sesameData_getGenesByProbes(query, platform=platform,...)
         query <- query$gene_name
     }

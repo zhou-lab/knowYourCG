@@ -102,7 +102,7 @@ testEnrichmentSEA1 <- function(query, database, precise=FALSE, full=FALSE) {
 #' @return A DataFrame with the estimate/statistic, p-value, and name of test
 #' for the given results.
 #' @examples
-#' query <- KYCG_getDBs("KYCG.MM285.designGroup")[["TSS"]]
+#' query <- getDBs("KYCG.MM285.designGroup")[["TSS"]]
 #' res <- testEnrichmentSEA(query, "MM285.seqContextN")
 #' @export
 testEnrichmentSEA <- function(query, databases,
@@ -112,7 +112,7 @@ testEnrichmentSEA <- function(query, databases,
     platform <- queryCheckPlatform(platform, query, silent = silent)
     stopifnot(!is.null(databases))
     if (is.character(databases)) { # infer database from string
-        dbs <- KYCG_getDBs(databases, platform = platform, silent = silent)
+        dbs <- getDBs(databases, platform = platform, silent = silent)
     } else {
         dbs <- databases
     }

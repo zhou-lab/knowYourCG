@@ -6,7 +6,7 @@
 genomic proximity than if randomly distributed}
 \usage{
 testProbeProximity(
-  query,
+  probeIDs,
   gr = NULL,
   platform = NULL,
   iterations = 100,
@@ -14,7 +14,7 @@ testProbeProximity(
 )
 }
 \arguments{
-\item{query}{Vector of probes of interest (e.g., significant probes)}
+\item{probeIDs}{Vector of probes of interest (e.g., significant probes)}
 
 \item{gr}{GRanges to draw samples and compute genomic distances}
 
@@ -38,9 +38,9 @@ genomic proximity than if randomly distributed
 \examples{
 
 library(SummarizedExperiment)
-df <- rowData(sesameDataGet('MM285.tissueSignature'))
-query <- df$Probe_ID[df$branch == "B_cell"]
-res <- testProbeProximity(query,platform="MM285")
-sesameDataGet_resetEnv()
+df <- rowData(sesameData::sesameDataGet('MM285.tissueSignature'))
+probes <- df$Probe_ID[df$branch == "B_cell"]
+res <- testProbeProximity(probeIDs=probes,platform="MM285")
+sesameData::sesameDataGet_resetEnv()
 
 }

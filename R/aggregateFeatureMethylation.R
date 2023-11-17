@@ -14,9 +14,9 @@
 #' @import methods
 #' @examples
 #' library(SummarizedExperiment)
-#' se <- sesameDataGet('MM285.467.SE.tissue20Kprobes')
+#' se <- sesameData::sesameDataGet('MM285.467.SE.tissue20Kprobes')
 #' head(dbStats(assay(se), "MM285.probeType")[,1:3])
-#' sesameDataGet_resetEnv()
+#' sesameData::sesameDataGet_resetEnv()
 #'
 #' @export
 dbStats <- function(
@@ -25,7 +25,7 @@ dbStats <- function(
 
     if (is(betas, "numeric")) { betas <- cbind(sample = betas); }
     if (is.character(databases)) {
-        dbs <- KYCG_getDBs(databases)
+        dbs <- getDBs(databases)
     } else {
         dbs <- databases
     }

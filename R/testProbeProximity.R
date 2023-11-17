@@ -5,8 +5,8 @@ getDistance <- function(v) {
 
 getPairwiseDistance <- function(gr,q)
 {
-    df <- as.data.frame(sort(gr[q,])) %>%
-        dplyr::group_by(.data$seqnames) %>%
+    df <- as.data.frame(sort(gr[q,])) |>
+        dplyr::group_by(.data$seqnames) |>
         dplyr::mutate(distance=getDistance(.data$start))
 }
 
@@ -14,7 +14,7 @@ getPairwiseDistance <- function(gr,q)
 #' testProbeProximity tests if a query set of probes share closer
 #' genomic proximity than if randomly distributed
 #'
-#' @param query Vector of probes of interest (e.g., significant probes)
+#' @param probeIDs Vector of probes of interest (e.g., significant probes)
 #' @param gr GRanges to draw samples and compute genomic distances
 #' @param iterations Number of random samples to generate null distribution
 #' (Default: 100).
@@ -24,34 +24,34 @@ getPairwiseDistance <- function(gr,q)
 #' from the query set probeIDs (Default: NA).
 #' @return list containing a dataframe for the poisson statistics and a
 #' data frame for the probes in close proximity
-#' @importFrom dplyr mutate group_by %>%
+#' @importFrom dplyr mutate group_by 
 #' @importFrom rlang .data
 #' @examples
 #'
 #' library(SummarizedExperiment)
-#' df <- rowData(sesameDataGet('MM285.tissueSignature'))
-#' query <- df$Probe_ID[df$branch == "B_cell"]
-#' res <- testProbeProximity(query,platform="MM285")
-#' sesameDataGet_resetEnv()
+#' df <- rowData(sesameData::sesameDataGet('MM285.tissueSignature'))
+#' probes <- df$Probe_ID[df$branch == "B_cell"]
+#' res <- testProbeProximity(probeIDs=probes,platform="MM285")
+#' sesameData::sesameDataGet_resetEnv()
 #'
 #' @export
-testProbeProximity <- function (query,gr=NULL,platform=NULL,iterations=100,
+testProbeProximity <- function (probeIDs,gr=NULL,platform=NULL,iterations=100,
                                 bin_size=1500)
 {
     if (is.null(gr)) {
         if (is.null(platform)) {
-            platform <- inferPlatformFromProbeIDs(query)
+            platform <- inferPlatformFromProbeIDs(probeIDs)
         }
         gr <- sesameData_getManifestGRanges(platform)
     }
-    gr_q <- getPairwiseDistance(gr,query)
+    gr_q <- getPairwiseDistance(gr,probeIDs)
     qd <- gr_q[["distance"]]
     qd <- qd[!is.na(qd)]
     q_hits <- sum(abs(qd) <= bin_size)
 
     if (q_hits == 0) {
         stats <- data.frame(
-            num_query=length(query),
+            num_query=length(probeIDs),
             hits_query=q_hits,
             lambda=NA,
             p.val=1
@@ -60,7 +60,7 @@ testProbeProximity <- function (query,gr=NULL,platform=NULL,iterations=100,
     }
 
     null_dist <- do.call(c, lapply(seq(iterations), function(x) {
-        query2 <- sample(names(gr), length(query))
+        query2 <- sample(names(gr), length(probeIDs))
         gr_q2 <- getPairwiseDistance(gr,query2)
         q2d <- gr_q2[["distance"]]
         q2d <- q2d[!is.na(q2d)]
@@ -80,17 +80,17 @@ testProbeProximity <- function (query,gr=NULL,platform=NULL,iterations=100,
     )
 
     stats <- data.frame(
-        nQ=length(query),
+        nQ=length(probeIDs),
         Hits=q_hits,
         Lambda=lambda,
         P.val=pval
     )
 
     ind <- which(abs(gr_q[["distance"]]) <= bin_size)
-    ind <- unique(c(ind, ind + 1)) %>% sort()
+    ind <- unique(c(ind, ind + 1)) |> sort()
 
-    clusters <- gr_q[ind,] %>%
-        as.data.frame() %>%
+    clusters <- gr_q[ind,] |>
+        as.data.frame() |>
         dplyr::select(.data$seqnames,.data$start,.data$end,.data$distance)
 
     list(Stats=stats,Clusters=clusters)

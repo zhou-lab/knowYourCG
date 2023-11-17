@@ -35,14 +35,14 @@ The following commands prepare the use of knowYourCG:
 
 ```{r ky1, load-depenencies, results="hide", message=FALSE, warning=FALSE}
 library(knowYourCG)
-sesameDataCache()
+#sesameDataCache()
 ```
 
 The following example uses a query of CpGs methylated in mouse primordial germ 
 cells (design group PGCMeth). First get the CG list using the following code:
 
 ```{r ky2, message=FALSE}
-query <- KYCG_getDBs("MM285.designGroup")[["PGCMeth"]]
+query <- getDBs("MM285.designGroup")[["PGCMeth"]]
 head(query)
 ```
 
@@ -54,11 +54,11 @@ results_pgc <- testEnrichment(query, platform="MM285")
 head(results_pgc)
 ```
 
-We can visualize the result of this test using the `KYCG_plotEnrichAll`
+We can visualize the result of this test using the `plotEnrichAll`
 function:
 
 ```{r ky4, fig.width=7, fig.height=4.5,message=FALSE}
-KYCG_plotEnrichAll(results_pgc)
+plotEnrichAll(results_pgc)
 ```
 
 This plot groups different database sets along the x-axis and plots -log10(FDR)
@@ -128,11 +128,11 @@ overlap between the two sets, so that metric is reported as well in the
 Additional plotting functions are available for visualizing enrichment results:
 
 ```{r ky26, fig.width=7, fig.height=4.5,message=FALSE}
-KYCG_plotWaterfall(results)
+plotWaterfall(results)
 ```
 
 ```{r ky27, fig.width=7, fig.height=4.5,message=FALSE}
-KYCG_plotBar(results)
+plotBar(results)
 ```
 
 # Database Sets
@@ -144,14 +144,14 @@ different groups. Each group contains one or multiple databases. Here is how to
 find the names of pre-built database groups:
 
 ``` {r ky5, list-data, eval=TRUE, echo=TRUE}
-KYCG_listDBGroups("MM285")
+listDBGroups("MM285")
 ```
 
-The `KYCG_listDBGroups()` function returns a data frame containing information
+The `listDBGroups()` function returns a data frame containing information
 of these databases. The Title column is the accession key one needs for the
 `testEnrichment` function.  With the accessions, one can either directly use
 them in the `testEnrichment` function or explicitly call the
-```KYCG_getDBs()``` function to retrieve databases themselves. Caching these
+```getDBs()``` function to retrieve databases themselves. Caching these
 databases on the local machine is important, for two reasons: it limits the
 number of requests sent to the Bioconductor server, and secondly it limits the
 amount of time the user needs to wait when re-downloading database sets. For
@@ -165,7 +165,7 @@ database. Let's look at the database group which we had used as the query
 (query and database are reciprocal) in our first example:
 
 ``` {r ky6, cache-data, eval=TRUE, warning=FALSE}
-dbs <- KYCG_getDBs("MM285.design")
+dbs <- getDBs("MM285.design")
 ```
 
 In total, 32 datasets have been loaded for this group. We can get the "PGCMeth"
@@ -175,7 +175,7 @@ as an element of the list:
 str(dbs[["PGCMeth"]])
 ```
 
-On subsequent runs of the ```KYCG_getDBs()``` function, the database loading
+On subsequent runs of the ```getDBs()``` function, the database loading
 can be faster thanks to the sesameData [in-memory
 caching](https://tinyurl.com/2wh9tyzk), if the corresponding database has been
 loaded.
@@ -210,20 +210,21 @@ there are tens of thousands of genes on each platform. By testing only those
 genes that overlap with the query set, we can greatly reduce the number of
 tests. For this reason, the gene enrichment analysis is a special case of these
 enrichment tests. We can perform this analysis using the
-```KYCG_buildGeneDBs()``` function.
+```buildGeneDBs()``` function.
 
 ```{r ky16, fig.width=7, fig.height=6, echo=TRUE, warning=FALSE, message=FALSE}
 query <- names(sesameData_getProbesByGene("Dnmt3a", "MM285"))
 results <- testEnrichment(query, 
-    KYCG_buildGeneDBs(query, max_distance=100000, platform="MM285"),
+    buildGeneDBs(query, max_distance=100000, platform="MM285"),
     platform="MM285")
-results[,c("dbname","estimate","gene_name","FDR", "nQ", "nD", "overlap")]
+main_stats <- c("dbname","estimate","gene_name","FDR", "nQ", "nD", "overlap")
+results[,main_stats]
 ```
 
 Using these sample results, we can plot a volcano plot and lollipop plot.
 
 ```{r ky17, fig.width=5, fig.height=4, echo=TRUE}
-KYCG_plotLollipop(results, label="gene_name")
+plotLollipop(results, label="gene_name")
 ```
 
 As expected, we recover our targeted gene (Dnmt3a).
@@ -266,8 +267,8 @@ co-localized CpG pairs along with the p value are returned:
 
 ```{r ky29, eval = TRUE}
 df <- rowData(sesameDataGet('MM285.tissueSignature'))
-query <- df$Probe_ID[df$branch == "fetal_liver" & df$type == "Hypo"]
-res <- testProbeProximity(query)
+probes <- df$Probe_ID[df$branch == "fetal_liver" & df$type == "Hypo"]
+res <- testProbeProximity(probeIDs=probes)
 head(res)
 ```
 
@@ -284,12 +285,13 @@ set corresponding to the distance of the nearest transcriptional start site
 (TSS) to each probe.
 
 ```{r ky21, run-test-data, echo=TRUE, eval=TRUE, message=FALSE}
-query <- KYCG_getDBs("KYCG.MM285.designGroup")[["TSS"]]
+query <- getDBs("KYCG.MM285.designGroup")[["TSS"]]
 ```
 
 ```{r ky22, echo=TRUE, eval=TRUE, message=FALSE}
 res <- testEnrichmentSEA(query, "MM285.seqContextN")
-res[, c("dbname", "test", "estimate", "FDR", "nQ", "nD", "overlap")]
+main_stats <- c("dbname", "test", "estimate", "FDR", "nQ", "nD", "overlap")
+res[, main_stats]
 ```
 
 The estimate here is enrichment score.
@@ -301,13 +303,13 @@ designed TSS CpGs are significantly enriched in smaller TSS distance and higher
 CpG density.
 
 One can plot the set enrichment analysis result by `prepPlot=TRUE` command
-followed by calling the `KYCG_plotSetEnrichment()` function.
+followed by calling the `plotSetEnrichment()` function.
 
 ```{r ky24, GSEA, fig.width=6, fig.height=6, message=FALSE}
-query <- KYCG_getDBs("KYCG.MM285.designGroup")[["TSS"]]
-db <- KYCG_getDBs("MM285.seqContextN", "distToTSS")
+query <- getDBs("KYCG.MM285.designGroup")[["TSS"]]
+db <- getDBs("MM285.seqContextN", "distToTSS")
 res <- testEnrichmentSEA(query, db, prepPlot = TRUE)
-KYCG_plotSetEnrichment(res[[1]])
+plotSetEnrichment(res[[1]])
 ```
 
 Alternatively one can test the enrichment of a continuous query with discrete

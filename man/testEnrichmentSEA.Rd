@@ -40,6 +40,6 @@ estimate represent enrichment score and negative estimate indicate a
 test for depletion
 }
 \examples{
-query <- KYCG_getDBs("KYCG.MM285.designGroup")[["TSS"]]
+query <- getDBs("KYCG.MM285.designGroup")[["TSS"]]
 res <- testEnrichmentSEA(query, "MM285.seqContextN")
 }
