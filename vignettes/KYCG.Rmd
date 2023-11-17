@@ -35,7 +35,8 @@ The following commands prepare the use of knowYourCG:
 
 ```{r ky1, load-depenencies, results="hide", message=FALSE, warning=FALSE}
 library(knowYourCG)
-#sesameDataCache()
+library(sesameData)
+sesameDataCache()
 ```
 
 The following example uses a query of CpGs methylated in mouse primordial germ 
