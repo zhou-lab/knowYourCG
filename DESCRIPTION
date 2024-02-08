@@ -32,15 +32,11 @@ Imports:
     GenomicRanges,
     gprofiler2,
     IRanges,
-    ggplot2,
     reshape2,
     S4Vectors,
     stats,
     stringr,
-    tibble,
-    utils,
-    wheatmap,
-    GenomeInfoDb
+    utils
 biocViews:
     Epigenetics, 
     DNAMethylation, 

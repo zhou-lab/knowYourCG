@@ -94,6 +94,8 @@ guess_dbnames <- function(
 #' @param path file path to downloaded knowledgebase sets
 #' @param type categorical, numerical (default: all)
 #' @return a list of db group names
+#' @importFrom stringr str_replace
+#' @importFrom utils read.table
 #' @examples
 #' head(listDBGroups("chromHMM"))
 #' ## or listDBGroups(path = "~/Downloads")

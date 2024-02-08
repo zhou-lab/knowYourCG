@@ -55,15 +55,7 @@ results_pgc <- testEnrichment(query, platform="MM285")
 head(results_pgc)
 ```
 
-We can visualize the result of this test using the `plotEnrichAll`
-function:
-
-```{r ky4, fig.width=7, fig.height=4.5,message=FALSE}
-plotEnrichAll(results_pgc)
-```
-
-This plot groups different database sets along the x-axis and plots -log10(FDR)
-on the y-axis. As expected, the PGCMeth group itself appears on the top of the
+As expected, the PGCMeth group itself appears on the top of the
 list. But one can also find histone H3K9me3, chromHMM `Het` and transcription
 factor `Trim28` binding enriched in this CG group.
 
@@ -125,16 +117,6 @@ The ```nQ``` and ```nD``` columns identify the length of the query set and the
 database set, respectively. Often, it's important to examine the extent of
 overlap between the two sets, so that metric is reported as well in the
 ```overlap``` column.
-
-Additional plotting functions are available for visualizing enrichment results:
-
-```{r ky26, fig.width=7, fig.height=4.5,message=FALSE}
-plotWaterfall(results)
-```
-
-```{r ky27, fig.width=7, fig.height=4.5,message=FALSE}
-plotBar(results)
-```
 
 # Database Sets
 
@@ -222,12 +204,6 @@ main_stats <- c("dbname","estimate","gene_name","FDR", "nQ", "nD", "overlap")
 results[,main_stats]
 ```
 
-Using these sample results, we can plot a volcano plot and lollipop plot.
-
-```{r ky17, fig.width=5, fig.height=4, echo=TRUE}
-plotLollipop(results, label="gene_name")
-```
-
 As expected, we recover our targeted gene (Dnmt3a).
 
 Gene enrichment testing can easily be included with default or
@@ -302,16 +278,6 @@ database with the higher values (in the numerical database). Positive
 enrichment score represent enrichment with the smaller values. As expected, the
 designed TSS CpGs are significantly enriched in smaller TSS distance and higher
 CpG density.
-
-One can plot the set enrichment analysis result by `prepPlot=TRUE` command
-followed by calling the `plotSetEnrichment()` function.
-
-```{r ky24, GSEA, fig.width=6, fig.height=6, message=FALSE}
-query <- getDBs("KYCG.MM285.designGroup")[["TSS"]]
-db <- getDBs("MM285.seqContextN", "distToTSS")
-res <- testEnrichmentSEA(query, db, prepPlot = TRUE)
-plotSetEnrichment(res[[1]])
-```
 
 Alternatively one can test the enrichment of a continuous query with discrete
 databases. Here we will use the methylation level from a sample as the query
