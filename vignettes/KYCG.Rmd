@@ -31,18 +31,22 @@ such as CpGs associated with chromatin states, technical artifacts,
 gene association and gene expression correlation, transcription factor 
 binding sites, tissue specific methylation, CpG density, etc.
 
-The following commands prepare the use of knowYourCG:
+The following commands prepare the use of knowYourCG.
 
 ```{r ky1, load-depenencies, results="hide", message=FALSE, warning=FALSE}
 library(knowYourCG)
 library(sesameData)
-sesameDataCache()
+sesameDataCache(data_titles=c("KYCG.MM285.tissueSignature.20211211","genomeInfo.mm10","probeIDSignature","genomeInfo.hg38"))
 ```
 
 The following example uses a query of CpGs methylated in mouse primordial germ 
-cells (design group PGCMeth). First get the CG list using the following code:
+cells (design group PGCMeth). First get the CG list using the following code.
+When accessing data for the first time, caching can be performed to enable
+faster access in future testing. More information on available database sets is
+discussed below.
 
 ```{r ky2, message=FALSE}
+sesameDataCache("KYCG.MM285.designGroup.20210210")
 query <- getDBs("MM285.designGroup")[["PGCMeth"]]
 head(query)
 ```

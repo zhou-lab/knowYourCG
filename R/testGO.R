@@ -19,19 +19,25 @@ convertGeneName <- function(gene) {
 #' whether to use the gene_name column. If set to FALSE,
 #' TFBS will be used (default: FALSE)
 #' @param ... Additional arguments to sesameData_getGenesByProbes and gost()
-#' @importFrom gprofiler2 gost
 #' @return A list of enriched terms and meta data from gprofiler2 output
 #' @examples
 #' library(SummarizedExperiment)
 #' df <- rowData(sesameData::sesameDataGet('MM285.tissueSignature'))
 #' query <- df$Probe_ID[df$branch == "fetal_liver" & df$type == "Hypo"]
-#' res <- testGO(query)
+#' res <- testGO(query,platform="MM285")
 #' @export
 testGO <- function(
     probeIDs, platform=NULL, organism="hsapiens",gene_name=TRUE,...) {
+    
+    requireNamespace("gprofiler2")
+    platform <- queryCheckPlatform(platform, probeIDs, silent = FALSE)
 
     if (is.character(probeIDs)) {
-        query <- sesameData_getGenesByProbes(query, platform=platform,...)
+        genome <- ifelse(platform == "MM285","mm10","hg38")
+        genes <- sesameData_getTxnGRanges(genome,merge2gene = TRUE)
+        query <- sesameData_annoProbes(
+          probeIDs, genes, return_ov_features = TRUE
+        )
         query <- query$gene_name
     }
 
@@ -47,7 +53,7 @@ testGO <- function(
         }
     }
 
-    gostres <- gost(query, organism = organism,...)
+    gostres <- gprofiler2::gost(query, organism = organism,...)
     gostres$result <- gostres$result[order(gostres$result$p_value),]
     gostres
 }

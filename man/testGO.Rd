@@ -32,5 +32,5 @@ test for depletion
 library(SummarizedExperiment)
 df <- rowData(sesameData::sesameDataGet('MM285.tissueSignature'))
 query <- df$Probe_ID[df$branch == "fetal_liver" & df$type == "Hypo"]
-res <- testGO(query)
+res <- testGO(query,platform="MM285")
 }
