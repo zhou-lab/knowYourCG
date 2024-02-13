@@ -218,7 +218,8 @@ user specified database sets by setting include_genes=TRUE:
 ```{r ky28, warning=FALSE, message=FALSE, fig.width=5, fig.height=4}
 query <- names(sesameData_getProbesByGene("Dnmt3a", "MM285"))
 results <- testEnrichment(query,platform="MM285",include_genes=TRUE)
-results[,c("dbname","gene_name","estimate","FDR", "nQ", "nD", "overlap")] %>% 
+main_stats <- c("dbname", "test", "estimate", "FDR", "nQ", "nD", "overlap")
+results[,main_stats] %>% 
     head()
 ```
 
@@ -248,7 +249,7 @@ the ```testProbeProximity()```function. Poisson statistics for the expected #
 of co-localized hits from the given query size (lambda) and the actual 
 co-localized CpG pairs along with the p value are returned: 
 
-```{r ky29, eval = TRUE}
+```{r ky29, eval = TRUE,message=FALSE}
 df <- rowData(sesameDataGet('MM285.tissueSignature'))
 probes <- df$Probe_ID[df$branch == "fetal_liver" & df$type == "Hypo"]
 res <- testProbeProximity(probeIDs=probes)
@@ -274,7 +275,7 @@ query <- getDBs("KYCG.MM285.designGroup")[["TSS"]]
 ```{r ky22, echo=TRUE, eval=TRUE, message=FALSE}
 res <- testEnrichmentSEA(query, "MM285.seqContextN")
 main_stats <- c("dbname", "test", "estimate", "FDR", "nQ", "nD", "overlap")
-res[, main_stats]
+res[,main_stats]
 ```
 
 The estimate here is enrichment score.
@@ -289,15 +290,17 @@ Alternatively one can test the enrichment of a continuous query with discrete
 databases. Here we will use the methylation level from a sample as the query
 and test it against the chromHMM chromatin states.
 
-```{r ky23, warning=FALSE, eval=FALSE}
+```{r ky23, warning=FALSE, eval=TRUE,message=FALSE}
+library(sesame)
 beta_values <- getBetas(sesameDataGet("MM285.1.SigDF"))
 res <- testEnrichmentSEA(beta_values, "MM285.chromHMM")
-res[, c("dbname", "test", "estimate", "FDR", "nQ", "nD", "overlap")]
+main_stats <- c("dbname", "test", "estimate", "FDR", "nQ", "nD", "overlap")
+res[,main_stats] 
 ```
 
 As expected, chromatin states `Tss`, `Enh` has negative enrichment score,
 meaning these databases are associated with small values of the query (DNA
-methylation level). On the contrary, `Quies` states are associated with high
+methylation level). On the contrary, `Het` and `Quies` states are associated with high
 methylation level.
 
 
