@@ -1,7 +1,7 @@
 Package: knowYourCG
 Type: Package
 Title: Functional analysis of DNA methylome datasets
-Version: 0.99.9
+Version: 1.00.0
 Authors@R: c(person("Zhou", "Wanding", role=c("aut"),
              email="ZHOUW3@chop.edu"),
              person("Goldberg", "David", role=c("aut","cre"),
