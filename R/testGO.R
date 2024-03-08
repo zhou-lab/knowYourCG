@@ -28,8 +28,11 @@ convertGeneName <- function(gene) {
 #' @export
 testGO <- function(
     probeIDs, platform=NULL, organism="hsapiens",gene_name=TRUE,...) {
-    
-    requireNamespace("gprofiler2")
+  
+    if (!requireNamespace("gprofiler2",quietly = TRUE)) {
+      stop("Install 'gprofiler2' to use this function")
+    }
+  
     platform <- queryCheckPlatform(platform, probeIDs, silent = FALSE)
 
     if (is.character(probeIDs)) {
