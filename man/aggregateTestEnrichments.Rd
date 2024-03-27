@@ -23,7 +23,8 @@ Aggregate test enrichment results
 
 ## pick some big TFBS-overlapping CpG groups
 sesameData::sesameDataCache(data_titles=
-c("KYCG.MM285.TFBSconsensus.20220116","KYCG.MM285.chromHMM.20210210"))
+c("KYCG.MM285.TFBSconsensus.20220116","KYCG.MM285.chromHMM.20210210",
+"probeIDSignature", "MM285.address"))
 cg_lists <- getDBs("MM285.TFBS")
 queries <- cg_lists[(sapply(cg_lists, length) > 40000)]
 result_list <- lapply(queries, testEnrichment, "MM285.chromHMM")

@@ -41,7 +41,12 @@ library(knowYourCG)
 library(sesameData)
 sesameDataCache(data_titles=c("genomeInfo.hg38","genomeInfo.mm10",
                   "KYCG.MM285.tissueSignature.20211211",
-                  "probeIDSignature","KYCG.MM285.designGroup.20210210"
+                  "MM285.tissueSignature","MM285.address",
+                  "probeIDSignature","KYCG.MM285.designGroup.20210210",
+                  "KYCG.MM285.chromHMM.20210210",
+                  "KYCG.MM285.TFBSconsensus.20220116",
+                  "KYCG.MM285.HMconsensus.20220116",
+                  "KYCG.MM285.chromosome.mm10.20210630"
                   ))
 ```
 
@@ -53,11 +58,17 @@ query <- getDBs("MM285.designGroup")[["PGCMeth"]]
 head(query)
 ```
 
-Now test the enrichment over database groups. By default, KYCG will select all
-the categorical groups.
+Now test the enrichment. By default, KYCG will select all
+the categorical groups available but we can specify a subset of databases.
 
 ```{r ky3, fig.width=8, fig.height=5, message=FALSE}
-results_pgc <- testEnrichment(query, platform="MM285")
+dbs <- c("KYCG.MM285.chromHMM.20210210",
+         "KYCG.HM450.TFBSconsensus.20211013",
+         "KYCG.MM285.HMconsensus.20220116",
+         "KYCG.MM285.tissueSignature.20211211",
+         "KYCG.MM285.chromosome.mm10.20210630",
+         "KYCG.MM285.designGroup.20210210")
+results_pgc <- testEnrichment(query,databases = dbs,platform="MM285")
 head(results_pgc)
 ```
 
@@ -217,8 +228,11 @@ user specified database sets by setting include_genes=TRUE:
 
 ```{r ky28, warning=FALSE, message=FALSE, fig.width=5, fig.height=4}
 query <- names(sesameData_getProbesByGene("Dnmt3a", "MM285"))
-results <- testEnrichment(query,platform="MM285",include_genes=TRUE)
-main_stats <- c("dbname", "test", "estimate", "FDR", "nQ", "nD", "overlap")
+dbs <- c("KYCG.MM285.chromHMM.20210210","KYCG.HM450.TFBSconsensus.20211013",
+         "KYCG.MM285.chromosome.mm10.20210630")
+results <- testEnrichment(query,databases=dbs,
+                          platform="MM285",include_genes=TRUE)
+main_stats <- c("dbname","estimate","gene_name","FDR", "nQ", "nD", "overlap")
 results[,main_stats] %>% 
     head()
 ```
@@ -273,6 +287,7 @@ query <- getDBs("KYCG.MM285.designGroup")[["TSS"]]
 ```
 
 ```{r ky22, echo=TRUE, eval=TRUE, message=FALSE}
+sesameDataCache(data_titles = c("KYCG.MM285.seqContextN.20210630"))
 res <- testEnrichmentSEA(query, "MM285.seqContextN")
 main_stats <- c("dbname", "test", "estimate", "FDR", "nQ", "nD", "overlap")
 res[,main_stats]
@@ -292,6 +307,7 @@ and test it against the chromHMM chromatin states.
 
 ```{r ky23, warning=FALSE, eval=TRUE,message=FALSE}
 library(sesame)
+sesameDataCache(data_titles = c("MM285.1.SigDF"))
 beta_values <- getBetas(sesameDataGet("MM285.1.SigDF"))
 res <- testEnrichmentSEA(beta_values, "MM285.chromHMM")
 main_stats <- c("dbname", "test", "estimate", "FDR", "nQ", "nD", "overlap")
@@ -300,8 +316,8 @@ res[,main_stats]
 
 As expected, chromatin states `Tss`, `Enh` has negative enrichment score,
 meaning these databases are associated with small values of the query (DNA
-methylation level). On the contrary, `Het` and `Quies` states are associated with high
-methylation level.
+methylation level). On the contrary, `Het` and `Quies` states are associated 
+with high methylation level.
 
 
 # Session Info

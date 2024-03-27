@@ -21,8 +21,8 @@
 #'
 #' library(SummarizedExperiment)
 #' sesameData::sesameDataCache(data_titles=
-#' c("KYCG.MM285.tissueSignature.20211211","KYCG.MM285.chromHMM.20210210"))
-#' df <- rowData(sesameData::sesameDataGet('MM285.tissueSignature'))
+#' c("MM285.tissueSignature","KYCG.MM285.chromHMM.20210210","MM285.address"))
+#' df <- rowData(sesameData::sesameDataGet("MM285.tissueSignature"))
 #' probes <- df$Probe_ID[df$branch == "B_cell"]
 #' res <- testEnrichment(probes, "chromHMM", platform="MM285")
 #' sesameData::sesameDataGet_resetEnv()
@@ -84,7 +84,8 @@ testEnrichment <- function(
 #'
 #' ## pick some big TFBS-overlapping CpG groups
 #' sesameData::sesameDataCache(data_titles=
-#' c("KYCG.MM285.TFBSconsensus.20220116","KYCG.MM285.chromHMM.20210210"))
+#' c("KYCG.MM285.TFBSconsensus.20220116","KYCG.MM285.chromHMM.20210210",
+#' "probeIDSignature", "MM285.address"))
 #' cg_lists <- getDBs("MM285.TFBS")
 #' queries <- cg_lists[(sapply(cg_lists, length) > 40000)]
 #' result_list <- lapply(queries, testEnrichment, "MM285.chromHMM")

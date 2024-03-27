@@ -38,7 +38,8 @@ see sesameData_annoProbes if you'd like to annotate by genomic coordinates
 (in GRanges)
 }
 \examples{
-sesameData::sesameDataCache("MM285.address")
+sesameData::sesameDataCache(data_titles=
+c("MM285.address","probeIDSignature","KYCG.MM285.designGroup.20210210"))
 probes <- names(sesameData::sesameData_getManifestGRanges("MM285"))
 anno <- annoProbes(probeIDs=probes, "designGroup", silent = TRUE)
 }

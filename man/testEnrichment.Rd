@@ -48,8 +48,8 @@ a number of features (database sets).
 
 library(SummarizedExperiment)
 sesameData::sesameDataCache(data_titles=
-c("KYCG.MM285.tissueSignature.20211211","KYCG.MM285.chromHMM.20210210"))
-df <- rowData(sesameData::sesameDataGet('MM285.tissueSignature'))
+c("MM285.tissueSignature","KYCG.MM285.chromHMM.20210210","MM285.address"))
+df <- rowData(sesameData::sesameDataGet("MM285.tissueSignature"))
 probes <- df$Probe_ID[df$branch == "B_cell"]
 res <- testEnrichment(probes, "chromHMM", platform="MM285")
 sesameData::sesameDataGet_resetEnv()

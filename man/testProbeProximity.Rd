@@ -37,9 +37,9 @@ genomic proximity than if randomly distributed
 }
 \examples{
 sesameData::sesameDataCache(data_titles=
-c("KYCG.MM285.tissueSignature.20211211","MM285.address","probeIDSignature"))
+c("MM285.tissueSignature","MM285.address","probeIDSignature"))
 library(SummarizedExperiment)
-df <- rowData(sesameData::sesameDataGet('MM285.tissueSignature'))
+df <- rowData(sesameData::sesameDataGet("MM285.tissueSignature"))
 probes <- df$Probe_ID[df$branch == "B_cell"]
 res <- testProbeProximity(probeIDs=probes,platform="MM285")
 sesameData::sesameDataGet_resetEnv()
