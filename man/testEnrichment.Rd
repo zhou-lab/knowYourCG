@@ -2,7 +2,7 @@
 % Please edit documentation in R/testEnrichment.R
 \name{testEnrichment}
 \alias{testEnrichment}
-\title{testEnrichment tests for the enrichment of set of probes (query set) in
+\title{testEnrichment tests for the enrichment of a set of probes (query set) in
 a number of features (database sets).}
 \usage{
 testEnrichment(
@@ -41,12 +41,14 @@ A data frame containing features corresponding to the test estimate,
 p-value, and type of test.
 }
 \description{
-testEnrichment tests for the enrichment of set of probes (query set) in
+testEnrichment tests for the enrichment of a set of probes (query set) in
 a number of features (database sets).
 }
 \examples{
 
 library(SummarizedExperiment)
+sesameData::sesameDataCache(data_titles=
+c("KYCG.MM285.tissueSignature.20211211","KYCG.MM285.chromHMM.20210210"))
 df <- rowData(sesameData::sesameDataGet('MM285.tissueSignature'))
 probes <- df$Probe_ID[df$branch == "B_cell"]
 res <- testEnrichment(probes, "chromHMM", platform="MM285")

@@ -36,7 +36,8 @@ testProbeProximity tests if a query set of probes share closer
 genomic proximity than if randomly distributed
 }
 \examples{
-
+sesameData::sesameDataCache(data_titles=
+c("KYCG.MM285.tissueSignature.20211211","MM285.address","probeIDSignature"))
 library(SummarizedExperiment)
 df <- rowData(sesameData::sesameDataGet('MM285.tissueSignature'))
 probes <- df$Probe_ID[df$branch == "B_cell"]

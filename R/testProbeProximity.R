@@ -27,7 +27,8 @@ getPairwiseDistance <- function(gr,q)
 #' @importFrom dplyr mutate group_by 
 #' @importFrom rlang .data
 #' @examples
-#'
+#' sesameData::sesameDataCache(data_titles=
+#' c("KYCG.MM285.tissueSignature.20211211","MM285.address","probeIDSignature"))
 #' library(SummarizedExperiment)
 #' df <- rowData(sesameData::sesameDataGet('MM285.tissueSignature'))
 #' probes <- df$Probe_ID[df$branch == "B_cell"]

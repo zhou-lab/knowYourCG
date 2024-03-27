@@ -30,6 +30,9 @@ test for depletion
 }
 \examples{
 library(SummarizedExperiment)
+sesameData::sesameDataCache(data_titles=
+c("KYCG.MM285.tissueSignature.20211211","probeIDSignature",
+"MM285.address","genomeInfo.mm10"))
 df <- rowData(sesameData::sesameDataGet('MM285.tissueSignature'))
 query <- df$Probe_ID[df$branch == "fetal_liver" & df$type == "Hypo"]
 res <- testGO(query,platform="MM285")

@@ -40,6 +40,9 @@ estimate represent enrichment score and negative estimate indicate a
 test for depletion
 }
 \examples{
+sesameData::sesameDataCache(data_titles=
+c("KYCG.MM285.designGroup.20210210","KYCG.MM285.seqContextN.20210630",
+"probeIDSignature"))
 query <- getDBs("KYCG.MM285.designGroup")[["TSS"]]
 res <- testEnrichmentSEA(query, "MM285.seqContextN")
 }

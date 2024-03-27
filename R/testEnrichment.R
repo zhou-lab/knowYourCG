@@ -1,4 +1,4 @@
-#' testEnrichment tests for the enrichment of set of probes (query set) in
+#' testEnrichment tests for the enrichment of a set of probes (query set) in
 #' a number of features (database sets).
 #'
 #' @param probeIDs Vector of probes of interest (e.g., significant probes)
@@ -20,6 +20,8 @@
 #' @examples
 #'
 #' library(SummarizedExperiment)
+#' sesameData::sesameDataCache(data_titles=
+#' c("KYCG.MM285.tissueSignature.20211211","KYCG.MM285.chromHMM.20210210"))
 #' df <- rowData(sesameData::sesameDataGet('MM285.tissueSignature'))
 #' probes <- df$Probe_ID[df$branch == "B_cell"]
 #' res <- testEnrichment(probes, "chromHMM", platform="MM285")
@@ -81,6 +83,8 @@ testEnrichment <- function(
 #' @examples
 #'
 #' ## pick some big TFBS-overlapping CpG groups
+#' sesameData::sesameDataCache(data_titles=
+#' c("KYCG.MM285.TFBSconsensus.20220116","KYCG.MM285.chromHMM.20210210"))
 #' cg_lists <- getDBs("MM285.TFBS")
 #' queries <- cg_lists[(sapply(cg_lists, length) > 40000)]
 #' result_list <- lapply(queries, testEnrichment, "MM285.chromHMM")
@@ -190,6 +194,8 @@ testEnrichmentFisherN <- function(
 #' @importFrom S4Vectors subjectHits
 #' @importFrom S4Vectors queryHits
 #' @examples
+#' sesameData::sesameDataCache(data_titles=
+#' c("EPIC.address","genomeInfo.hg38","probeIDSignature"))
 #' query <- c("cg04707299", "cg13380562", "cg00480749")
 #' dbs <- buildGeneDBs(query, platform = "EPIC")
 #' testEnrichment(query, dbs, platform = "EPIC")

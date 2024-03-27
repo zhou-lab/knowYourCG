@@ -32,6 +32,8 @@ gene databases
 build gene-probe association database
 }
 \examples{
+sesameData::sesameDataCache(data_titles=
+c("EPIC.address","genomeInfo.hg38","probeIDSignature"))
 query <- c("cg04707299", "cg13380562", "cg00480749")
 dbs <- buildGeneDBs(query, platform = "EPIC")
 testEnrichment(query, dbs, platform = "EPIC")

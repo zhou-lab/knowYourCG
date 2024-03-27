@@ -102,6 +102,9 @@ testEnrichmentSEA1 <- function(query, database, precise=FALSE, full=FALSE) {
 #' @return A DataFrame with the estimate/statistic, p-value, and name of test
 #' for the given results.
 #' @examples
+#' sesameData::sesameDataCache(data_titles=
+#' c("KYCG.MM285.designGroup.20210210","KYCG.MM285.seqContextN.20210630",
+#' "probeIDSignature"))
 #' query <- getDBs("KYCG.MM285.designGroup")[["TSS"]]
 #' res <- testEnrichmentSEA(query, "MM285.seqContextN")
 #' @export

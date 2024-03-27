@@ -155,6 +155,8 @@ loadDBs <- function(in_paths) {
 #' each query.
 #' @return a list of databases, return NULL if no database is found
 #' @examples
+#' sesameData::sesameDataCache(data_titles=
+#' c("KYCG.MM285.chromHMM.20210210","KYCG.MM285.probeType.20210630"))
 #' dbs <- getDBs("MM285.chromHMM")
 #' dbs <- getDBs(c("MM285.chromHMM", "MM285.probeType"))
 #' @export
@@ -209,6 +211,7 @@ getDBs <- function(
 #' @param silent suppress message
 #' @return named annotation vector, or indicator matrix
 #' @examples
+#' sesameData::sesameDataCache("MM285.address")
 #' probes <- names(sesameData::sesameData_getManifestGRanges("MM285"))
 #' anno <- annoProbes(probeIDs=probes, "designGroup", silent = TRUE)
 #' @export

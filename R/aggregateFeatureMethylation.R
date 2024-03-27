@@ -1,5 +1,5 @@
-#' dbStats builds dataset for a given betas matrix
-#' composed of engineered features from the given database sets
+#' dbStats aggregates methylation of a given betas matrix over specified
+#' database set features 
 #'
 #' @param betas matrix of beta values where probes are on the rows and
 #' samples are on the columns
@@ -14,7 +14,9 @@
 #' @import methods
 #' @examples
 #' library(SummarizedExperiment)
-#' se <- sesameData::sesameDataGet('MM285.467.SE.tissue20Kprobes')
+#' sesameData::sesameDataCache(data_titles=
+#' c("MM285.467.SE.tissue20Kprobes","KYCG.MM285.probeType.20210630"))
+#' se <- sesameData::sesameDataGet("MM285.467.SE.tissue20Kprobes")
 #' head(dbStats(assay(se), "MM285.probeType")[,1:3])
 #' sesameData::sesameDataGet_resetEnv()
 #'

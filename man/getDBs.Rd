@@ -38,6 +38,8 @@ a list of databases, return NULL if no database is found
 Get databases by full or partial names of the database group(s)
 }
 \examples{
+sesameData::sesameDataCache(data_titles=
+c("KYCG.MM285.chromHMM.20210210","KYCG.MM285.probeType.20210630"))
 dbs <- getDBs("MM285.chromHMM")
 dbs <- getDBs(c("MM285.chromHMM", "MM285.probeType"))
 }

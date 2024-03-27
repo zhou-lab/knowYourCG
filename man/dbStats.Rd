@@ -2,8 +2,8 @@
 % Please edit documentation in R/aggregateFeatureMethylation.R
 \name{dbStats}
 \alias{dbStats}
-\title{dbStats builds dataset for a given betas matrix
-composed of engineered features from the given database sets}
+\title{dbStats aggregates methylation of a given betas matrix over specified
+database set features}
 \usage{
 dbStats(betas, databases, fun = mean, na.rm = TRUE, n_min = NULL, f_min = 0.1)
 }
@@ -27,12 +27,14 @@ overrides f_min}
 matrix with samples on the rows and database set on the columns
 }
 \description{
-dbStats builds dataset for a given betas matrix
-composed of engineered features from the given database sets
+dbStats aggregates methylation of a given betas matrix over specified
+database set features
 }
 \examples{
 library(SummarizedExperiment)
-se <- sesameData::sesameDataGet('MM285.467.SE.tissue20Kprobes')
+sesameData::sesameDataCache(data_titles=
+c("MM285.467.SE.tissue20Kprobes","KYCG.MM285.probeType.20210630"))
+se <- sesameData::sesameDataGet("MM285.467.SE.tissue20Kprobes")
 head(dbStats(assay(se), "MM285.probeType")[,1:3])
 sesameData::sesameDataGet_resetEnv()
 
