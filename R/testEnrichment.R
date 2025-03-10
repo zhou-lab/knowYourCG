@@ -75,7 +75,8 @@ testEnrichment <- function(
         }
 
         if (is.null(universe)) {
-            universe <- inferUniverse(platform)
+            universe <- sesameDataGet(paste0(
+                platform, ".address"))$ordering$Probe_ID
         } else { # subset the dbs by universe
             dbs <- subsetDBs(dbs, universe) }
 

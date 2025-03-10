@@ -33,16 +33,6 @@ queryCheckPlatform <- function(platform, query = NULL, silent = FALSE) {
     platform
 }
 
-inferUniverse <- function(platform) {
-    mfts <- c(
-        "MM285.address", "EPIC.address",
-        "Mammal40.address", "HM450.address", "HM27.address")
-    mft <- mfts[grepl(platform, mfts)]
-    stopifnot(length(mft) == 1 && all(mft %in% mfts))
-    sesameDataGet(mft)$ordering$Probe_ID
-}
-
-
 subsetDBs <- function(dbs, universe) {
     dbs <- lapply(dbs, function(db) {
         db1 <- intersect(db, universe)
