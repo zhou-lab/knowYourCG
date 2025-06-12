@@ -15,6 +15,8 @@
 #' MM285, EPIC, HM450, or HM27. If it is not provided, it will be inferred
 #' from the query set probeIDs (Default: NA).
 #' @param silent output message? (Default: FALSE)
+#' @param correct_by_group peform multiple testing correction within 
+#' knowledgebase groups (Default: TRUE)
 #' @return A data frame containing features corresponding to the test estimate,
 #' p-value, and type of test.
 #' @importFrom dplyr bind_rows
@@ -46,10 +48,11 @@
 #' @export
 testEnrichment <- function(
         query, databases = NULL, universe = NULL, alternative = "greater",
-        include_genes = FALSE, platform = NULL, silent = FALSE) {
+        include_genes = FALSE, platform = NULL, silent = FALSE,
+        correct_by_group=TRUE) {
 
     if (length(query) == 1 && !grepl(query, "^c[gh]") &&
-        !grepl(query, "rs") && is.null(platform)) {
+         !grepl(query, "rs") && is.null(platform)) {
         res <- testEnrichment2(query, databases, universe_fn = universe,
             alternative = alternative)
         res$FDR <- p.adjust(res$p.value, method='fdr')
@@ -88,7 +91,15 @@ testEnrichment <- function(
         ## bind meta data
         res <- cbind(res, databases_getMeta(dbs))
     }
-
+  
+    if (correct_by_group) {
+      grp_ind <- split(seq_len(nrow(res)),res$group)
+      grp_fdr <- do.call(c,lapply(grp_ind,function(x) {
+        p.adjust(res$p.value[x],method="fdr")
+      }))
+      res$FDR[unlist(grp_ind)] <- unname(grp_fdr)
+    }
+  
     res[order(res$log10.p.value, -abs(res$estimate)), ]
 }
 
