@@ -34,8 +34,8 @@ calcES_Significance <- function(dCont, dDisc, permut=100, precise=FALSE) {
                     sd=sd(ess$es_max), lower.tail=FALSE) }
             if (res$pv_large == 0) {
                 res$pv_large <- pnorm(
-                    es_max, mean=mean(ess$es_max),
-                    sd=sd(ess$es_max), lower.tail=TRUE)
+                    es_min, mean=mean(ess$es_min),
+                    sd=sd(ess$es_min), lower.tail=TRUE)
             }}}
 
     res
