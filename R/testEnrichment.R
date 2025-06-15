@@ -1,3 +1,23 @@
+set_FDR <- function(res, mtc_by_group = TRUE, mtc_method = "fdr") {
+    if (mtc_by_group) {
+        if (!is.null(res$group)) { # array data
+            group <- res$group
+        } else if (!is.null(res$MFile)) { # sequencing data don't have group
+            group <- res$MFile
+        } else {
+            stop("Cannot adjust p-values by group.")
+        }
+        grp_ind <- split(seq_len(nrow(res)), group)
+        grp_fdr <- do.call(c,lapply(grp_ind,function(x) {
+            p.adjust(res$p.value[x],method = mtc_method)
+        }))
+        res$FDR[unlist(grp_ind)] <- unname(grp_fdr)
+    } else {
+        res$FDR <- p.adjust(res$p.value, method = mtc_method)
+    }
+    res
+}
+
 #' testEnrichment tests for the enrichment of query in knowledgebase sets
 #'
 #' @param query For array input, it is a vector of probes of interest
@@ -15,8 +35,9 @@
 #' MM285, EPIC, HM450, or HM27. If it is not provided, it will be inferred
 #' from the query set probeIDs (Default: NA).
 #' @param silent output message? (Default: FALSE)
-#' @param correct_by_group peform multiple testing correction within 
+#' @param mtc_by_group peform multiple testing correction within 
 #' knowledgebase groups (Default: TRUE)
+#' @param mtc_method method for multiple test correction (default: fdr)
 #' @return A data frame containing features corresponding to the test estimate,
 #' p-value, and type of test.
 #' @importFrom dplyr bind_rows
@@ -49,13 +70,12 @@
 testEnrichment <- function(
         query, databases = NULL, universe = NULL, alternative = "greater",
         include_genes = FALSE, platform = NULL, silent = FALSE,
-        correct_by_group=TRUE) {
+        mtc_by_group=TRUE, mtc_method = "fdr") {
 
     if (length(query) == 1 && !grepl(query, "^c[gh]") &&
          !grepl(query, "rs") && is.null(platform)) {
         res <- testEnrichment2(query, databases, universe_fn = universe,
             alternative = alternative)
-        res$FDR <- p.adjust(res$p.value, method='fdr')
     } else {
         platform <- queryCheckPlatform(platform, query, silent = silent)
         if (is.null(databases)) {
@@ -86,21 +106,12 @@ testEnrichment <- function(
         res <- do.call(bind_rows, lapply(dbs, function(db) {
             testEnrichmentFisher(query = query, database = db,
                 universe = universe, alternative = alternative)}))
-        ## adjust p.value after merging
-        res$FDR <- p.adjust(res$p.value, method='fdr')
         rownames(res) <- NULL
         ## bind meta data
         res <- cbind(res, databases_getMeta(dbs))
     }
-  
-    if (correct_by_group) {
-      grp_ind <- split(seq_len(nrow(res)),res$group)
-      grp_fdr <- do.call(c,lapply(grp_ind,function(x) {
-        p.adjust(res$p.value[x],method="fdr")
-      }))
-      res$FDR[unlist(grp_ind)] <- unname(grp_fdr)
-    }
-  
+
+    set_FDR(res, mtc_by_group = mtc_by_group, mtc_method = mtc_method)
     res[order(res$log10.p.value, -abs(res$estimate)), ]
 }
 
