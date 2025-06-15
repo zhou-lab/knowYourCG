@@ -237,16 +237,23 @@ results[,main_stats] %>%
 ```
 
 One can get all the genes associated with a probe set and test the 
-Gene Ontology of the probe-associated genes using the ```testGO()``` function, 
+Gene Ontology of the probe-associated genes using the `linkProbesToProximalGenes` function,
 which internally utilizes [g:Profiler2](https://biit.cs.ut.ee/gprofiler/gost) 
 for the enrichment analysis: 
 
 ```{r ky18, message=FALSE}
+## prepare query probes
+df <- rowData(sesameData::sesameDataGet('MM285.tissueSignature'))
+query_probes <- df$Probe_ID[df$branch == "fetal_liver" & df$type == "Hypo"]
+
+## link them to genes
+genes <- linkProbesToProximalGenes(query_probes, platform = "MM285")$gene_name
+
+## use gprofiler2 to test enrichment
 library(gprofiler2)
-df <- rowData(sesameDataGet('MM285.tissueSignature'))
-query <- df$Probe_ID[df$branch == "fetal_liver" & df$type == "Hypo"]
-res <- testGO(query, platform="MM285",organism = "mmusculus")
-head(res$result)
+gostres <- gprofiler2::gost(genes, organism = "mmusculus")
+head(gostres$result[order(gostres$result$p_value),])
+
 ```
 
 

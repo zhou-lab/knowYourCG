@@ -11,7 +11,8 @@ testEnrichment(
   alternative = "greater",
   include_genes = FALSE,
   platform = NULL,
-  silent = FALSE
+  silent = FALSE,
+  correct_by_group = TRUE
 )
 }
 \arguments{
@@ -36,6 +37,9 @@ MM285, EPIC, HM450, or HM27. If it is not provided, it will be inferred
 from the query set probeIDs (Default: NA).}
 
 \item{silent}{output message? (Default: FALSE)}
+
+\item{correct_by_group}{peform multiple testing correction within 
+knowledgebase groups (Default: TRUE)}
 }
 \value{
 A data frame containing features corresponding to the test estimate,
