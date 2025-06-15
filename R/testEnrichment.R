@@ -70,7 +70,7 @@ set_FDR <- function(res, mtc_by_group = TRUE, mtc_method = "fdr") {
 testEnrichment <- function(
         query, databases = NULL, universe = NULL, alternative = "greater",
         include_genes = FALSE, platform = NULL, silent = FALSE,
-        mtc_by_group=TRUE, mtc_method = "fdr") {
+        mtc_by_group = TRUE, mtc_method = "fdr") {
 
     if (length(query) == 1 && !grepl(query, "^c[gh]") &&
          !grepl(query, "rs") && is.null(platform)) {
@@ -111,7 +111,7 @@ testEnrichment <- function(
         res <- cbind(res, databases_getMeta(dbs))
     }
 
-    set_FDR(res, mtc_by_group = mtc_by_group, mtc_method = mtc_method)
+    res <- set_FDR(res, mtc_by_group = mtc_by_group, mtc_method = mtc_method)
     res[order(res$log10.p.value, -abs(res$estimate)), ]
 }
 

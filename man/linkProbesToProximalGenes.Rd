@@ -27,6 +27,7 @@ please use sesameData_getTxnGRanges followed by
 sesameData_annoProbes(). See code of this convenient function for details.
 }
 \examples{
+library(SummarizedExperiment)
 probes = rowData(sesameData::sesameDataGet('MM285.tissueSignature'))$Probe_ID[1:10]
 linkProbesToProximalGenes(probes, platform = "MM285")
 }

@@ -12,7 +12,8 @@ testEnrichment(
   include_genes = FALSE,
   platform = NULL,
   silent = FALSE,
-  correct_by_group = TRUE
+  mtc_by_group = TRUE,
+  mtc_method = "fdr"
 )
 }
 \arguments{
@@ -38,8 +39,10 @@ from the query set probeIDs (Default: NA).}
 
 \item{silent}{output message? (Default: FALSE)}
 
-\item{correct_by_group}{peform multiple testing correction within 
+\item{mtc_by_group}{peform multiple testing correction within 
 knowledgebase groups (Default: TRUE)}
+
+\item{mtc_method}{method for multiple test correction (default: fdr)}
 }
 \value{
 A data frame containing features corresponding to the test estimate,

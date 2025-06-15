@@ -19,6 +19,7 @@ convertGeneName <- function(gene) {
 #' @param genome hg38, hg19, mm10, this is usually inferred from platform. 
 #' @return a data frame annotate gene list linked to each given probes
 #' @examples
+#' library(SummarizedExperiment)
 #' probes = rowData(sesameData::sesameDataGet('MM285.tissueSignature'))$Probe_ID[1:10]
 #' linkProbesToProximalGenes(probes, platform = "MM285")
 #' @export
