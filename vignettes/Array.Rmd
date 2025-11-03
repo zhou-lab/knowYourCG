@@ -11,16 +11,17 @@ vignette: >
   %\VignetteEncoding{UTF-8}
 ---
 
-KnowYourCG (KYCG) is a supervised learning framework designed for the functional 
-analysis of DNA methylation data. Unlike existing tools that focus on genes or 
-genomic intervals, KnowYourCG directly targets CpG dinucleotides, featuring 
-automated supervised screenings of diverse biological and technical influences, 
-including sequence motifs, transcription factor binding, histone modifications, 
-replication timing, cell-type-specific methylation, and trait associations. 
-KnowYourCG addresses the challenges of data sparsity in various methylation 
-datasets, including low-pass Nanopore sequencing, single-cell DNA methylomes, 
-5-hydroxymethylation profiles, spatial DNA methylation maps, and array-based 
-datasets for epigenome-wide association studies and epigenetic clocks.
+KnowYourCG (KYCG) is a CpG-centered framework designed for the functional
+interpretation of DNA methylation data. Unlike existing tools that focus on
+genes or genomic intervals, KnowYourCG directly targets CpG dinucleotides,
+featuring automated supervised screenings of diverse biological and technical
+influences, including sequence motifs, transcription factor binding, histone
+modifications, replication timing, cell-type-specific methylation, and trait
+associations.  KnowYourCG addresses the challenges of data sparsity in various
+methylation datasets, including low-pass Nanopore sequencing, single-cell DNA
+methylomes, 5-hydroxymethylation profiles, spatial DNA methylation maps, and
+array-based datasets for epigenome-wide association studies and epigenetic
+clocks.
 
 The input to KYCG is a CpG set (query). The CpG sets can represent differential
 methylation, results from an epigenome-wide association studies, or any sets
@@ -271,6 +272,11 @@ probes <- df$Probe_ID[df$branch == "fetal_liver" & df$type == "Hypo"]
 res <- testProbeProximity(probeIDs=probes)
 head(res)
 ```
+
+# Testing Tissue-specific Methylation Enrichment
+
+
+
 
 # SESSION INFO
 
