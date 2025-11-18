@@ -11,273 +11,150 @@ vignette: >
   %\VignetteEncoding{UTF-8}
 ---
 
-KnowYourCG (KYCG) is a CpG-centered framework designed for the functional
-interpretation of DNA methylation data. Unlike existing tools that focus on
-genes or genomic intervals, KnowYourCG directly targets CpG dinucleotides,
-featuring automated supervised screenings of diverse biological and technical
-influences, including sequence motifs, transcription factor binding, histone
-modifications, replication timing, cell-type-specific methylation, and trait
-associations.  KnowYourCG addresses the challenges of data sparsity in various
-methylation datasets, including low-pass Nanopore sequencing, single-cell DNA
-methylomes, 5-hydroxymethylation profiles, spatial DNA methylation maps, and
-array-based datasets for epigenome-wide association studies and epigenetic
-clocks.
+# Visualize Enrichment Results
 
-The input to KYCG is a CpG set (query). The CpG sets can represent differential
-methylation, results from an epigenome-wide association studies, or any sets
-that may be derived from analysis. If **array experiment**, the preferred
-format of the query sets is a character vector of cg-numbers, following the
-standard Infinium array naming nomenclature. 
+There are many ways one can visualize enrichment results. Here we
+demonstrate a few popular ones supported in sesame. Dot plot:
 
-# QUICK START
-
-The following commands prepare the use of knowYourCG. Several database sets are
-retrieved and caching is performed to enable faster access in future 
-enrichment testing. More information on viewing and accessing available 
-database sets is discussed later on.
-
-```{r ky1, load-depenencies, results="hide", message=FALSE, warning=FALSE}
-library(knowYourCG)
-library(sesameData)
-sesameDataCache(data_titles=c("genomeInfo.hg38","genomeInfo.mm10",
-                  "KYCG.MM285.tissueSignature.20211211",
-                  "MM285.tissueSignature","MM285.address",
-                  "probeIDSignature","KYCG.MM285.designGroup.20210210",
-                  "KYCG.MM285.chromHMM.20210210",
-                  "KYCG.MM285.TFBSconsensus.20220116",
-                  "KYCG.MM285.HMconsensus.20220116",
-                  "KYCG.MM285.chromosome.mm10.20210630"
-                  ))
-```
-
-The following example uses a query of CpGs methylated in mouse primordial germ 
-cells (design group PGCMeth). First get the CG list using the following code.
-
-```{r ky2, message=FALSE}
-query <- getDBs("MM285.designGroup")[["PGCMeth"]]
-head(query)
-```
-
-Now test the enrichment. By default, KYCG will select all
-the categorical groups available but we can specify a subset of databases.
-
-```{r ky3, fig.width=8, fig.height=5, message=FALSE}
-dbs <- c("KYCG.MM285.chromHMM.20210210",
-         "KYCG.HM450.TFBSconsensus.20211013",
-         "KYCG.MM285.HMconsensus.20220116",
-         "KYCG.MM285.tissueSignature.20211211",
-         "KYCG.MM285.chromosome.mm10.20210630",
-         "KYCG.MM285.designGroup.20210210")
-results_pgc <- testEnrichment(query,databases = dbs,platform="MM285")
-head(results_pgc)
-```
-
-As expected, the PGCMeth group itself appears on the top of the
-list. But one can also find histone H3K9me3, chromHMM `Het` and transcription
-factor `Trim28` binding enriched in this CG group.
-
-# KNOWLEDGEBASES
-
-The curated target features are called the knowledgebase sets. We have curated
-a variety of knowledgebases that represent different categorical and continuous
-methylation features such as CpGs associated with chromatin states, technical
-artifacts, gene association and gene expression correlation, transcription
-factor binding sites, tissue specific methylation, CpG density, etc.
-
-Array knowledgebases are available as listed in the following tables.
-
-| Array          | Link                                                  |
-|----------------|-------------------------------------------------------|
-| MSA            | https://github.com/zhou-lab/KYCG_knowledgebase_MSA    |
-| Human (EPICv2) | https://github.com/zhou-lab/KYCG_knowledgebase_EPICv2 |
-| Human (EPIC)   | https://github.com/zhou-lab/KYCG_knowledgebase_EPIC   |
-| Human (HM450)  | https://github.com/zhou-lab/KYCG_knowledgebase_HM450  |
-
-<img src="figures/knowledgebases.png" alt="Curated CpG knowledgebases" width="600"/>
-
-The success of enrichment testing depends on the availability of
-biologically-relevant databases. To reflect the biological meaning of databases
-and facilitate selective testing, we have organized our database sets into
-different groups. Each group contains one or multiple databases. Here is how to
-find the names of pre-built database groups:
-
-``` {r ky5, list-data, eval=TRUE, echo=TRUE}
-listDBGroups("MM285")
-```
-
-The `listDBGroups()` function returns a data frame containing information
-of these databases. The Title column is the accession key one needs for the
-`testEnrichment` function.  With the accessions, one can either directly use
-them in the `testEnrichment` function or explicitly call the
-```getDBs()``` function to retrieve databases themselves. Caching these
-databases on the local machine is important, for two reasons: it limits the
-number of requests sent to the Bioconductor server, and secondly it limits the
-amount of time the user needs to wait when re-downloading database sets. For
-this reason, one should run ```sesameDataCache()``` before loading in any
-database sets. This will take some time to download all of the database sets
-but this only needs to be done once per installation.  During the analysis the
-database sets can be identified using these accessions. knowYourCG also does 
-some guessing when a unique substring is given. For example, the string
-"MM285.designGroup" retrieves the "KYCG.MM285.designGroup.20210210"
-database. Let's look at the database group which we had used as the query
-(query and database are reciprocal) in our first example:
-
-``` {r ky6, cache-data, eval=TRUE, warning=FALSE}
-dbs <- getDBs("MM285.design")
-```
-
-In total, 32 datasets have been loaded for this group. We can get the "PGCMeth"
-as an element of the list:
-
-``` {r ky7, view-data1, eval=TRUE, warning=FALSE}
-str(dbs[["PGCMeth"]])
-```
-
-On subsequent runs of the ```getDBs()``` function, the database loading
-can be faster thanks to the sesameData [in-memory
-caching](https://tinyurl.com/2wh9tyzk), if the corresponding database has been
-loaded.
-
-# ENRICHMENT TESTING
-
-The main work horse function for testing enrichment of a categorical query 
-against categorical databases is the `testEnrichment` function. This function 
-will perform Fisher's exact testing of the query against each database set 
-(one-tailed by default, but two-tailed optionally) and reports overlap and 
-enrichment statistics. 
-
-> **Choice of universe set:** Universe set is the set of all probes for a
-given platform. It can either be passed in as an argument called
-```universeSet``` or the platform name can be passed with argument
-```platform```. If neither of these are supplied, the universe set will be
-inferred from the probes in the query.
-
-```{r ky8, run-test-single, echo=TRUE, eval=TRUE, message=FALSE}
+```{r ky14, echo=TRUE, message=FALSE}
 library(SummarizedExperiment)
-
-## prepare a query
+library(sesame)
+library(knowYourCG)
+sesameDataCache("MM285.tissueSignature")
+kycgDataCache()
 df <- rowData(sesameDataGet('MM285.tissueSignature'))
-query <- df$Probe_ID[df$branch == "fetal_brain" & df$type == "Hypo"]
-
-results <- testEnrichment(query, "TFBS", platform="MM285")
-results %>% dplyr::filter(overlap>10) %>% head
-
-## prepare another query
 query <- df$Probe_ID[df$branch == "fetal_liver" & df$type == "Hypo"]
-results <- testEnrichment(query, "TFBS", platform="MM285")
-results %>% dplyr::filter(overlap>10) %>%
-    dplyr::select(dbname, estimate, test, FDR) %>% head
+results <- testEnrichment(query, "TFBS")
 ```
 
-The output of each test contains multiple variables including: the estimate 
-(fold enrichment), p-value, overlap statistics, type of test,
-as well as the name of the database set and the database group. By default, 
-the results are sorted by -log10 of the of p-value and the fold enrichment.
-
-The ```nQ``` and ```nD``` columns identify the length of the query set and the
-database set, respectively. Often, it's important to examine the extent of
-overlap between the two sets, so that metric is reported as well in the
-```overlap``` column.
-
-A query set represents probes of interest. It may either be in the form of a
-character vector where the values correspond to probe IDs or a named numeric
-vector where the names correspond to probe IDs. The query and database
-definition is rather arbitrary. One can regard a database as a query and turn a
-query into a database, like in our first example. In real world scenario, query
-can come from differential methylation testing, unsupervised clustering,
-correlation with a phenotypic trait, and many others. For example, we could
-consider CpGs that show tissue-specific methylation as the query. We are
-getting the B-cell-specific hypomethylation.
-
-```{r ky9, message=FALSE}
-df <- rowData(sesameDataGet('MM285.tissueSignature'))
-query <- df$Probe_ID[df$branch == "B_cell"]
-head(query)
+```{r ky15, fig.width=5, fig.height=3.5}
+KYCG_plotDot(results)
 ```
 
-This query set represents hypomethylated probes in Mouse B-cells from the MM285
-platform. This specific query set has 168 probes.
+or a bar plot:
 
-# GENE LINK & ENRICHMENT
+```{r ky16, fig.width=6.5, fig.height=4, message=FALSE}
+library(ggplot2)
+library(wheatmap)
+p1 <- KYCG_plotBar(results, label=TRUE)
+p2 <- KYCG_plotBar(results, y="estimate") + ylab("log2(Odds Ratio)") +
+    xlab("") + theme(axis.text.y = element_blank())
+WGG(p1) + WGG(p2, RightOf(width=0.5, pad=0))
+```
+ 
+or a volcano plot. Here we need a two-tailed test to show both enrichment and
+depletion (the default is one-tailed):
 
-A special case of set enrichment is to test whether CpGs are associated with
-specific genes. Automating the enrichment test process only works when the
-number of database sets is small. This is important when targeting all genes as
-there are tens of thousands of genes on each platform. By testing only those
-genes that overlap with the query set, we can greatly reduce the number of
-tests. For this reason, the gene enrichment analysis is a special case of these
-enrichment tests. We can perform this analysis using the
-```buildGeneDBs()``` function.
+```{r ky17, fig.width=6, fig.height=4, warning=FALSE, message=FALSE}
+query <- df$Probe_ID[df$branch == "fetal_brain" & df$type == "Hypo"]
+results_2tailed <- testEnrichment(query, "TFBS", alternative = "two.sided")
+KYCG_plotVolcano(results_2tailed)
+```
 
-```{r ky10, fig.width=7, fig.height=6, echo=TRUE, warning=FALSE, message=FALSE}
-library(knowYourCG)
-library(sesameData)
+and a Waterfall plot:
+
+```{r ky18, fig.width=6, fig.height=4.5}
+KYCG_plotWaterfall(results)
+```
+
+If you have a list of cg groups and they were tested against the same set of
+databases, you can make a point range plot to summarize the overall trend:
+
+```{r ky19, fig.width=3.5, fig.height=4}
+## pick some big TFBS-overlapping CpG groups
+cg_lists <- getDBs("MM285.TFBS", silent=TRUE)
+queries <- cg_lists[(sapply(cg_lists, length) > 40000)]
+res <- lapply(queries, function(q) {
+    testEnrichment(q, "MM285.chromHMM", silent=TRUE)})
+
+## note the input of the function is a list of testEnrichment outputs.
+KYCG_plotPointRange(res)
+```
+
+plot enrichment over metagene:
+
+KnowYourCG builds in several metagene/meta-feature coordinates. One can test
+enrichment over meta genes or simply plot the mean over metagenes:
+
+```{r ky20, plot-meta1, fig.width=5, fig.height=4, message=FALSE}
+sdf <- sesameDataGet("EPIC.1.SigDF")
+KYCG_plotMeta(getBetas(sdf))
+```
+
+Here we picked some transcription factor binding sites-overlapping CpGs and
+tested against chromHMM states. As expected, most of these CGs are enriched at
+promoters and enhancers but depleted at heterchromatic regions.
+
+## Manhattan plot
+
+Manhattan plots are an intuitive way to visualize the results from large scale
+"omics" studies that investigate genetic or epigenetic features on genome wide
+scales across large groups of samples. Here we demonstrate how the
+`KYCG_plotManhattan()` function can be used to visualize the chromosomal
+distribution and significance level of CpG probes from an EWAS
+study. `KYCG_plotManhattan()` takes a named numeric vector with CpG probeIDs as
+names and numeric values (P,Q,logFC,etc) obtained from analysis as values. To
+plot EWAS results, simply load the necessary libraries and pass the named
+numeric vector to `KYCG_plotManhattan()`
+
+By default, `KYCG_plotManhattan()` will infer the array platform from the
+probeIDs and retrieve the corresponding GRanges object to obtain probe
+coordinates. However, the platform and GRanges objects can be pre - specified
+if offline. Color, title, and the threshold to label significant probes on the
+plot can also be specified:
+
+```{r ky21, fig.width=6, fig.height=4, message=FALSE}
+library(ggrepel)
+smry_pvals = readRDS(url("https://github.com/zhou-lab/InfiniumAnnotationV1/raw/main/Test/20220413_testManhattan.rds"))
+KYCG_plotManhattan(-log10(smry_pvals), platform="HM450",
+    title="Differentially Methylated CpGs - EWAS Aging",
+    col=c("navy","skyblue"), ylabel = bquote(-log[10](P~value)), label_min=30) +
+    theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1))
+```
+
+## Feature Aggregation
+
+In addition to hypothesis testing, knowYourCG also uses the curated database
+sets for feature engineering. We have a pre-curated summarized experiment
+containing a samplesheet and beta value matrix corresponding to about 467 MM285
+samples with 20k probes. The samplesheet includes UIDs pertaining to the sample
+and several categorical/numerical features. To use this data for a linear
+model, we will extract the most relevant prevalent features.
+
+``` {r ky22, echo=TRUE, message=FALSE}
 library(SummarizedExperiment)
-query <- names(sesameData_getProbesByGene("Dnmt3a", "MM285"))
-results <- testEnrichment(query, 
-    buildGeneDBs(query, max_distance=100000, platform="MM285"),
-    platform="MM285")
-main_stats <- c("dbname","estimate","gene_name","FDR", "nQ", "nD", "overlap")
-results[,main_stats]
+betas = assay(sesameDataGet('MM285.467.SE.tissue20Kprobes'))
 ```
 
-As expected, we recover our targeted gene (Dnmt3a).
+We have found that it is computationally expensive to perform a linear
+model/generalized linear model on a feature set of individual
+CpGs. Additionally, interpreting the mechanism the significantly contributing
+CpGs is non-trivial due to their complex interactions. We hope to leverage
+these pre-curated database sets by using their beta value summary statistics as
+features instead. We will calculate the summary statistics for the betas matrix
+using a list of database sets. The default is to calculate the mean.
 
-Gene enrichment testing can easily be included with default or
-user specified database sets by setting include_genes=TRUE:
-
-```{r ky11, warning=FALSE, message=FALSE, fig.width=5, fig.height=4}
-query <- names(sesameData_getProbesByGene("Dnmt3a", "MM285"))
-dbs <- c("KYCG.MM285.chromHMM.20210210","KYCG.HM450.TFBSconsensus.20211013",
-         "KYCG.MM285.chromosome.mm10.20210630")
-results <- testEnrichment(query,databases=dbs,
-                          platform="MM285",include_genes=TRUE)
-main_stats <- c("dbname","estimate","gene_name","FDR", "nQ", "nD", "overlap")
-results[,main_stats] %>% head()
+```{r ky25}
+stats <- dbStats(betas, 'MM285.chromHMM')
+head(stats[, 1:5])
 ```
 
-One can get all the genes associated with a probe set and test the 
-Gene Ontology of the probe-associated genes using the `linkProbesToProximalGenes` function,
-which internally utilizes [g:Profiler2](https://biit.cs.ut.ee/gprofiler/gost) 
-for the enrichment analysis: 
+Just from the few database set means above, we can see that TSS are
+consistently hypomethylated, which is consistent with known biology.
 
-```{r ky12, message=FALSE}
-## prepare query probes
-df <- rowData(sesameData::sesameDataGet('MM285.tissueSignature'))
-query_probes <- df$Probe_ID[df$branch == "fetal_liver" & df$type == "Hypo"]
-
-## link them to genes
-genes <- linkProbesToProximalGenes(query_probes, platform = "MM285")$gene_name
-
-## use gprofiler2 to test enrichment
-library(gprofiler2)
-gostres <- gprofiler2::gost(genes, organism = "mmusculus")
-head(gostres$result[order(gostres$result$p_value),])
-
+```{r ky26, fig.width=6, fig.height=6}
+library(wheatmap)
+WHeatmap(both.cluster(stats)$mat, xticklabels=TRUE,
+    cmp=CMPar(stop.points=c("blue","yellow")))
 ```
 
+## Feature Annotation
 
-# GENOMIC PROXIMITY
+We can also use KYCG database to annotate an arbitrary probe set. This can be
+done using the `KYCG_annoProbes` function:
 
-Sometimes it may be of interest whether a query set of probes share close 
-genomic proximity. Co-localization may suggest co-regulation or co-occupancy 
-in the same regulatory element. KYCG can test for genomic proximity using 
-the ```testProbeProximity()```function. Poisson statistics for the expected # 
-of co-localized hits from the given query size (lambda) and the actual 
-co-localized CpG pairs along with the p value are returned: 
-
-```{r ky13, eval = TRUE,message=FALSE}
-df <- rowData(sesameDataGet('MM285.tissueSignature'))
-probes <- df$Probe_ID[df$branch == "fetal_liver" & df$type == "Hypo"]
-res <- testProbeProximity(probeIDs=probes)
-head(res)
-```
-
-# Testing Tissue-specific Methylation Enrichment
-
-
-# SESSION INFO
-
-```{r}
-sessionInfo()
+```{r ky30}
+query <- names(sesameData_getManifestGRanges("MM285"))
+anno <- annoProbes(query, "designGroup", silent = TRUE)
+head(anno)
 ```
