@@ -54,9 +54,11 @@ testEnrichment tests for the enrichment of query in knowledgebase sets
 \examples{
 
 library(SummarizedExperiment)
-kycgDataCache(data_titles=
-c("MM285.tissueSignature","KYCG.MM285.chromHMM.20210210"))
-df <- rowData(kycgDataGet("MM285.tissueSignature"))
+library(sesameData)
+library(knowYourCG)
+kycgDataCache(data_titles="KYCG.MM285.chromHMM.20210210")
+sesameDataCache("MM285.tissueSignature")
+df <- rowData(sesameDataGet("MM285.tissueSignature"))
 probes <- df$Probe_ID[df$branch == "B_cell"]
 res <- testEnrichment(probes, "chromHMM", platform="MM285")
 

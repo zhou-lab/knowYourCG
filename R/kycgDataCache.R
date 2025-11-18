@@ -2,6 +2,7 @@
 #'
 #' @import ExperimentHub
 #' @import AnnotationHub
+#' @importFrom utils capture.output
 #' @param data_titles data to cache, if not given will cache all
 #' @return TRUE
 #' @examples

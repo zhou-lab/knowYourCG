@@ -11,7 +11,7 @@
 #' kycgDataCache(data_titles=
 #' c("KYCG.MM285.TFBSconsensus.20220116","KYCG.MM285.chromHMM.20210210"))
 #'
-#' sesameDataCache(data_titles=
+#' sesameData::sesameDataCache(data_titles=
 #' c("probeIDSignature", "MM285.address"))
 #' 
 #' cg_lists <- getDBs("MM285.TFBS")
