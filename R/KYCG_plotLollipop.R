@@ -29,7 +29,8 @@ KYCG_plotLollipop <- function(df, label_column="dbname", n=20) {
     cap_line <- max(allest) * 1.2
     df$estimate[df$estimate == Inf] <- cap
     
-    ggplot(df, aes_string(x = "label", y = "estimate", label = "label")) +
+    ggplot(df, aes(x = .data[["label"]],
+        y = .data[["estimate"]], label = .data[["label"]])) +
         geom_hline(yintercept = 0) +
         geom_segment(aes(
             x=reorder(label, -estimate), y=0,

@@ -54,7 +54,8 @@ KYCG_plotManhattan <- function(
     df <- as_tibble(gr)
     df$seqnames <- factor(df$seqnames, levels=names(seqLength))
     requireNamespace("ggrepel")
-    p <- ggplot(df, aes_string(x="pos", y="val", color="seqnames"))
+    p <- ggplot(df, aes(x=.data[["pos"]], y=.data[["val"]],
+        color=.data[["seqnames"]]))
     if (rasterize) {
         requireNamespace("ggrastr")
         p <- p + ggrastr::rasterise(geom_point(
@@ -69,7 +70,7 @@ KYCG_plotManhattan <- function(
         alpha=0.8, size=1,
         data = df[df$val >= rasterize_thres,])
     p <- p + ggrepel::geom_text_repel(data=df[df$val > label_min,],
-        aes_string(label="Probe_ID")) +
+        aes(label = .data[["Probe_ID"]])) +
         scale_color_manual(values = rep(col, length(seqLength))) +
         scale_x_continuous(labels = names(midLength), breaks= midLength) +
         scale_y_continuous(expand = c(0, 0)) +  

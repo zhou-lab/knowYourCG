@@ -27,7 +27,7 @@ KYCG_plotBar <- function(df, y = "-log10(FDR)",
         df1[["-log10(FDR)"]] <- -log10(df1$FDR)
     }
 
-    p <- ggplot(df1, aes(db1, .data[[y]])) +
+    p <- ggplot(df1, aes(.data[["db1"]], .data[[y]])) +
         geom_bar(stat="identity") +
         coord_flip() + ylab(y) + xlab("CpG Group")
     
@@ -37,7 +37,8 @@ KYCG_plotBar <- function(df, y = "-log10(FDR)",
         df1_label$pos_label <- df1_label[[y]]/2
         df1_label$label <- sprintf("N=%d", df1_label$overlap)
         p <- p + geom_label(aes(
-            x=db1, y=pos_label, label=label),
+            x=.data[["db1"]], y=.data[["pos_label"]],
+            label = .data[["label"]]),
             data = df1_label, alpha=0.6, hjust=0.5)
     }
     p

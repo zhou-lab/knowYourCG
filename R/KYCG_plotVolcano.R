@@ -27,7 +27,8 @@ KYCG_plotVolcano <- function(df, label_by="dbname", alpha=0.05) {
         df$FDR < alpha, "Significant", "Not significant")
     ## TODO: replace with column specifying sig vs non sig
     g <- ggplot(data = df,
-        aes_string(x = "estimate", y = "-log10(FDR)", color = "Significance"))
+        aes(x = .data[["estimate"]], y = .data[["-log10(FDR)"]],
+            color = .data[["Significance"]]))
     g <- g + geom_point() + xlab("log2(OR)")
     g <- g + ylab("-log10 FDR") +
         scale_colour_manual(
@@ -36,7 +37,7 @@ KYCG_plotVolcano <- function(df, label_by="dbname", alpha=0.05) {
     requireNamespace("ggrepel")
     g <- g + ggrepel::geom_text_repel(
         data = df[df$FDR < alpha & df$estimate > 0,],
-        aes_string(label = label_by), size = 5,
+        aes(label = .data[[label_by]]), size = 5,
         box.padding = unit(0.35, "lines"),
         point.padding = unit(0.3, "lines"),
         show.legend = FALSE)

@@ -29,12 +29,13 @@ KYCG_plotSetEnrichment <- function(
 
     WGG(ggplot(data.frame(index=index, cs=cs[index])) +
         geom_segment(data=data.frame(pos=pos),
-            aes_string(x = "pos", xend = "pos", y = -0.02, yend = 0.02),
+            aes(x = .data[["pos"]], xend = .data[["pos"]],
+                y = -0.02, yend = 0.02),
             color="grey50") +
-        geom_line(aes_string(x="index", y="cs"), color="darkred") +
+        geom_line(aes(x=.data[["index"]], y=.data[["cs"]]), color="darkred") +
         xlab("") + ylab("ES(S)")) +
     WGG(ggplot(data.frame(index=index, var=dCont[index]),
-        aes_string(x="index", y="var")) +
+        aes(x=.data[["index"]], y=.data[["var"]])) +
         geom_area() +
         xlab("CpGs") + ylab("Phenotype Var"), Beneath(height=0.5))
 }

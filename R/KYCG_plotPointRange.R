@@ -31,7 +31,8 @@ KYCG_plotPointRange <- function(result_list) {
     df$state <- factor(df$state, levels = df$state[order(df$ave)])
     
     ggplot(df) +
-        geom_pointrange(aes_string("state", "ave", ymin="ymin", ymax="ymax")) +
+        geom_pointrange(aes(.data[["state"]], .data[["ave"]],
+            ymin=.data[["ymin"]], ymax=.data[["ymax"]])) +
         geom_hline(yintercept=0, linetype='dashed') +
         ylab("Log2 Fold Enrichment") + xlab("") +
         scale_y_continuous(position="right") +

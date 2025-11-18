@@ -54,7 +54,7 @@ KYCG_plotWaterfall <- function(df,
         ggrepel::geom_text_repel(
             data = df[head(order(df$log10.p.value),
                 n = min(n_label, nrow(df)*0.5)),],
-            aes_string(label="label"), nudge_x=-nrow(df)/10,
+            aes(label=.data[["label"]]), nudge_x=-nrow(df)/10,
             max.overlaps=999)
 }
 

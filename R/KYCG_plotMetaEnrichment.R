@@ -22,7 +22,8 @@ KYCG_plotMetaEnrichment <- function(result_list) {
     ggplot(df) +
         annotate("rect", xmin = -1, xmax = 10, ymin = -Inf,
             ymax = Inf, fill = "grey80", alpha = .5, color = NA) +
-        geom_line(aes_string("db", "estimate", color="query")) +
+        geom_line(aes(.data[["db"]], .data[["estimate"]],
+            color=.data[["query"]])) +
         scale_x_continuous(breaks=as.integer(result_list[[1]]$db),
             labels=result_list[[1]]$label) +
         annotate("text", x=min(as.integer(result_list[[1]]$db)),
