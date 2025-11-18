@@ -1,23 +1,3 @@
-set_FDR <- function(res, mtc_by_group = TRUE, mtc_method = "fdr") {
-    if (mtc_by_group) {
-        if (!is.null(res$group)) { # array data
-            group <- res$group
-        } else if (!is.null(res$MFile)) { # sequencing data don't have group
-            group <- res$MFile
-        } else {
-            stop("Cannot adjust p-values by group.")
-        }
-        grp_ind <- split(seq_len(nrow(res)), group)
-        grp_fdr <- do.call(c,lapply(grp_ind,function(x) {
-            p.adjust(res$p.value[x],method = mtc_method)
-        }))
-        res$FDR[unlist(grp_ind)] <- unname(grp_fdr)
-    } else {
-        res$FDR <- p.adjust(res$p.value, method = mtc_method)
-    }
-    res
-}
-
 #' testEnrichment tests for the enrichment of query in knowledgebase sets
 #'
 #' @param query For array input, it is a vector of probes of interest
@@ -44,13 +24,12 @@ set_FDR <- function(res, mtc_by_group = TRUE, mtc_method = "fdr") {
 #' @examples
 #'
 #' library(SummarizedExperiment)
-#' sesameData::sesameDataCache(data_titles=
-#' c("MM285.tissueSignature","KYCG.MM285.chromHMM.20210210","MM285.address"))
-#' df <- rowData(sesameData::sesameDataGet("MM285.tissueSignature"))
+#' kycgDataCache(data_titles=
+#' c("MM285.tissueSignature","KYCG.MM285.chromHMM.20210210"))
+#' df <- rowData(kycgDataGet("MM285.tissueSignature"))
 #' probes <- df$Probe_ID[df$branch == "B_cell"]
 #' res <- testEnrichment(probes, "chromHMM", platform="MM285")
-#' sesameData::sesameDataGet_resetEnv()
-#'
+#' 
 #' \dontrun{
 #' # Define temporary directory and file URLs
 #' temp_dir <- tempdir()
@@ -68,12 +47,12 @@ set_FDR <- function(res, mtc_by_group = TRUE, mtc_method = "fdr") {
 #' }
 #' @export
 testEnrichment <- function(
-        query, databases = NULL, universe = NULL, alternative = "greater",
-        include_genes = FALSE, platform = NULL, silent = FALSE,
-        mtc_by_group = TRUE, mtc_method = "fdr") {
+    query, databases = NULL, universe = NULL, alternative = "greater",
+    include_genes = FALSE, platform = NULL, silent = FALSE,
+    mtc_by_group = TRUE, mtc_method = "fdr") {
 
     if (length(query) == 1 && !grepl(query, "^c[gh]") &&
-         !grepl(query, "rs") && is.null(platform)) {
+        !grepl(query, "rs") && is.null(platform)) {
         res <- testEnrichment2(query, databases, universe_fn = universe,
             alternative = alternative)
     } else {
@@ -115,36 +94,24 @@ testEnrichment <- function(
     res[order(res$log10.p.value, -abs(res$estimate)), ]
 }
 
-#' Aggregate test enrichment results
-#'
-#' @param result_list a list of results from testEnrichment
-#' @param column the column name to aggregate (Default: estimate)
-#' @param return_df whether to return a merged data frame
-#' @return a matrix for all results
-#' @importFrom reshape2 melt
-#' @examples
-#'
-#' ## pick some big TFBS-overlapping CpG groups
-#' sesameData::sesameDataCache(data_titles=
-#' c("KYCG.MM285.TFBSconsensus.20220116","KYCG.MM285.chromHMM.20210210",
-#' "probeIDSignature", "MM285.address"))
-#' cg_lists <- getDBs("MM285.TFBS")
-#' queries <- cg_lists[(sapply(cg_lists, length) > 40000)]
-#' result_list <- lapply(queries, testEnrichment, "MM285.chromHMM")
-#' mtx <- aggregateTestEnrichments(result_list)
-#'
-#' @export
-aggregateTestEnrichments <- function(
-        result_list, column = "estimate", return_df = FALSE) {
-    mtx <- do.call(cbind, lapply(result_list[[1]]$dbname, function(db) {
-        vapply(result_list,
-               function(x) x$estimate[x$dbname == db], numeric(1))}))
-    colnames(mtx) <- result_list[[1]]$dbname
-    if (return_df) {
-        melt(mtx, value.name = column, varnames = c("query", "db"))
+set_FDR <- function(res, mtc_by_group = TRUE, mtc_method = "fdr") {
+    if (mtc_by_group) {
+        if (!is.null(res$group)) { # array data
+            group <- res$group
+        } else if (!is.null(res$MFile)) { # sequencing data don't have group
+            group <- res$MFile
+        } else {
+            stop("Cannot adjust p-values by group.")
+        }
+        grp_ind <- split(seq_len(nrow(res)), group)
+        grp_fdr <- do.call(c,lapply(grp_ind,function(x) {
+            p.adjust(res$p.value[x],method = mtc_method)
+        }))
+        res$FDR[unlist(grp_ind)] <- unname(grp_fdr)
     } else {
-        mtx
+        res$FDR <- p.adjust(res$p.value, method = mtc_method)
     }
+    res
 }
 
 #' testEnrichmentFisher uses Fisher's exact test to estimate the association
@@ -164,7 +131,7 @@ aggregateTestEnrichments <- function(
 #' @return A DataFrame with the estimate/statistic, p-value, and name of test
 #' for the given results.
 testEnrichmentFisher <- function(query, database, universe,
-                                 alternative = "greater") {
+    alternative = "greater") {
 
     nD <- length(database)
     nQ <- length(query)
@@ -175,7 +142,7 @@ testEnrichmentFisher <- function(query, database, universe,
 }    
 
 testEnrichmentFisherN <- function(
-        nD, nQ, nDQ, nU, alternative = "greater") {
+    nD, nQ, nDQ, nU, alternative = "greater") {
 
     nDmQ <- nD - nDQ
     nQmD <- nQ - nDQ
@@ -220,55 +187,3 @@ testEnrichmentFisherN <- function(
         cf_SorensenDice = 2 * nDQ/(nD + nQ))
 }
 
-#' build gene-probe association database
-#'
-#' @param probeIDs the query probe list. If NULL, use all the probes
-#' on the platform
-#' @param platform HM450, EPIC, MM285, Mammal40, will infer from
-#' query if not given
-#' @param genome hg38, mm10, ..., will infer if not given.
-#' @param max_distance probe-gene distance for association
-#' @param silent suppress messages
-#' @return gene databases
-#' @import sesameData
-#' @importFrom GenomicRanges findOverlaps
-#' @importFrom IRanges subsetByOverlaps
-#' @importFrom S4Vectors subjectHits
-#' @importFrom S4Vectors queryHits
-#' @examples
-#' sesameData::sesameDataCache(data_titles=
-#' c("EPIC.address","genomeInfo.hg38","probeIDSignature"))
-#' query <- c("cg04707299", "cg13380562", "cg00480749")
-#' dbs <- buildGeneDBs(query, platform = "EPIC")
-#' testEnrichment(query, dbs, platform = "EPIC")
-#' @export
-buildGeneDBs <- function(
-    probeIDs = NULL, platform = NULL,
-        genome = NULL, max_distance = 10000, silent = FALSE) {
-
-    platform <- queryCheckPlatform(platform, probeIDs, silent = silent)
-    genes <- sesameData_txnToGeneGRanges(
-        sesameData_getTxnGRanges(
-            sesameData_check_genome(NULL, platform)))
-    all_probes <- sesameData_getManifestGRanges(platform, genome = genome)
-    if (!is.null(probeIDs)) {
-        probes <- all_probes[names(all_probes) %in% probeIDs] }
-
-    ## skip non-overlapping genes, strand always ignored
-    genes <- subsetByOverlaps(
-        genes, probes + max_distance, ignore.strand = TRUE)
-    hits <- findOverlaps(
-        genes, all_probes + max_distance, ignore.strand = TRUE)
-    dbs <- split(names(all_probes)[subjectHits(hits)],
-                 names(genes)[queryHits(hits)])
-    gene_names <- genes[names(dbs)]$gene_name
-    res <- lapply(seq_along(dbs), function(i) {
-        d1 <- dbs[[i]];
-        attr(d1, "group") <- sprintf("KYCG.%s.gene.00000000", platform);
-        attr(d1, "dbname") <- names(dbs)[i];
-        attr(d1, "gene_name") <- gene_names[i];
-        d1;})
-    names(res) <- names(dbs)
-    message(sprintf("Building %d gene DBs for %s...", length(res), platform))
-    res
-}

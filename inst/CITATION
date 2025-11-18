@@ -1,4 +1,28 @@
 c(
+
+    bibentry(
+        bibtype = "Article",
+        title = "KnowYourCG: Facilitating base-level sparse methylome interpretation",
+        author = c(
+            person("David C.", "Goldberg"),
+            person("Hongxiang", "Fu"),
+            person("Daniel", "Atkins"),
+            person("Ethan", "Moyer"),
+            person("Chin Nien", "Lee"),
+            person("Yanxiang", "Deng"),
+            person("Wanding", "Zhou")
+        ),
+        journal = "Science Advances",
+        year = 2025,
+        volume = "11",
+        number = "43",
+        pages = "eadw3027",
+        doi = "10.1126/sciadv.adw3027",
+        pmid = "41134907",
+        header = "The methodology and implementation of KnowYourCG is described in:"
+    ),
+
+    
     bibentry(bibtype = "Article",
         key = "lee2024input",
         title = "Low-input and single-cell methods for Infinium DNA methylation BeadChips",

@@ -1,13 +1,13 @@
 ---
-title: "Functional Analysis of DNAm Array Data"
-shorttitle: "KYCG-ARRAY"
+title: "Enrichment Analysis Visualization"
+shorttitle: "KYCG-VISUAL"
 package: knowYourCG
 output: rmarkdown::html_vignette
 fig_width: 6
 fig_height: 5
 vignette: >
   %\VignetteEngine{knitr::rmarkdown}
-  %\VignetteIndexEntry{"2. Array Data Analysis"}
+  %\VignetteIndexEntry{"4. Enrichment Visualization"}
   %\VignetteEncoding{UTF-8}
 ---
 

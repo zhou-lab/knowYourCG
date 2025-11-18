@@ -1,7 +1,3 @@
-## my_function <- function(str1, str2) {
-##   stopifnot(is.character(str1), is.character(str2))
-##   .Call("yame_summary_cfunc", str1, str2)
-## }
 
 #' Test enrichment from YAME-compressed CG sets
 #' 

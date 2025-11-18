@@ -11,4 +11,7 @@ navbar:
     - text: "Continuous Data"
       icon: fa-sort-numeric-desc
       href: Continuous.html
+    - text: "Visualization"
+      icon: fa-cogs
+      href: visualization.html
 

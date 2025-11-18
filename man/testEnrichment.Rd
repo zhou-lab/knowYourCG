@@ -54,12 +54,11 @@ testEnrichment tests for the enrichment of query in knowledgebase sets
 \examples{
 
 library(SummarizedExperiment)
-sesameData::sesameDataCache(data_titles=
-c("MM285.tissueSignature","KYCG.MM285.chromHMM.20210210","MM285.address"))
-df <- rowData(sesameData::sesameDataGet("MM285.tissueSignature"))
+kycgDataCache(data_titles=
+c("MM285.tissueSignature","KYCG.MM285.chromHMM.20210210"))
+df <- rowData(kycgDataGet("MM285.tissueSignature"))
 probes <- df$Probe_ID[df$branch == "B_cell"]
 res <- testEnrichment(probes, "chromHMM", platform="MM285")
-sesameData::sesameDataGet_resetEnv()
 
 \dontrun{
 # Define temporary directory and file URLs
