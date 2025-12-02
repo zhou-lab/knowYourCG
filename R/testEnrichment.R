@@ -53,8 +53,8 @@ testEnrichment <- function(
     include_genes = FALSE, platform = NULL, silent = FALSE,
     mtc_by_group = TRUE, mtc_method = "fdr") {
 
-    if (length(query) == 1 && !grepl(query, "^c[gh]") &&
-        !grepl(query, "rs") && is.null(platform)) {
+    if (length(query) == 1 && !grepl("^c[gh]", query) &&
+        !grepl("rs", query) && is.null(platform)) {
         res <- testEnrichment2(query, databases, universe_fn = universe,
             alternative = alternative)
     } else {
