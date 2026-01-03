@@ -131,8 +131,9 @@ void fmt6_compress(cdata_t *c);
 void fmt6_decompress(cdata_t *c, cdata_t *inflated);
 #define FMT6_IN_SET(c, i) ((c).s[i>>2] & (1<<((i&0x3)*2)))
 #define FMT6_IN_UNI(c, i) ((c).s[i>>2] & (1<<((i&0x3)*2+1)))
-#define FMT6_SET0(c, i) ((c).s[i>>2] |= (2<<((i&0x3)*2)))
-#define FMT6_SET1(c, i) ((c).s[i>>2] |= (3<<((i&0x3)*2)))
+#define FMT6_SET0(c, i) ((c).s[i>>2] = ((c).s[i>>2] & ~(3<<((i&0x3)*2))) | (2<<((i&0x3)*2))) // 10
+#define FMT6_SET1(c, i) ((c).s[i>>2] |= (3<<((i&0x3)*2))) // 11
+#define FMT6_SET_NA(c, i) ((c).s[i>>2] &= (~(3<<((i&0x3)*2)))) // 00
 
 int fmt7_next_bed(cdata_t *c);
 uint64_t fmt7_data_length(cdata_t *c);
