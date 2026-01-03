@@ -21,7 +21,7 @@ testEnrichment2(
 \item{alternative}{greater, less}
 }
 \value{
-A single concatenated string.
+a tibble
 }
 \description{
 Test enrichment from YAME-compressed CG sets

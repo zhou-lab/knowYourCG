@@ -4,6 +4,13 @@
 \name{df_master}
 \alias{df_master}
 \title{Master data frame for all object to cache}
+\format{
+A data.frame with columns:
+\describe{
+  \item{name}{Character. Resource name/title.}
+  \item{eh}{Character. ExperimentHub record ID.}
+}
+}
 \value{
 master sheet of knowYourCG objects
 }

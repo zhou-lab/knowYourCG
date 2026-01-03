@@ -9,6 +9,12 @@
 #' Cache location is default to
 #' /Users/zhouw3/Library/Caches/org.R-project.R/R/ExperimentHub/
 #'
+#' @format A data.frame with columns:
+#' \describe{
+#'   \item{name}{Character. Resource name/title.}
+#'   \item{eh}{Character. ExperimentHub record ID.}
+#' }
+#' 
 #' @name df_master
 #' @docType data
 #' @return master sheet of knowYourCG objects

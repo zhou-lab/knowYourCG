@@ -157,9 +157,7 @@ testEnrichmentFisherN <- function(
         pvl <- phyper(
             nDQ, nDQ + nQmD, nUmDQ + nDmQ, nDmQ + nDQ,
             lower.tail = TRUE, log.p = TRUE) / log(10)
-        log10.p.value <- pmin(pmin(pvg, pvl) + log(2), 0) / log(10)
-        ## log10.p.value <- log10(fisher.test(matrix(c(
-        ##     nDQ, nDmQ, nQmD, nUmDQ), nrow = 2))$p.value)
+        log10.p.value <- pmin(pmin(pvg, pvl) + log10(2), 0)
     } else if (alternative == "greater") {
         log10.p.value <- phyper(
             nDQ-1, nDQ + nQmD, nUmDQ + nDmQ, nDmQ + nDQ,

@@ -5,7 +5,7 @@
 #' @param knowledge_fn File path to knowledgebase
 #' @param universe_fn optional file path to universe
 #' @param alternative greater, less
-#' @return A single concatenated string.
+#' @return a tibble
 #' @useDynLib knowYourCG, .registration = TRUE
 #' @export
 #' @examples

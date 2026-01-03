@@ -1,28 +1,38 @@
 Package: knowYourCG
 Type: Package
 Title: Functional analysis of DNA methylome datasets
-Version: 1.7.4
-Authors@R: c(person("Zhou", "Wanding", role=c("aut", "fnd"), email = "zhouwanding@gmail.com", comment = c(ORCID = "0000-0001-9126-1932")),
-             person("Goldberg", "David", role=c("aut","cre"), email="golddc72@pennmedicine.upenn.edu", comment=c(ORCID="0000-0002-9622-4708")),
-             person("Fu","Hongxiang",role=c("ctb"), email="fhx@seas.upenn.edu"))
+Version: 1.7.5
+Authors@R: c(
+    person("Wanding", "Zhou",
+        role = c("aut", "fnd"),
+        email = "zhouwanding@gmail.com",
+        comment = c(ORCID = "0000-0001-9126-1932")
+    ),
+    person("David", "Goldberg",
+        role = c("aut", "cre"),
+        email = "golddc72@pennmedicine.upenn.edu",
+        comment = c(ORCID = "0000-0002-9622-4708")
+    ),
+    person("Hongxiang", "Fu",
+        role = "ctb",
+        email = "fhx@seas.upenn.edu"
+    ))
 Description: KnowYourCG (KYCG) is a supervised learning framework designed for
-             the functional analysis of DNA methylation data. Unlike existing
-             tools that focus on genes or genomic intervals, KnowYourCG
-             directly targets CpG dinucleotides, featuring automated
-             supervised screenings of diverse biological and technical
-             influences, including sequence motifs, transcription factor
-             binding, histone modifications, replication timing,
-             cell-type-specific methylation, and trait-epigenome
-             associations. KnowYourCG addresses the challenges of data
-             sparsity in various methylation datasets, including low-pass
-             Nanopore sequencing, single-cell DNA methylomes,
-             5-hydroxymethylation profiles, spatial DNA methylation maps, and
-             array-based datasets for epigenome-wide association studies and
-             epigenetic clocks.
+    the functional analysis of DNA methylation data. Unlike existing tools
+    that focus on genes or genomic intervals, KnowYourCG directly targets CpG
+    dinucleotides, featuring automated supervised screenings of diverse
+    biological and technical influences, including sequence motifs,
+    transcription factor binding, histone modifications, replication timing,
+    cell-type-specific methylation, and trait-epigenome associations.
+    KnowYourCG addresses the challenges of data sparsity in various methylation
+    datasets, including low-pass Nanopore sequencing, single-cell DNA
+    methylomes, 5-hydroxymethylation profiles, spatial DNA methylation maps,
+    and array-based datasets for epigenome-wide association studies and
+    epigenetic clocks (<doi:10.1126/sciadv.adw3027>).
 Depends: R (>= 4.4.0)
 URL: https://github.com/zhou-lab/knowYourCG
 BugReports: https://github.com/zhou-lab/knowYourCG/issues
-License: MIT + file LICENSE
+License: AGPL-3
 VignetteBuilder: knitr
 Encoding: UTF-8
 LazyData: false
