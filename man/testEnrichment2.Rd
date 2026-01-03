@@ -8,28 +8,58 @@ testEnrichment2(
   query_fn,
   knowledge_fn,
   universe_fn = NULL,
-  alternative = "greater"
+  alternative = "greater",
+  min_overlap = 1,
+  verbose = FALSE
 )
 }
 \arguments{
-\item{query_fn}{File path to query}
+\item{query_fn}{Character string specifying the file path to the query
+CG set file (YAME-compressed format).}
 
-\item{knowledge_fn}{File path to knowledgebase}
+\item{knowledge_fn}{Character string or vector specifying the file path(s)
+to the knowledgebase file(s) (YAME-compressed format). Can be a single
+file or multiple files.}
 
-\item{universe_fn}{optional file path to universe}
+\item{universe_fn}{Optional character string specifying the file path to
+the universe CG set file. If NULL, universe will be inferred from the
+knowledgebase. (Default: NULL)}
 
-\item{alternative}{greater, less}
+\item{alternative}{Character string specifying the alternative hypothesis:
+"greater" (enrichment), "less" (depletion), or "two.sided". 
+(Default: "greater")}
+
+\item{min_overlap}{Minimum number of overlapping CGs required for a test
+to be included in results. (Default: 1)}
+
+\item{verbose}{Logical indicating whether to print progress messages.
+(Default: FALSE)}
 }
 \value{
-a tibble
+A tibble containing enrichment test results with the following columns:
+\describe{
+  \item{Mask}{Name/identifier of the knowledgebase mask}
+  \item{N_mask}{Number of CGs in the mask}
+  \item{N_query}{Number of CGs in the query}
+  \item{N_overlap}{Number of overlapping CGs}
+  \item{N_univ}{Total number of CGs in universe}
+  \item{estimate}{Log2 odds ratio}
+  \item{p.value}{P-value from Fisher's exact test}
+  \item{log10.p.value}{Log10-transformed p-value}
+  \item{test}{Type of test performed}
+  \item{Additional effect size metrics}{Jaccard, MCC, etc.}
+}
 }
 \description{
-Test enrichment from YAME-compressed CG sets
+Tests for enrichment of genomic regions in YAME-compressed CG sets using
+Fisher's exact test. This function is optimized for sequencing data and
+uses compiled C code for efficient processing.
 }
 \examples{
-if (.Platform$OS.type!="windows") {
-kfn = system.file("extdata", "chromhmm.cm", package = "knowYourCG")
-qfn = system.file("extdata", "onecell.cg", package = "knowYourCG")
-testEnrichment2(qfn, kfn)
+if (.Platform$OS.type != "windows") {
+  kfn <- system.file("extdata", "chromhmm.cm", package = "knowYourCG")
+  qfn <- system.file("extdata", "onecell.cg", package = "knowYourCG")
+  res <- testEnrichment2(qfn, kfn)
+  head(res)
 }
 }

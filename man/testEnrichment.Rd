@@ -2,7 +2,7 @@
 % Please edit documentation in R/testEnrichment.R
 \name{testEnrichment}
 \alias{testEnrichment}
-\title{testEnrichment tests for the enrichment of query in knowledgebase sets}
+\title{Test for enrichment of query in knowledgebase sets}
 \usage{
 testEnrichment(
   query,
@@ -17,64 +17,74 @@ testEnrichment(
 )
 }
 \arguments{
-\item{query}{For array input, it is a vector of probes of interest
+\item{query}{For array input, a vector of probes of interest
 (e.g., significant differential methylated probes). For sequencing data
-input, it expect the file name for YAME-compressed CG sets.}
+input, the file name for YAME-compressed CG sets.}
 
 \item{databases}{List of vectors corresponding to the database sets of
 interest with associated meta data as an attribute to each element.
-Optional. (Default: NA)}
+If NULL, all available databases for the platform are used. (Default: NULL)}
 
-\item{universe}{Vector of probes in the universe set containing all of
-the probes to be considered in the test. If it is not provided, it will be
-inferred from the provided platform. (Default: NA).}
+\item{universe}{Vector of probes in the universe set containing all
+probes to be considered in the test. If NULL, will be inferred from the
+provided platform. (Default: NULL)}
 
-\item{alternative}{"two.sided", "greater", or "less"}
+\item{alternative}{Test alternative: "two.sided", "greater", or "less".
+(Default: "greater")}
 
-\item{include_genes}{include gene link enrichment testing}
+\item{include_genes}{Include gene link enrichment testing. (Default: FALSE)}
 
-\item{platform}{String corresponding to the type of platform to use. Either
-MM285, EPIC, HM450, or HM27. If it is not provided, it will be inferred
-from the query set probeIDs (Default: NA).}
+\item{platform}{String corresponding to the type of platform to use:
+MM285, EPIC, HM450, or HM27. If NULL, will be inferred from query set
+probe IDs. (Default: NULL)}
 
-\item{silent}{output message? (Default: FALSE)}
+\item{silent}{Suppress output messages? (Default: FALSE)}
 
-\item{mtc_by_group}{peform multiple testing correction within 
-knowledgebase groups (Default: TRUE)}
+\item{mtc_by_group}{Perform multiple testing correction within 
+knowledgebase groups. (Default: TRUE)}
 
-\item{mtc_method}{method for multiple test correction (default: fdr)}
+\item{mtc_method}{Method for multiple test correction. (Default: "fdr")}
 }
 \value{
 A data frame containing features corresponding to the test estimate,
-p-value, and type of test.
+p-value, and type of test, ordered by significance.
 }
 \description{
-testEnrichment tests for the enrichment of query in knowledgebase sets
+Test for enrichment of query in knowledgebase sets
 }
 \examples{
 
 library(SummarizedExperiment)
 library(sesameData)
 library(knowYourCG)
-kycgDataCache(data_titles="KYCG.MM285.chromHMM.20210210")
+kycgDataCache(data_titles = "KYCG.MM285.chromHMM.20210210")
 sesameDataCache("MM285.tissueSignature")
 df <- rowData(sesameDataGet("MM285.tissueSignature"))
 probes <- df$Probe_ID[df$branch == "B_cell"]
-res <- testEnrichment(probes, "chromHMM", platform="MM285")
+res <- testEnrichment(probes, "chromHMM", platform = "MM285")
 
 \dontrun{
 # Define temporary directory and file URLs
 temp_dir <- tempdir()
 knowledgebase <- file.path(temp_dir, "ChromHMM.20220414.cm")
 query <- file.path(temp_dir, "mm10_f3_10cells.cg")
+
 # URLs for the knowledgebase and query files
-knowledgebase_url <- "https://github.com/zhou-lab/KYCGKB_mm10/raw/refs/heads/main/ChromHMM.20220414.cm"
-query_url <- "https://github.com/zhou-lab/YAME_test/raw/refs/heads/main/input/cx/mm10_f3_10cells.cg"
+knowledgebase_url <- paste0(
+  "https://github.com/zhou-lab/KYCGKB_mm10/raw/refs/heads/main/",
+  "ChromHMM.20220414.cm"
+)
+query_url <- paste0(
+  "https://github.com/zhou-lab/YAME_test/raw/refs/heads/main/",
+  "input/cx/mm10_f3_10cells.cg"
+)
+
 # Download the files
 download.file(knowledgebase_url, destfile = knowledgebase)
 download.file(query_url, destfile = query)
+
 # Confirm file download
 list.files(temp_dir)
-res = testEnrichment(query, knowledgebase)
+res <- testEnrichment(query, knowledgebase)
 }
 }
