@@ -79,6 +79,6 @@ with high methylation level.
 
 # SESSION INFO
 
-```{r}
+```{r session-info}
 sessionInfo()
 ```

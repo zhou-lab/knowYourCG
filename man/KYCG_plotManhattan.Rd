@@ -52,6 +52,22 @@ KYCG_plotManhattan makes a manhattan plot to summarize EWAS results
 }
 \examples{
 
-## see vignette for examples
+library(sesameData)
+
+## Create example with simulated -log10(p-values)
+## Mix of non-significant (low values) and significant (high values)
+probes <- names(sesameData_getManifestGRanges("HM450"))
+set.seed(123)
+vals <- setNames(
+    c(runif(990, 0, 3),      # Non-significant probes
+      runif(10, 5, 25)),     # Significant probes
+    sample(probes, 1000)
+)
+
+KYCG_plotManhattan(vals,
+    platform = "HM450",
+    title = "Example Manhattan Plot",
+    ylabel = "-log10(P-value)",
+    label_min = 20)
 
 }

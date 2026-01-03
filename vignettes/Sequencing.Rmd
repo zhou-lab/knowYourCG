@@ -96,6 +96,17 @@ The above assumes your input is already sorted. Check out the [bedtools
 intersect](https://bedtools.readthedocs.io/en/latest/content/tools/intersect.html)
 if you encounter any problems at this step.
 
+As a convenience, you can do the same conversion with the `bedToCg()` wrapper,
+which validates inputs and checks for required tools before running the
+pipeline:
+
+```R
+bed_file <- "input_cpgs.bed"
+ref_cr <- "cpg_nocontig.cr"
+out_file <- "input_cpgs.cg"
+bedToCg(bed_file, ref_cr, out_file)
+```
+
 # ENRICHMENT TESTING
 
 Then we simply run [`yame summary`](https://zhou-lab.github.io/YAME/docs/summarize.html) with
@@ -159,6 +170,6 @@ if (nzchar(Sys.which("yame"))) {
 
 # SESSION INFO
 
-```{r}
+```{r session-info}
 sessionInfo()
 ```

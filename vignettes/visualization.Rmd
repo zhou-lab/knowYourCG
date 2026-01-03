@@ -158,3 +158,9 @@ query <- names(sesameData_getManifestGRanges("MM285"))
 anno <- annoProbes(query, "designGroup", silent = TRUE)
 head(anno)
 ```
+
+# Session Info
+
+```{r session-info}
+sessionInfo()
+```
