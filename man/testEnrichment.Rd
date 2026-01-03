@@ -66,10 +66,10 @@ res <- testEnrichment(probes, "chromHMM", platform="MM285")
 # Define temporary directory and file URLs
 temp_dir <- tempdir()
 knowledgebase <- file.path(temp_dir, "ChromHMM.20220414.cm")
-query <- file.path(temp_dir, "single_cell_10_samples.cg")
+query <- file.path(temp_dir, "mm10_f3_10cells.cg")
 # URLs for the knowledgebase and query files
 knowledgebase_url <- "https://github.com/zhou-lab/KYCGKB_mm10/raw/refs/heads/main/ChromHMM.20220414.cm"
-query_url <- "https://github.com/zhou-lab/YAME/raw/refs/heads/main/test/input/single_cell_10_samples.cg"
+query_url <- "https://github.com/zhou-lab/YAME_test/raw/refs/heads/main/input/cx/mm10_f3_10cells.cg"
 # Download the files
 download.file(knowledgebase_url, destfile = knowledgebase)
 download.file(query_url, destfile = query)
