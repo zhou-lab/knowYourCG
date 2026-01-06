@@ -43,10 +43,9 @@ subsetDBs <- function(dbs, universe) {
 
 
 guess_dbnames <- function(
-        nms, platform = NULL,allow_multi = FALSE, type = NULL,
-        silent = FALSE) {
+        nms, platform = NULL,allow_multi = FALSE, silent = FALSE) {
 
-    gps <- listDBGroups(type = type)
+    gps <- listDBGroups()
     nms <- do.call(c, lapply(nms, function(nm) {
         if (nm %in% gps$Title) {
             return(nm)
@@ -68,10 +67,14 @@ guess_dbnames <- function(
         nms <- grep(platform, nms, value = TRUE)
     }
     if (!silent) {
-        message("Selected the following database groups:")
-        invisible(lapply(seq_along(nms), function(i) {
-            message(sprintf("%d. %s", i, nms[i]))
-        }))
+        if (length(nms) == 0) {
+            message("No knowledgebase selected. Please reselect.")
+        } else {
+            message("Selected the following database groups:")
+            invisible(lapply(seq_along(nms), function(i) {
+                message(sprintf("%d. %s", i, nms[i]))
+            }))
+        }
     }
     nms
 }

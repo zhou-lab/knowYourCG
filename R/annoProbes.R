@@ -23,10 +23,13 @@ annoProbes <- function(probeIDs, databases, db_names = NULL,
     platform <- queryCheckPlatform(platform, probeIDs, silent = silent)
     if (is.character(databases)) {
         dbs <- getDBs(databases, db_names = db_names,
-                           platform = platform, silent = silent,
-                           type = "categorical")
+            platform = platform, silent = silent, type = "categorical")
     } else {
         dbs <- databases
+    }
+
+    if (is.null(dbs)) { # if there is no dbs, return all-NA
+        return(setNames(rep(NA, length(probeIDs)), probeIDs))
     }
 
     ind <- do.call(cbind, lapply(names(dbs), function(db_nm) {

@@ -18,28 +18,42 @@
 #' @export
 getDBs <- function(
         group_nms, db_names = NULL, platform = NULL,
-        summary = FALSE, allow_multi = FALSE, type = NULL, silent = FALSE) {
+        summary = FALSE, allow_multi = FALSE, type = "all", silent = FALSE) {
 
     if (!is.character(group_nms)) {
         return(group_nms)
     }
 
     group_nms <- guess_dbnames(group_nms, platform = platform,
-                               allow_multi = TRUE, type = type,
-                               silent = silent)
+                               allow_multi = TRUE, silent = silent)
     group_nms <- group_nms[group_nms %in% df_master$Title]
     if (length(group_nms) == 0) {
         return(NULL)
     }
     res <- do.call(c, lapply(unname(group_nms), function(nm) {
-        dbs <- kycgDataGet(nm)
-        setNames(lapply(seq_along(dbs), function(ii) {
-            db <- dbs[[ii]]
-            attr(db, "group") <- nm
-            attr(db, "dbname") <- names(dbs)[ii]
+        dbs0 <- kycgDataGet(nm) # fetch raw data
+        ## add dbname, group attributes if not available
+        ## Note: some older db files don't have the attributes set up
+        if (type == "categorical") {
+            dbs0 <- dbs0[!vapply(dbs0, is.numeric, logical(1))]
+        } else if (type == "numerical") {
+            dbs0 <- dbs0[vapply(dbs0, is.numeric, logical(1))]
+        }
+        dbs <- lapply(seq_along(dbs0), function(ii) {
+            db <- dbs0[[ii]]
+            if (is.null(attr(db, "group"))) {
+                attr(db, "group") <- nm
+            }
+            if (is.null(attr(db, "dbname"))) {
+                attr(db, "dbname") <- names(dbs0)[ii]
+            }
             db
-        }), names(dbs))}))
-
+        })
+        ## add names if not available
+        names(dbs) <- vapply(dbs, function(x) attr(x, "dbname"), character(1))
+        dbs
+    }))
+    
     if (summary) {
         do.call(bind_rows, lapply(res, attributes))
     } else if (is.null(db_names)) {

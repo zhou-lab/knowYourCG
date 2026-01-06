@@ -4,14 +4,12 @@
 \alias{listDBGroups}
 \title{List database group names}
 \usage{
-listDBGroups(filter = NULL, path = NULL, type = NULL)
+listDBGroups(filter = NULL, path = NULL)
 }
 \arguments{
 \item{filter}{keywords for filtering}
 
 \item{path}{file path to downloaded knowledgebase sets}
-
-\item{type}{categorical, numerical (default: all)}
 }
 \value{
 a list of db group names

@@ -154,8 +154,8 @@ perform_array_enrichment <- function(
 get_databases <- function(databases, platform, silent) {
     if (is.null(databases)) {
         ## Get all available databases by default
-        db_groups <- listDBGroups(platform, type = "categorical")$Title
-        getDBs(db_groups, silent = silent)
+        db_groups <- listDBGroups(platform)$Title
+        getDBs(db_groups, silent = silent, type = "categorical")
     } else if (is.character(databases)) {
         getDBs(databases, platform = platform, silent = silent)
     } else {

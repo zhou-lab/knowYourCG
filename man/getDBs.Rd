@@ -10,7 +10,7 @@ getDBs(
   platform = NULL,
   summary = FALSE,
   allow_multi = FALSE,
-  type = NULL,
+  type = "all",
   silent = FALSE
 )
 }
