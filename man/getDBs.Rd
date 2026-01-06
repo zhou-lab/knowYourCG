@@ -17,22 +17,22 @@ getDBs(
 \arguments{
 \item{group_nms}{database group names}
 
-\item{db_names}{name of the database, fetech only the given databases}
+\item{db_names}{name of the database, fetch only the given databases}
 
 \item{platform}{EPIC, HM450, MM285, ... If given, will restrict to
 that platform.}
 
 \item{summary}{return a summary of database instead of db itself}
 
-\item{allow_multi}{allow multiple groups to be returned for}
+\item{allow_multi}{allow multiple groups to be returned for each query}
 
 \item{type}{numerical, categorical, default: all}
 
-\item{silent}{no messages
-each query.}
+\item{silent}{no messages}
 }
 \value{
-a list of databases, return NULL if no database is found
+a list of databases, return NULL if no database is found. Each
+element includes `group` and `dbname` attributes.
 }
 \description{
 Get databases by full or partial names of the database group(s)

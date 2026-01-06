@@ -32,16 +32,23 @@ annoProbes <- function(probeIDs, databases, db_names = NULL,
         return(setNames(rep(NA, length(probeIDs)), probeIDs))
     }
 
-    ind <- do.call(cbind, lapply(names(dbs), function(db_nm) {
+    if (is.null(names(dbs)) || any(!nzchar(names(dbs)))) {
+        names(dbs) <- paste0("db", seq_along(dbs))
+    }
+
+    indicator_mat <- do.call(cbind, lapply(names(dbs), function(db_nm) {
         db <- dbs[[db_nm]]
         probeIDs %in% db
     }))
     if (indicator) {
-        rownames(ind) <- probeIDs
-        colnames(ind) <- names(dbs)
-        return(ind)
+        rownames(indicator_mat) <- probeIDs
+        colnames(indicator_mat) <- names(dbs)
+        return(indicator_mat)
     } else {
-        anno <- apply(ind, 1, function(x) paste(names(dbs)[x], collapse=sep))
+        anno <- apply(
+            indicator_mat, 1,
+            function(x) paste(names(dbs)[x], collapse = sep)
+        )
         anno <- ifelse(anno == "", NA, anno)
         names(anno) <- probeIDs
         return(anno)
