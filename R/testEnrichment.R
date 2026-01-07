@@ -33,7 +33,7 @@
 #' probes <- df$Probe_ID[df$branch == "B_cell"]
 #' res <- testEnrichment(probes, "chromHMM", platform = "MM285")
 #' 
-#' \dontrun{
+#' \donttest{
 #' # Define temporary directory and file URLs
 #' temp_dir <- tempdir()
 #' knowledgebase <- file.path(temp_dir, "ChromHMM.20220414.cm")
@@ -41,12 +41,12 @@
 #' 
 #' # URLs for the knowledgebase and query files
 #' knowledgebase_url <- paste0(
-#'   "https://github.com/zhou-lab/KYCGKB_mm10/raw/refs/heads/main/",
+#'   "https://zenodo.org/records/18175656/files/",
 #'   "ChromHMM.20220414.cm"
 #' )
 #' query_url <- paste0(
-#'   "https://github.com/zhou-lab/YAME_test/raw/refs/heads/main/",
-#'   "input/cx/mm10_f3_10cells.cg"
+#'   "https://zenodo.org/records/18176004/files/",
+#'   "mm10_f3_10cells.cg"
 #' )
 #' 
 #' # Download the files

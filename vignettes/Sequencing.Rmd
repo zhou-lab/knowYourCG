@@ -43,8 +43,8 @@ library(knowYourCG)
 temp_dir <- tempdir()
 knowledgebase <- file.path(temp_dir, "ChromHMM.20220414.cm")
 query <- file.path(temp_dir, "mm10_f3_10cells.cg")
-knowledgebase_url <- "https://github.com/zhou-lab/KYCGKB_mm10/raw/refs/heads/main/ChromHMM.20220414.cm"
-query_url <- "https://github.com/zhou-lab/YAME_test/raw/refs/heads/main/input/cx/mm10_f3_10cells.cg"
+knowledgebase_url <- "https://zenodo.org/records/18175656/files/ChromHMM.20220414.cm"
+query_url <- "https://zenodo.org/records/18176004/files/mm10_f3_10cells.cg"
 download.file(knowledgebase_url, destfile = knowledgebase)
 download.file(query_url, destfile = query)
 
@@ -65,8 +65,8 @@ Whole-genome knowledgebases are available as listed in the following tables.
 
 | Assembly     | Link                                    |
 |--------------|-----------------------------------------|
-| human (hg38) | https://github.com/zhou-lab/KYCGKB_hg38 |
-| mouse (mm10) | https://github.com/zhou-lab/KYCGKB_mm10 |
+| human (hg38) | https://zenodo.org/records/18175838 |
+| mouse (mm10) | https://zenodo.org/records/18175656 |
 
 <img src="figures/knowledgebases.png" alt="Curated CpG knowledgebases" width="600"/>
 
@@ -84,8 +84,8 @@ and a reference coordinate file (YAME-"r") available below:
 
 | Assembly     | Link                                                                        |
 |--------------|-----------------------------------------------------------------------------|
-| human (hg38) | https://github.com/zhou-lab/KYCGKB_hg38/raw/refs/heads/main/cpg_nocontig.cr |
-| mouse (mm10) | https://github.com/zhou-lab/KYCGKB_mm10/raw/refs/heads/main/cpg_nocontig.cr |
+| human (hg38) | https://zenodo.org/records/18175838/files/cpg_nocontig.cr |
+| mouse (mm10) | https://zenodo.org/records/18175656/files/cpg_nocontig.cr |
 
 ```bash
 yame unpack cpg_nocontig.cr | bedtools intersect -a - -b [your_input.bed] -c -sorted |
@@ -111,8 +111,8 @@ bedToCg(bed_file, ref_cr, out_file)
 
 Then we simply run [`yame summary`](https://zhou-lab.github.io/YAME/docs/summarize.html) with
 `-m` feature file for enrichment testing. We have provided comprehensive
-enrichment feature files, and you can download them from the KYCG github page
-[mm10](https://github.com/zhou-lab/KYCGKB_mm10)/[hg38](https://github.com/zhou-lab/KYCGKB_hg38). You
+enrichment feature files, and you can download them from Zenodo
+[mm10](https://zenodo.org/records/18175656)/[hg38](https://zenodo.org/records/18175838). You
 can also create your own feature file with [`yame pack`](https://zhou-lab.github.io/YAME/docs/pack_unpack.html).
 
 ```bash

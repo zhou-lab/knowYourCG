@@ -29,25 +29,29 @@ the YAME reference coordinate and command-line tools.
 # Download YAME reference coordinate file for mm10
 ref_cr <- tempfile(fileext = ".cr")
 download.file(
-  "https://github.com/zhou-lab/YAME_test/raw/refs/heads/main/input/cx/mm10_f7_cpg.cr",
+  "https://zenodo.org/records/18176270/files/mm10chr16_f7_cpg.cr",
   destfile = ref_cr, quiet = TRUE, mode = "wb"
 )
 
 # Create a BED file with CpG positions
 bed_file <- tempfile(fileext = ".bed")
 bed_data <- c(
-  "chr1\t3008757\t3008759",
-  "chr1\t3008771\t3008773",
-  "chr1\t3009071\t3009073",
-  "chr1\t3009136\t3009138",
-  "chr1\t3010492\t3010494",
-  "chr1\t3010644\t3010646",
-  "chr1\t3010819\t3010821",
-  "chr1\t3011264\t3011266",
-  "chr1\t3011312\t3011314",
-  "chr1\t3011549\t3011551",
-  "chr1\t3012095\t3012097"
-)
+    "chr16\t3003648\t3003650",
+    "chr16\t3003766\t3003768",
+    "chr16\t3004036\t3004038",
+    "chr16\t3004052\t3004054",
+    "chr16\t3004275\t3004277",
+    "chr16\t3004470\t3004472",
+    "chr16\t3004545\t3004547",
+    "chr16\t3004633\t3004635",
+    "chr16\t3004652\t3004654",
+    "chr16\t3004739\t3004741",
+    "chr16\t3004841\t3004843",
+    "chr16\t3004959\t3004961",
+    "chr16\t3005065\t3005067",
+    "chr16\t3005444\t3005446",
+    "chr16\t3005522\t3005524")
+
 writeLines(bed_data, bed_file)
 
 # Convert BED to YAME .cg format (requires bedtools and yame)
