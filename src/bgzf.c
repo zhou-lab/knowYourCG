@@ -643,7 +643,7 @@ int bgzf_check_EOF(BGZF *fp)
 	off_t offset;
 	offset = _bgzf_tell((_bgzf_file_t)fp->fp);
 	if (_bgzf_seek(fp->fp, -28, SEEK_END) < 0) return 0;
-	_bgzf_read(fp->fp, buf, 28);
+	size_t n = _bgzf_read(fp->fp, buf, 28);
 	_bgzf_seek(fp->fp, offset, SEEK_SET);
 	return (memcmp("\037\213\010\4\0\0\0\0\0\377\6\0\102\103\2\0\033\0\3\0\0\0\0\0\0\0\0\0", buf, 28) == 0)? 1 : 0;
 }
