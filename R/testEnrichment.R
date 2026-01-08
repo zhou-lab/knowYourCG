@@ -206,7 +206,9 @@ determine_group <- function(res) {
         ## Sequencing data
         res$MFile
     } else {
-        stop("Cannot adjust p-values by group: no 'group' or 'MFile' column found.")
+        stop(
+            "Cannot adjust p-values by group: ",
+            "no 'group' or 'MFile' column found.")
     }
 }
 
@@ -254,8 +256,10 @@ calculate_fisher_pvalue <- function(nDQ, nQmD, nUmDQ, nDmQ, alternative) {
     k <- nDmQ + nDQ
     
     if (alternative == "two.sided") {
-        pvg <- phyper(nDQ - 1, m, n, k, lower.tail = FALSE, log.p = TRUE) / log(10)
-        pvl <- phyper(nDQ, m, n, k, lower.tail = TRUE, log.p = TRUE) / log(10)
+        pvg <- phyper(nDQ - 1, m, n, k, lower.tail = FALSE,
+            log.p = TRUE) / log(10)
+        pvl <- phyper(nDQ, m, n, k, lower.tail = TRUE,
+            log.p = TRUE) / log(10)
         pmin(pmin(pvg, pvl) + log10(2), 0)
     } else if (alternative == "greater") {
         phyper(nDQ - 1, m, n, k, lower.tail = FALSE, log.p = TRUE) / log(10)

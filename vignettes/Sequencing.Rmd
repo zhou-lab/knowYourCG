@@ -11,16 +11,18 @@ vignette: >
   %\VignetteEncoding{UTF-8}
 ---
 
-KnowYourCG (KYCG) is a supervised learning framework designed for the functional 
-analysis of DNA methylation data. Unlike existing tools that focus on genes or 
-genomic intervals, KnowYourCG directly targets CpG dinucleotides, featuring 
-automated supervised screenings of diverse biological and technical influences, 
-including sequence motifs, transcription factor binding, histone modifications, 
-replication timing, cell-type-specific methylation, and trait associations. 
-KnowYourCG addresses the challenges of data sparsity in various methylation 
-datasets, including low-pass Nanopore sequencing, single-cell DNA methylomes, 
-5-hydroxymethylation profiles, spatial DNA methylation maps, and array-based 
-datasets for epigenome-wide association studies and epigenetic clocks.
+KnowYourCG (KYCG) is a supervised learning framework designed for the
+functional analysis of DNA methylation data. Unlike existing tools that
+focus on genes or genomic intervals, KnowYourCG directly targets CpG
+dinucleotides, featuring automated supervised screenings of diverse
+biological and technical influences, including sequence motifs,
+transcription factor binding, histone modifications, replication timing,
+cell-type-specific methylation, and trait associations. KnowYourCG
+addresses the challenges of data sparsity in various methylation
+datasets, including low-pass Nanopore sequencing, single-cell DNA
+methylomes, 5-hydroxymethylation profiles, spatial DNA methylation maps,
+and array-based datasets for epigenome-wide association studies and
+epigenetic clocks.
 
 The input to KYCG is a CpG set (query). The CpG sets can represent differential
 methylation, results from an epigenome-wide association study, or any sets
@@ -68,7 +70,8 @@ Whole-genome knowledgebases are available as listed in the following tables.
 | human (hg38) | https://zenodo.org/records/18175838 |
 | mouse (mm10) | https://zenodo.org/records/18175656 |
 
-<img src="figures/knowledgebases.png" alt="Curated CpG knowledgebases" width="600"/>
+<img src="figures/knowledgebases.png"
+     alt="Curated CpG knowledgebases" width="600"/>
 
 # INPUT FORMAT
 
@@ -77,18 +80,19 @@ formatted using YAME. YAME supports binary representation of a set (format "b")
 and optionally with a universe (format "d"). Format "d" can be created from
 format "b" using the `yame mask` function.
 
-If you have a BED-formatted data, you can pack it to YAME-"b" format using the
-following pipeline. This pipeline requires
+If you have a BED-formatted data, you can pack it to YAME-"b" format
+using the following pipeline. This pipeline requires
 [BEDTools](https://bedtools.readthedocs.io/en/latest/content/installation.html)
 and a reference coordinate file (YAME-"r") available below:
 
-| Assembly     | Link                                                                        |
-|--------------|-----------------------------------------------------------------------------|
-| human (hg38) | https://zenodo.org/records/18175838/files/cpg_nocontig.cr |
-| mouse (mm10) | https://zenodo.org/records/18175656/files/cpg_nocontig.cr |
+| Assembly     | Link                                        |
+|--------------|---------------------------------------------|
+| human (hg38) | <https://zenodo.org/records/18175838/files/cpg_nocontig.cr> |
+| mouse (mm10) | <https://zenodo.org/records/18175656/files/cpg_nocontig.cr> |
 
 ```bash
-yame unpack cpg_nocontig.cr | bedtools intersect -a - -b [your_input.bed] -c -sorted |
+yame unpack cpg_nocontig.cr |
+  bedtools intersect -a - -b [your_input.bed] -c -sorted |
   cut -f4 | yame pack -fb - > [your_input.cg]
 ```
 
@@ -109,27 +113,30 @@ bedToCg(bed_file, ref_cr, out_file)
 
 # ENRICHMENT TESTING
 
-Then we simply run [`yame summary`](https://zhou-lab.github.io/YAME/docs/summarize.html) with
-`-m` feature file for enrichment testing. We have provided comprehensive
-enrichment feature files, and you can download them from Zenodo
-[mm10](https://zenodo.org/records/18175656)/[hg38](https://zenodo.org/records/18175838). You
-can also create your own feature file with [`yame pack`](https://zhou-lab.github.io/YAME/docs/pack_unpack.html).
+Then we simply run
+[`yame summary`](https://zhou-lab.github.io/YAME/docs/summarize.html)
+with `-m` feature file for enrichment testing. We have provided
+comprehensive enrichment feature files, and you can download them from
+Zenodo [mm10](https://zenodo.org/records/18175656)/[hg38](https://zenodo.org/records/18175838).
+You can also create your own feature file with
+[`yame pack`](https://zhou-lab.github.io/YAME/docs/pack_unpack.html).
 
 ```bash
 yame summary -m feature.cm yourfile.cg > yourfile.txt
 ```
 
-Detailed information of the output columns can be found on the [`yame
-summary`](https://zhou-lab.github.io/YAME/docs/summarize.html) page. Basically, a higher
-log2oddsratio indicates a stronger association between the feature being tested
-and the query set. Generally, a large log2 odds ratio is typically considered
-to be around 2 or greater, with values between 1 and 2 often being viewed as
-potentially important and worthy of further investigation, while values around
-0.5 might be considered a small effect size. For significance testing,
+Detailed information of the output columns can be found on the
+[`yame summary`](https://zhou-lab.github.io/YAME/docs/summarize.html)
+page. Basically, a higher log2oddsratio indicates a stronger association
+between the feature being tested and the query set. Generally, a large
+log2 odds ratio is typically considered to be around 2 or greater, with
+values between 1 and 2 often being viewed as potentially important and
+worthy of further investigation, while values around 0.5 might be
+considered a small effect size. For significance testing,
 [sesame](https://www.bioconductor.org/packages/release/bioc/html/sesame.html)
-R package provides the testEnrichmentFisherN function, which is also provided
-in the yame github R page. The four input parameters correspond to the four
-columns from yame summary output.
+R package provides the testEnrichmentFisherN function, which is also
+provided in the yame github R page. The four input parameters correspond
+to the four columns from yame summary output.
 
 ```
 ND = N_mask

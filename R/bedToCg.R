@@ -50,7 +50,8 @@
 #'
 #' # Clean up
 #' unlink(c(bed_file, ref_cr, out_file))
-bedToCg <- function(bed_file, ref_cr, out_file, sort_bed = TRUE, verbose = FALSE) {
+bedToCg <- function(
+    bed_file, ref_cr, out_file, sort_bed = TRUE, verbose = FALSE) {
     if (!is.character(bed_file) || length(bed_file) != 1) {
         stop("'bed_file' must be a single character string.", call. = FALSE)
     }
@@ -70,7 +71,8 @@ bedToCg <- function(bed_file, ref_cr, out_file, sort_bed = TRUE, verbose = FALSE
     bedtools_path <- Sys.which("bedtools")
     yame_path <- Sys.which("yame")
     if (bedtools_path == "") {
-        stop("bedtools not found on PATH. Please install bedtools.", call. = FALSE)
+        stop("bedtools not found on PATH. Please install bedtools.",
+            call. = FALSE)
     }
     if (yame_path == "") {
         stop("yame not found on PATH. Please install yame.", call. = FALSE)
@@ -98,15 +100,19 @@ bedToCg <- function(bed_file, ref_cr, out_file, sort_bed = TRUE, verbose = FALSE
     }
 
     cmd_pack <- sprintf(
-        "yame unpack %s | bedtools intersect -a - -b %s -c -sorted | cut -f4 | yame pack -fb - > %s",
+        paste0("yame unpack %s | bedtools intersect -a - -b %s ",
+            "-c -sorted | cut -f4 | yame pack -fb - > %s"),
         shQuote(ref_cr),
         shQuote(sorted_bed),
         shQuote(out_file)
     )
     if (isTRUE(verbose)) message(cmd_pack)
-    status <- system2("sh", args = c("-c", cmd_pack), stdout = FALSE, stderr = "")
+    status <- system2("sh", args = c("-c", cmd_pack),
+        stdout = FALSE, stderr = "")
     if (!identical(status, 0L)) {
-        stop("YAME/bedtools pipeline failed. Check input files and tools.", call. = FALSE)
+        stop(
+            "YAME/bedtools pipeline failed. Check input files and tools.",
+            call. = FALSE)
     }
 
     if (!is.null(temp_bed) && file.exists(temp_bed)) {

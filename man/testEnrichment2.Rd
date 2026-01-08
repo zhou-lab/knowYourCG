@@ -36,7 +36,8 @@ to be included in results. (Default: 1)}
 (Default: FALSE)}
 }
 \value{
-A tibble containing enrichment test results with the following columns:
+A tibble containing enrichment test results with the
+following columns:
 \describe{
   \item{Mask}{Name/identifier of the knowledgebase mask}
   \item{N_mask}{Number of CGs in the mask}

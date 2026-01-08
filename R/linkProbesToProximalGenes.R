@@ -20,10 +20,12 @@ convertGeneName <- function(gene) {
 #' @return a data frame annotate gene list linked to each given probes
 #' @examples
 #' library(SummarizedExperiment)
-#' probes = rowData(sesameData::sesameDataGet('MM285.tissueSignature'))$Probe_ID[1:10]
+#' probes = rowData(
+#'     sesameData::sesameDataGet('MM285.tissueSignature'))$Probe_ID[1:10]
 #' linkProbesToProximalGenes(probes, platform = "MM285")
 #' @export
-linkProbesToProximalGenes <- function(probeIDs, platform = NULL, genome = NULL) {
+linkProbesToProximalGenes <- function(
+    probeIDs, platform = NULL, genome = NULL) {
     platform <- queryCheckPlatform(platform, probeIDs, silent = FALSE)
     if (is.null(genome)) {
         genome <- ifelse(platform == "MM285","mm10","hg38")

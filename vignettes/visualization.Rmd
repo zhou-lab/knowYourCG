@@ -97,18 +97,20 @@ names and numeric values (P,Q,logFC,etc) obtained from analysis as values. To
 plot EWAS results, simply load the necessary libraries and pass the named
 numeric vector to `KYCG_plotManhattan()`
 
-By default, `KYCG_plotManhattan()` will infer the array platform from the
-probeIDs and retrieve the corresponding GRanges object to obtain probe
-coordinates. However, the platform and GRanges objects can be pre - specified
-if offline. Color, title, and the threshold to label significant probes on the
-plot can also be specified:
+By default, `KYCG_plotManhattan()` will infer the array platform from
+the probeIDs and retrieve the corresponding GRanges object to obtain
+probe coordinates. However, the platform and GRanges objects can be
+pre-specified if offline. Color, title, and the threshold to label
+significant probes on the plot can also be specified:
 
 ```{r ky21, fig.width=6, fig.height=4, message=FALSE}
 library(ggrepel)
-smry_pvals = readRDS(url("https://zenodo.org/records/18176501/files/20220413_testManhattan.rds"))
+smry_pvals = readRDS(url(paste0("https://zenodo.org/records/",
+    "18176501/files/20220413_testManhattan.rds")))
 KYCG_plotManhattan(-log10(smry_pvals), platform="HM450",
     title="Differentially Methylated CpGs - EWAS Aging",
-    col=c("navy","skyblue"), ylabel = bquote(-log[10](P~value)), label_min=30) +
+    col=c("navy","skyblue"), ylabel = bquote(-log[10](P~value)),
+    label_min=30) +
     theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1))
 ```
 

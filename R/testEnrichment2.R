@@ -20,7 +20,8 @@
 #' @param verbose Logical indicating whether to print progress messages.
 #' (Default: FALSE)
 #' 
-#' @return A tibble containing enrichment test results with the following columns:
+#' @return A tibble containing enrichment test results with the
+#' following columns:
 #' \describe{
 #'   \item{Mask}{Name/identifier of the knowledgebase mask}
 #'   \item{N_mask}{Number of CGs in the mask}
@@ -61,8 +62,9 @@ testEnrichment2 <- function(
     ## Check platform compatibility
     if (.Platform$OS.type == "windows") {
         stop(
-            "Testing sequencing data is not currently supported on Windows. ",
-            "This feature requires compiled C code that is not available on Windows.",
+            "Testing sequencing data is not currently supported ",
+            "on Windows. This feature requires compiled C code ",
+            "that is not available on Windows.",
             call. = FALSE
         )
     }
@@ -132,7 +134,8 @@ validate_inputs <- function(query_fn, knowledge_fn, universe_fn) {
     }
     
     if (!is.character(knowledge_fn)) {
-        stop("'knowledge_fn' must be a character string or vector.", call. = FALSE)
+        stop("'knowledge_fn' must be a character string or vector.",
+            call. = FALSE)
     }
     
     if (!is.null(universe_fn) && !is.character(universe_fn)) {

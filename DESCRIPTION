@@ -1,7 +1,7 @@
 Package: knowYourCG
 Type: Package
 Title: Functional analysis of DNA methylome datasets
-Version: 1.7.9
+Version: 1.7.10
 Authors@R: c(
     person("Wanding", "Zhou",
         role = c("aut", "fnd"),
@@ -55,7 +55,8 @@ Imports:
     ggrepel,
     tibble,
     wheatmap,
-    magrittr
+    magrittr,
+    readr
 biocViews:
     Epigenetics, 
     DNAMethylation,
