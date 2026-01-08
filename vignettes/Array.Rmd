@@ -241,7 +241,7 @@ Gene Ontology of the probe-associated genes using the `linkProbesToProximalGenes
 which internally utilizes [g:Profiler2](https://biit.cs.ut.ee/gprofiler/gost) 
 for the enrichment analysis: 
 
-```{r ky12, message=FALSE}
+```{r ky12, message=FALSE, eval=FALSE}
 ## prepare query probes
 df <- rowData(sesameData::sesameDataGet('MM285.tissueSignature'))
 query_probes <- df$Probe_ID[df$branch == "fetal_liver" & df$type == "Hypo"]

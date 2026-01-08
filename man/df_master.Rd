@@ -4,6 +4,33 @@
 \name{df_master}
 \alias{df_master}
 \title{Master data frame for all object to cache}
+\format{
+A data frame with the following columns:
+\describe{
+  \item{Comments}{Additional comments about the database object}
+  \item{EHID}{ExperimentHub ID for the object}
+  \item{VERSION}{Package version}
+  \item{IN_USE}{Logical indicating if the database is currently in use}
+  \item{Title}{Name of the knowYourCG database object}
+  \item{Description}{Description of the database object}
+  \item{BiocVersion}{Bioconductor version number}
+  \item{Genome}{Genome assembly (e.g., hg38, mm10)}
+  \item{SourceType}{Type of source data (e.g., RDA)}
+  \item{SourceUrl}{URL to the source of the data}
+  \item{SourceVersion}{Version or date of the source data}
+  \item{Species}{Species name (e.g., Homo sapiens)}
+  \item{TaxonomyId}{NCBI Taxonomy ID}
+  \item{Coordinate_1_based}{Logical indicating if coordinates are 1-based}
+  \item{DataProvider}{Provider of the data (e.g., ZhouLab)}
+  \item{Maintainer}{Maintainer name and email}
+  \item{RDataClass}{R class of the data object}
+  \item{DispatchClass}{Dispatch class for loading the data}
+  \item{RDataPath}{Path to the RData file}
+  \item{Location_Prefix}{Prefix for alternative data location (e.g., Zenodo)}
+  \item{Tags}{Additional tags for categorization}
+  \item{Notes}{Additional notes about the database object}
+}
+}
 \value{
 master sheet of knowYourCG objects
 }

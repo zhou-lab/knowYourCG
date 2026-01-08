@@ -76,7 +76,7 @@ guess_dbnames <- function(
     nms
 }
 
-## for loading from .tsv.gz files, internal use
+## internal
 loadDBs <- function(in_paths) {
     if (length(in_paths)==1 && dir.exists(in_paths)) {
         groupnms <- list.files(in_paths)

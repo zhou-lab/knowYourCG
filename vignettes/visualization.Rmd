@@ -105,7 +105,7 @@ plot can also be specified:
 
 ```{r ky21, fig.width=6, fig.height=4, message=FALSE}
 library(ggrepel)
-smry_pvals = readRDS(url("https://github.com/zhou-lab/InfiniumAnnotationV1/raw/main/Test/20220413_testManhattan.rds"))
+smry_pvals = readRDS(url("https://zenodo.org/records/18176501/files/20220413_testManhattan.rds"))
 KYCG_plotManhattan(-log10(smry_pvals), platform="HM450",
     title="Differentially Methylated CpGs - EWAS Aging",
     col=c("navy","skyblue"), ylabel = bquote(-log[10](P~value)), label_min=30) +
