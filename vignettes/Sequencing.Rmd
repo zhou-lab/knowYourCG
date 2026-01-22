@@ -67,8 +67,8 @@ Whole-genome knowledgebases are available as listed in the following tables.
 
 | Assembly     | Link                                    |
 |--------------|-----------------------------------------|
-| human (hg38) | https://zenodo.org/records/18175838 |
-| mouse (mm10) | https://zenodo.org/records/18175656 |
+| human (hg38) | <https://doi.org/10.5281/zenodo.18175837> |
+| mouse (mm10) | <https://doi.org/10.5281/zenodo.18175655> |
 
 <img src="figures/knowledgebases.png"
      alt="Curated CpG knowledgebases" width="600"/>

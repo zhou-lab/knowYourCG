@@ -107,8 +107,8 @@ Array knowledgebases are available on Zenodo as listed in the following table:
 
 | Array          | Link                                       |
 |----------------|--------------------------------------------|
-| Human (MSA)    | <https://zenodo.org/records/18180813>    |
-| Human (EPICv2) | <https://zenodo.org/records/18176783> |
+| Human (MSA)    | <https://zenodo.org/records/18180812>    |
+| Human (EPICv2) | <https://zenodo.org/records/18176782> |
 | Human (EPIC)   | <https://zenodo.org/records/18180672>   |
 | Human (HM450)  | <https://zenodo.org/records/18180722>  |
 | Mouse (MM285)  | <https://zenodo.org/records/18180659>  |
