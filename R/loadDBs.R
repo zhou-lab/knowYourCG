@@ -1,5 +1,8 @@
 #' Load knowledgebase databases from TSV files
 #'
+#' This used to be an exported function. Now it's internal. Use RDS download
+#' directly.
+#'
 #' This function loads knowledgebase sets from tab-delimited (.tsv or .tsv.gz)
 #' files downloaded from Zenodo or other sources. The TSV files should contain
 #' two columns: "Probe_ID" and "Knowledgebase". The function splits the data
@@ -24,49 +27,7 @@
 #'   \item \code{Probe_ID} - Probe identifiers (e.g., cg12345678)
 #'   \item \code{Knowledgebase} - Knowledgebase/database name
 #' }
-#' @examples
-#' 
-#' # Load directly from a URL
-#' dbs <- loadDBs(
-#'   "https://zenodo.org/records/18176501/files/ImprintingDMR.20220818.gz")
-#'
-#' # Examine the structure
-#' length(dbs)  # Number of databases loaded
-#' names(dbs)   # Database names
-#' head(dbs[[1]])  # First database content
-#'
-#' # Load from multiple URLs
-#' urls <- c(
-#'   "https://zenodo.org/records/18176501/files/ImprintingDMR.20220818.gz",
-#'   "https://zenodo.org/records/18176501/files/Blacklist.20220304.gz"
-#' )
-#' dbs_multi <- loadDBs(urls)
-#'
-#' # Load from local file (download to temp file first)
-#' tmp_file <- tempfile(fileext = ".tsv.gz")
-#' download.file(
-#'   "https://zenodo.org/records/18176501/files/ImprintingDMR.20220818.gz",
-#'   tmp_file, mode = "wb", quiet = TRUE
-#' )
-#' dbs_local <- loadDBs(tmp_file)
-#' unlink(tmp_file)  # Clean up
-#'
-#' # Load all files from a directory
-#' tmp_dir <- tempfile()
-#' dir.create(tmp_dir)
-#' download.file(
-#'   "https://zenodo.org/records/18176501/files/ImprintingDMR.20220818.gz",
-#'   file.path(tmp_dir, "ImprintingDMR.20220818.gz"), mode = "wb", quiet = TRUE
-#' )
-#' download.file(
-#'   "https://zenodo.org/records/18176501/files/Blacklist.20220304.gz",
-#'   file.path(tmp_dir, "Blacklist.20220304.gz"), mode = "wb", quiet = TRUE
-#' )
-#' dbs_all <- loadDBs(tmp_dir)
-#' unlink(tmp_dir, recursive = TRUE)  # Clean up
-#'
 #' @importFrom readr read_tsv
-#' @export
 loadDBs <- function(in_paths) {
     # Detect URLs for naming purposes
     is_url <- grepl("^https?://", in_paths)

@@ -23,58 +23,20 @@ attributes:
 }
 }
 \description{
+This used to be an exported function. Now it's internal. Use RDS download
+directly.
+}
+\details{
 This function loads knowledgebase sets from tab-delimited (.tsv or .tsv.gz)
 files downloaded from Zenodo or other sources. The TSV files should contain
 two columns: "Probe_ID" and "Knowledgebase". The function splits the data
 by knowledgebase name and returns a list of database vectors.
-}
-\details{
+
+
 The input TSV file(s) must have a header row and contain at least
 two columns:
 \itemize{
   \item \code{Probe_ID} - Probe identifiers (e.g., cg12345678)
   \item \code{Knowledgebase} - Knowledgebase/database name
 }
-}
-\examples{
-
-# Load directly from a URL
-dbs <- loadDBs(
-  "https://zenodo.org/records/18176501/files/ImprintingDMR.20220818.gz")
-
-# Examine the structure
-length(dbs)  # Number of databases loaded
-names(dbs)   # Database names
-head(dbs[[1]])  # First database content
-
-# Load from multiple URLs
-urls <- c(
-  "https://zenodo.org/records/18176501/files/ImprintingDMR.20220818.gz",
-  "https://zenodo.org/records/18176501/files/Blacklist.20220304.gz"
-)
-dbs_multi <- loadDBs(urls)
-
-# Load from local file (download to temp file first)
-tmp_file <- tempfile(fileext = ".tsv.gz")
-download.file(
-  "https://zenodo.org/records/18176501/files/ImprintingDMR.20220818.gz",
-  tmp_file, mode = "wb", quiet = TRUE
-)
-dbs_local <- loadDBs(tmp_file)
-unlink(tmp_file)  # Clean up
-
-# Load all files from a directory
-tmp_dir <- tempfile()
-dir.create(tmp_dir)
-download.file(
-  "https://zenodo.org/records/18176501/files/ImprintingDMR.20220818.gz",
-  file.path(tmp_dir, "ImprintingDMR.20220818.gz"), mode = "wb", quiet = TRUE
-)
-download.file(
-  "https://zenodo.org/records/18176501/files/Blacklist.20220304.gz",
-  file.path(tmp_dir, "Blacklist.20220304.gz"), mode = "wb", quiet = TRUE
-)
-dbs_all <- loadDBs(tmp_dir)
-unlink(tmp_dir, recursive = TRUE)  # Clean up
-
 }

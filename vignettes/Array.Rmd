@@ -85,18 +85,16 @@ methylation features such as CpGs associated with chromatin states, technical
 artifacts, gene association and gene expression correlation, transcription
 factor binding sites, tissue specific methylation, CpG density, etc.
 
-## Two Ways to Access Knowledgebases
-
 KYCG provides two methods for loading knowledgebase data:
 
-1. **`getDBs()`** - Retrieves pre-packaged databases from ExperimentHub (RDS format)
+1. **`getDBs()`** - Retrieves pre-packaged databases from ExperimentHub
    - Databases are cached via the sesameData package
    - Requires running `sesameDataCache()` once per installation
    - Faster loading after initial caching
    - Best for commonly-used database sets
 
-2. **`loadDBs()`** - Loads databases directly from Zenodo or local files (TSV format)
-   - Downloads tab-delimited files (.tsv or .tsv.gz) on-demand
+2. **`readRDS()`** - Loads databases directly from Zenodo or local files
+   - Downloads RDS files
    - No pre-caching required
    - More flexible for custom databases or latest updates
    - Can load from URLs or local files
@@ -105,18 +103,18 @@ KYCG provides two methods for loading knowledgebase data:
 
 Array knowledgebases are available on Zenodo as listed in the following table:
 
-| Array          | Link                                       |
-|----------------|--------------------------------------------|
-| Human (MSA)    | <https://zenodo.org/records/18180812>    |
+| Array          | Link                                  |
+|----------------|---------------------------------------|
+| Human (MSA)    | <https://zenodo.org/records/18180812> |
 | Human (EPICv2) | <https://zenodo.org/records/18176782> |
-| Human (EPIC)   | <https://zenodo.org/records/18180672>   |
-| Human (HM450)  | <https://zenodo.org/records/18180722>  |
-| Mouse (MM285)  | <https://zenodo.org/records/18180659>  |
+| Human (EPIC)   | <https://zenodo.org/records/18180671> |
+| Human (HM450)  | <https://zenodo.org/records/18176500> |
+| Mouse (MM285)  | <https://zenodo.org/records/18180658> |
 
 <img src="figures/knowledgebases.png"
      alt="Curated CpG knowledgebases" width="600"/>
 
-## Method 1: Using getDBs() with ExperimentHub
+## Method 1: ExperimentHub (getDBs)
 
 The success of enrichment testing depends on the availability of
 biologically-relevant databases. To reflect the biological meaning of databases
@@ -162,41 +160,45 @@ can be faster thanks to the sesameData
 [in-memory caching](https://tinyurl.com/2wh9tyzk), if the corresponding
 database has been loaded.
 
-## Method 2: Using loadDBs() with Zenodo TSV Files
+## Method 2: Zenodo RDS files
 
 Alternatively, you can load knowledgebases directly from Zenodo using the
-`loadDBs()` function. This function accepts URLs, file paths, or directory paths
-to TSV or compressed TSV files. This approach is useful for accessing the latest
-database updates or working with custom databases.
+`readRDS()` function. This function accepts URLs, file paths, or directory
+paths to RDS files. This approach is useful for accessing the latest database
+updates or working with custom databases.
 
 Here's an example of loading a database directly from a Zenodo URL:
 
 ``` {r ky7b, eval=FALSE}
 # Load ImprintingDMR database from Zenodo
-dbs_imprinting <- loadDBs(
-  "https://zenodo.org/records/18176501/files/ImprintingDMR.20220818.gz")
+dbs_imprinting <- readRDS(url(paste0(
+    "https://zenodo.org/records/18344496/files/",
+    "KYCG.HM450.ImprintingDMR.20220818.rds")))
 
 # Examine the loaded database
-length(dbs_imprinting)  # Number of databases
-names(dbs_imprinting)   # Database names
-head(dbs_imprinting[[1]])  # Preview first database
+str(dbs_imprinting)
 ```
 
 You can also load multiple databases at once by providing multiple URLs:
 
 ``` {r ky7c, eval=FALSE}
 # Load multiple databases from Zenodo
-urls <- c(
-  "https://zenodo.org/records/18176501/files/ImprintingDMR.20220818.gz",
-  "https://zenodo.org/records/18176501/files/Blacklist.20220304.gz"
-)
-dbs_multiple <- loadDBs(urls)
+
+urls <- paste0(
+    "https://zenodo.org/records/18344496/files/",
+    c("KYCG.HM450.ImprintingDMR.20220818.rds",
+        "KYCG.HM450.Blacklist.20220304.rds"))
+
+dbs_multiple <- do.call(c, lapply(urls, function(x) readRDS(url(x))))
+
+# Examine the loaded database
+str(dbs_multiple)
 
 # Use these databases in enrichment testing
 results <- testEnrichment(query, dbs_multiple, platform="HM450")
 ```
 
-The databases loaded via `loadDBs()` can be used directly in `testEnrichment()`
+The databases loaded via `readRDS()` can be used directly in `testEnrichment()`
 just like those loaded via `getDBs()`.
 
 # ENRICHMENT TESTING
@@ -334,9 +336,6 @@ probes <- df$Probe_ID[df$branch == "fetal_liver" & df$type == "Hypo"]
 res <- testProbeProximity(probeIDs=probes)
 head(res)
 ```
-
-# Testing Tissue-specific Methylation Enrichment
-
 
 # SESSION INFO
 
