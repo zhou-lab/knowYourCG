@@ -3,7 +3,6 @@
 </p>
 <p align="center">
 <a href="https://github.com/zhou-lab/knowYourCG/commits/devel"><img src="https://img.shields.io/github/last-commit/zhou-lab/knowYourCG.svg?style=flat-square" alt="Last Commit"></a>
-<a href="https://github.com/zhou-lab/knowYourCG/actions/workflows/build-on-windows.yaml"><img src="https://github.com/zhou-lab/knowYourCG/actions/workflows/build-on-windows.yaml/badge.svg" alt="CI Status"></a>
 </p>
 
 <!-- Release: [![Bioconductor Build Status (release)](https://bioconductor.org/shields/build/release/bioc/knowYourCG.svg)](https://bioconductor.org/checkResults/release/bioc-LATEST/knowYourCG) -->
