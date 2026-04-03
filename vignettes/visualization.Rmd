@@ -77,6 +77,7 @@ KnowYourCG builds in several metagene/meta-feature coordinates. One can test
 enrichment over meta genes or simply plot the mean over metagenes:
 
 ```{r ky20, plot-meta1, fig.width=5, fig.height=4, message=FALSE}
+sesameDataCache("EPIC.1.SigDF")
 sdf <- sesameDataGet("EPIC.1.SigDF")
 KYCG_plotMeta(getBetas(sdf))
 ```

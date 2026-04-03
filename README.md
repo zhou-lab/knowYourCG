@@ -10,7 +10,13 @@
 <!-- Devel: [![Bioconductor Build Status (devel)](https://bioconductor.org/shields/build/devel/bioc/knowYourCG.svg)](https://bioconductor.org/checkResults/devel/bioc-LATEST/knowYourCG) -->
 
 
-# KnowYourCG (Supervised Learning of Sparse DNA Methylome Data)
+# KnowYourCG: Facilitating Base-Level Sparse Methylome Interpretation
+
+KnowYourCG (KYCG) is a data interpretation framework for functional DNA methylation analysis. Unlike existing tools that target genes or genomic intervals, KYCG features direct base-level screenings of diverse biological and technical influences, including sequence motifs, transcription factor binding, histone modifications, replication timing, cell-type–specific methylation, and trait associations. Through efficient infrastructure that rapidly screens thousands of knowledgebases, KYCG addresses data sparsity in low-pass or single-cell DNA methylomes, 5-hydroxymethylation (5hmC) profiles, spatial DNA methylation maps, and array-based datasets for EWAS.
+
+## Citation
+
+Goldberg DC, Fu H, Atkins D, Moyer E, Lee CN, Deng Y, Zhou W. KnowYourCG: Facilitating base-level sparse methylome interpretation. *Science Advances* 11(43): eadw3027 (2025). https://doi.org/10.1126/sciadv.adw3027
 
 ## Install knowYourCG
 
@@ -67,7 +73,10 @@ Infinium probes
 
 ## See also
 
-https://github.com/zhou-lab/YAME
+- [YAME](https://github.com/zhou-lab/YAME) — sequence-level enrichment analysis (C command-line tool)
+- [Web application](https://zhouserver.research.chop.edu/knowyourcg/) — interactive online queries
+- [Bioconductor release](https://www.bioconductor.org/packages/release/bioc/html/knowYourCG.html)
+- [Bioconductor devel](https://www.bioconductor.org/packages/devel/bioc/html/knowYourCG.html)
 
 
 
