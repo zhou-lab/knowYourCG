@@ -272,7 +272,8 @@ calculate_fisher_pvalue <- function(nDQ, nQmD, nUmDQ, nDmQ, alternative) {
 
 ## Calculate odds ratio with safeguards for extreme values
 calculate_odds_ratio <- function(nDQ, nQmD, nDmQ, nUmDQ) {
-    odds_ratio <- (nDQ * nUmDQ) / (nQmD * nDmQ)
+    odds_ratio <- (as.numeric(nDQ) * as.numeric(nUmDQ)) /
+        (as.numeric(nQmD) * as.numeric(nDmQ))
     
     ## Handle extreme values
     odds_ratio[is.infinite(odds_ratio)] <- .Machine$double.xmax
@@ -285,11 +286,11 @@ calculate_odds_ratio <- function(nDQ, nQmD, nDmQ, nUmDQ) {
 ## Calculate effect size metrics
 calculate_effect_sizes <- function(nD, nQ, nDQ, nU, nQmD, nDmQ, nUmDQ) {
     list(
-        jaccard = nDQ / (nD + nQmD),
+        jaccard = as.numeric(nDQ) / as.numeric(nD + nQmD),
         mcc = calculate_mcc(nDQ, nUmDQ, nQmD, nDmQ, nD, nU, nQ),
-        overlap = nDQ / pmin(nD, nQ),  ## Szymkiewicz-Simpson coefficient
+        overlap = as.numeric(nDQ) / as.numeric(pmin(nD, nQ)),
         npmi = calculate_npmi(nD, nQ, nDQ, nU),
-        sorensen_dice = (2 * nDQ) / (nD + nQ)
+        sorensen_dice = (2 * as.numeric(nDQ)) / as.numeric(nD + nQ)
     )
 }
 

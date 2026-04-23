@@ -90,40 +90,67 @@ testEnrichment2 <- function(
         }
     )
     
-    ## Parse results into data frame
-    df <- parse_yame_results(yame_result)
-    
+    res <- testEnrichmentFromYameSummary(yame_result, alternative = alternative,
+        min_overlap = min_overlap)
+
+    if (verbose) {
+        message(sprintf("Completed enrichment testing for %d mask(s).", nrow(res)))
+    }
+
+    res
+}
+
+
+#' Test enrichment from a yame summary file or output
+#'
+#' Parses yame summary output (from a file path or a character vector of lines)
+#' and performs Fisher's exact test enrichment analysis. This is the recommended
+#' way to analyse a pre-computed \code{yame summary} result in R.
+#'
+#' @param x Either a file path to a \code{yame summary} output file, or a
+#'   character vector of lines from \code{yame summary} output.
+#' @param alternative Character string: "greater", "less", or "two.sided".
+#'   (Default: "greater")
+#' @param min_overlap Minimum number of overlapping CGs required. (Default: 1)
+#'
+#' @return A tibble with the original yame summary columns plus Fisher's exact
+#'   test statistics: \code{estimate}, \code{p.value}, \code{log10.p.value},
+#'   \code{test}, and additional effect size metrics, ordered by significance.
+#'
+#' @importFrom tibble as_tibble
+#' @importFrom utils read.table
+#' @export
+#'
+#' @examples
+#' \dontrun{
+#' res <- testEnrichmentFromYameSummary("yourfile.txt")
+#' }
+testEnrichmentFromYameSummary <- function(
+    x, alternative = "greater", min_overlap = 1) {
+
+    alternative <- match.arg(alternative, c("greater", "less", "two.sided"))
+
+    if (length(x) == 1 && file.exists(x)) {
+        x <- readLines(x)
+    }
+
+    df <- parse_yame_results(x)
+
     if (nrow(df) == 0) {
-        warning("No results returned from YAME processing.", call. = FALSE)
+        warning("No results in yame summary input.", call. = FALSE)
         return(tibble::tibble())
     }
-    
-    if (verbose) {
-        message(sprintf("Processing %d mask(s)...", nrow(df)))
-    }
-    
-    ## Perform Fisher's exact test for each mask
+
     res <- compute_enrichment_stats(df, alternative, min_overlap)
-    
-    ## Remove rows with missing mask names
     res <- res[!is.na(res$Mask) & res$Mask != "", ]
-    
+
     if (nrow(res) == 0) {
         warning("No valid results after filtering.", call. = FALSE)
         return(tibble::tibble())
     }
-    
-    ## Order by significance
+
     res <- res[order(res$log10.p.value, -abs(res$estimate)), ]
-    
-    if (verbose) {
-        message(sprintf(
-            "Completed enrichment testing for %d mask(s).", 
-            nrow(res)
-        ))
-    }
-    
-    res
+    tibble::as_tibble(res)
 }
 
 ## Validate input file paths
