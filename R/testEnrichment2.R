@@ -122,9 +122,14 @@ testEnrichment2 <- function(
 #' @export
 #'
 #' @examples
-#' \dontrun{
-#' res <- testEnrichmentFromYameSummary("yourfile.txt")
-#' }
+#' yame_lines <- c(
+#'     "Mask\tN_mask\tN_query\tN_overlap\tN_univ",
+#'     "CpG_Island\t15000\t500\t120\t850000",
+#'     "Promoter\t25000\t500\t80\t850000",
+#'     "Enhancer\t40000\t500\t30\t850000"
+#' )
+#' res <- testEnrichmentFromYameSummary(yame_lines)
+#' head(res)
 testEnrichmentFromYameSummary <- function(
     x, alternative = "greater", min_overlap = 1) {
 
