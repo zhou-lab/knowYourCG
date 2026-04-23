@@ -44,7 +44,7 @@
 #'
 #' # Convert BED to YAME .cg format (requires bedtools and yame)
 #' out_file <- tempfile(fileext = ".cg")
-#' \donttest{
+#' \dontrun{
 #' bedToCg(bed_file, ref_cr, out_file, verbose = TRUE)
 #' }
 #'
