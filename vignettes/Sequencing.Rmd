@@ -37,8 +37,15 @@ details. https://zhou-lab.github.io/YAME/.
 
 # QUICK START
 
-```{r seq1, fig.width=5, fig.height=5, message=FALSE, eval=.Platform$OS.type!="windows"}
-# Code that should run only on non-Windows systems
+The sequencing workflow shown here is superseded by the
+[kycg](https://github.com/zhou-lab/kycg) command-line tool, which does the same
+analysis natively over YAME `.cg` stores and fetches its own knowledgebases.
+The chunk below is **shown but not run**: it downloads roughly 12 MB from
+Zenodo, and a vignette that reaches the network at build time fails whenever
+the transfer is slower than R's download timeout, which has no bearing on
+whether the package works. Copy it to run it.
+
+```{r seq1, fig.width=5, fig.height=5, message=FALSE, eval=FALSE}
 library(knowYourCG)
 
 # Download query and knowledgebase datasets:

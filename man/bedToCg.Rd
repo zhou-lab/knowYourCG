@@ -26,6 +26,10 @@ Converts a BED file listing CpGs into a YAME-compressed .cg file using
 the YAME reference coordinate and command-line tools.
 }
 \examples{
+## Not run: fetches a ~22 MB reference from Zenodo and needs bedtools
+## and yame on PATH. The download was previously OUTSIDE the guard, so
+## it ran on every check while only the bedToCg() call was skipped.
+\dontrun{
 # Download YAME reference coordinate file for mm10
 ref_cr <- tempfile(fileext = ".cr")
 download.file(
@@ -56,10 +60,9 @@ writeLines(bed_data, bed_file)
 
 # Convert BED to YAME .cg format (requires bedtools and yame)
 out_file <- tempfile(fileext = ".cg")
-\donttest{
 bedToCg(bed_file, ref_cr, out_file, verbose = TRUE)
-}
 
 # Clean up
 unlink(c(bed_file, ref_cr, out_file))
+}
 }

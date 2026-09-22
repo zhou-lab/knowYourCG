@@ -33,7 +33,9 @@
 #' probes <- df$Probe_ID[df$branch == "B_cell"]
 #' res <- testEnrichment(probes, "chromHMM", platform = "MM285")
 #' 
-#' \donttest{
+#' ## Not run: this downloads ~12 MB from Zenodo. \donttest is executed by
+#' ## the Bioconductor builders, so it has to be \dontrun to stay offline.
+#' \dontrun{
 #' # Define temporary directory and file URLs
 #' temp_dir <- tempdir()
 #' knowledgebase <- file.path(temp_dir, "ChromHMM.20220414.cm")
