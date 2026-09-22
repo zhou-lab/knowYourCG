@@ -223,13 +223,13 @@ df <- rowData(sesameDataGet('MM285.tissueSignature'))
 query <- df$Probe_ID[df$branch == "fetal_brain" & df$type == "Hypo"]
 
 results <- testEnrichment(query, "TFBS", platform="MM285")
-results %>% dplyr::filter(overlap>10) %>% head
+results |> dplyr::filter(overlap>10) |> head()
 
 ## prepare another query
 query <- df$Probe_ID[df$branch == "fetal_liver" & df$type == "Hypo"]
 results <- testEnrichment(query, "TFBS", platform="MM285")
-results %>% dplyr::filter(overlap>10) %>%
-    dplyr::select(dbname, estimate, test, FDR) %>% head
+results |> dplyr::filter(overlap>10) |>
+    dplyr::select(dbname, estimate, test, FDR) |> head()
 ```
 
 The output of each test contains multiple variables including: the estimate 
@@ -296,7 +296,7 @@ dbs <- c("KYCG.MM285.chromHMM.20210210","KYCG.HM450.TFBSconsensus.20211013",
 results <- testEnrichment(query,databases=dbs,
                           platform="MM285",include_genes=TRUE)
 main_stats <- c("dbname","estimate","gene_name","FDR", "nQ", "nD", "overlap")
-results[,main_stats] %>% head()
+results[,main_stats] |> head()
 ```
 
 One can get all the genes associated with a probe set and test the
