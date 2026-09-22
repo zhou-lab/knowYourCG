@@ -37,9 +37,11 @@ details. https://zhou-lab.github.io/YAME/.
 
 # QUICK START
 
-The sequencing workflow shown here is superseded by the
-[kycg](https://github.com/zhou-lab/kycg) command-line tool, which does the same
-analysis natively over YAME `.cg` stores and fetches its own knowledgebases.
+For sequencing data at scale, KnowYourCG v2
+([kycg](https://github.com/zhou-lab/kycg)) runs this same analysis from the
+command line, natively over YAME `.cg` stores and fetching its own
+knowledgebases.
+
 The chunk below is **shown but not run**: it downloads roughly 12 MB from
 Zenodo, and a vignette that reaches the network at build time fails whenever
 the transfer is slower than R's download timeout, which has no bearing on
@@ -121,19 +123,19 @@ bedToCg(bed_file, ref_cr, out_file)
 # ENRICHMENT TESTING
 
 Then we simply run
-[`yame summary`](https://zhou-lab.github.io/YAME/docs/summarize.html)
+[`yame summary`](https://zhou-lab.github.io/YAME/)
 with `-m` feature file for enrichment testing. We have provided
 comprehensive enrichment feature files, and you can download them from
 Zenodo [mm10](https://zenodo.org/records/18175656)/[hg38](https://zenodo.org/records/18175838).
 You can also create your own feature file with
-[`yame pack`](https://zhou-lab.github.io/YAME/docs/pack_unpack.html).
+[`yame pack`](https://zhou-lab.github.io/YAME/).
 
 ```bash
 yame summary -m feature.cm yourfile.cg > yourfile.txt
 ```
 
 Detailed information of the output columns can be found on the
-[`yame summary`](https://zhou-lab.github.io/YAME/docs/summarize.html)
+[`yame summary`](https://zhou-lab.github.io/YAME/)
 page. Basically, a higher log2oddsratio indicates a stronger association
 between the feature being tested and the query set. Generally, a large
 log2 odds ratio is typically considered to be around 2 or greater, with
