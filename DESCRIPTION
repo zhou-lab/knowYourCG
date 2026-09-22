@@ -1,7 +1,7 @@
 Package: knowYourCG
 Type: Package
 Title: Functional analysis of DNA methylome datasets
-Version: 1.9.1
+Version: 1.9.2
 Authors@R: c(
     person("Wanding", "Zhou",
         role = c("aut", "fnd"),
@@ -28,7 +28,9 @@ Description: KnowYourCG (KYCG) is a supervised learning framework designed for
     datasets, including low-pass Nanopore sequencing, single-cell DNA
     methylomes, 5-hydroxymethylation profiles, spatial DNA methylation maps,
     and array-based datasets for epigenome-wide association studies and
-    epigenetic clocks (<doi:10.1126/sciadv.adw3027>).
+    epigenetic clocks (<doi:10.1126/sciadv.adw3027>). KnowYourCG v2, a
+    command-line implementation in C, is available at
+    <https://github.com/zhou-lab/kycg>.
 Depends: R (>= 4.4.0)
 URL: https://github.com/zhou-lab/knowYourCG
 BugReports: https://github.com/zhou-lab/knowYourCG/issues

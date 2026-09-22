@@ -13,6 +13,25 @@
 
 KnowYourCG (KYCG) is a data interpretation framework for functional DNA methylation analysis. Unlike existing tools that target genes or genomic intervals, KYCG features direct base-level screenings of diverse biological and technical influences, including sequence motifs, transcription factor binding, histone modifications, replication timing, cell-type–specific methylation, and trait associations. Through efficient infrastructure that rapidly screens thousands of knowledgebases, KYCG addresses data sparsity in low-pass or single-cell DNA methylomes, 5-hydroxymethylation (5hmC) profiles, spatial DNA methylation maps, and array-based datasets for EWAS.
 
+## KnowYourCG v2
+
+This Bioconductor package is KnowYourCG **v1**, and stays on the 1.x series.
+**KnowYourCG v2** is [**kycg**](https://github.com/zhou-lab/kycg): the same
+framework rewritten in C directly on
+[YAME](https://github.com/zhou-lab/YAME)'s bit-packed CpG formats, run from
+the command line rather than from R.
+
+```bash
+conda install -c zhou-lab -c conda-forge kycg yame
+```
+
+Documentation: <https://zhou-lab.github.io/kycg/>
+
+v2 fetches and verifies its own knowledgebases and screens genome-wide sets
+without R; its statistics are validated against this package. Use whichever
+fits your pipeline — v1 if your analysis lives in R and Bioconductor, v2 for
+command-line and large sequencing work.
+
 ## Citation
 
 Goldberg DC, Fu H, Atkins D, Moyer E, Lee CN, Deng Y, Zhou W. KnowYourCG: Facilitating base-level sparse methylome interpretation. *Science Advances* 11(43): eadw3027 (2025). https://doi.org/10.1126/sciadv.adw3027
