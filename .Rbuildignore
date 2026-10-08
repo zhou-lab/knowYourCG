@@ -2,3 +2,6 @@
 ^\.Rproj\.user$
 ^doc$
 ^Meta$
+^\.github$
+^scripts$
+^coverage\.json$

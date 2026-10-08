@@ -1,0 +1,27 @@
+name: coverage
+
+## The badge is measured, not merely reported: this recomputes R/ line
+## coverage with scripts/coverage.R --check, and a committed coverage.json
+## that drifts from the suite fails the job.
+on:
+  push:
+    branches: [devel]
+  pull_request:
+    branches: [devel]
+  workflow_dispatch:
+
+jobs:
+  coverage:
+    runs-on: ubuntu-latest
+    container: bioconductor/bioconductor_docker:devel
+    env:
+      _R_CHECK_FORCE_SUGGESTS_: "false"
+      NOT_CRAN: "true"
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install dependencies
+        run: |
+          Rscript -e 'BiocManager::install(c("covr", "jsonlite", "testthat"), ask = FALSE, update = FALSE)'
+          Rscript -e 'BiocManager::install(remotes::local_package_deps(dependencies = TRUE), ask = FALSE, update = FALSE)'
+      - name: Check the coverage badge
+        run: Rscript scripts/coverage.R --check

@@ -3,6 +3,7 @@
 </p>
 <p align="center">
 <a href="https://github.com/zhou-lab/knowYourCG/commits/devel"><img src="https://img.shields.io/github/last-commit/zhou-lab/knowYourCG.svg?style=flat-square" alt="Last Commit"></a>
+<a href="https://github.com/zhou-lab/knowYourCG/actions/workflows/coverage.yml"><img src="https://img.shields.io/endpoint?url=https%3A%2F%2Fraw.githubusercontent.com%2Fzhou-lab%2FknowYourCG%2Fdevel%2Fcoverage.json&style=flat-square" alt="R coverage"></a>
 </p>
 
 <!-- Release: [![Bioconductor Build Status (release)](https://bioconductor.org/shields/build/release/bioc/knowYourCG.svg)](https://bioconductor.org/checkResults/release/bioc-LATEST/knowYourCG) -->
