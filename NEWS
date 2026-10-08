@@ -1,4 +1,4 @@
-VERSION 1.9.4 (unreleased; DESCRIPTION not yet bumped)
+VERSION 1.9.4
 -------------------------
 
   o bedToCg: the bedtools/yame pipeline reached sh -c unquoted, so sh ran a
