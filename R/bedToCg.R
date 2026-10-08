@@ -110,7 +110,8 @@ bedToCg <- function(
         shQuote(out_file)
     )
     if (isTRUE(verbose)) message(cmd_pack)
-    status <- system2("sh", args = c("-c", cmd_pack),
+    ## system2() pastes args unquoted; the pipeline must reach sh as one word
+    status <- system2("sh", args = c("-c", shQuote(cmd_pack)),
         stdout = FALSE, stderr = "")
     if (!identical(status, 0L)) {
         stop(
