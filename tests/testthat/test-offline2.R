@@ -173,9 +173,7 @@ test_that("KYCG_plotEnrichAll draws a multi-group result", {
         estimate = abs(rnorm(n)) + 0.5,
         FDR = 10^-runif(n, 3, 40))
     df$gene_name <- paste0("Gene", seq_len(n))
-    ## ggplot2 >= 3.4 warns that geom_segment(size=) should be linewidth=;
-    ## that is the package's deprecation, not this test's
-    pe <- function(...) suppressWarnings(KYCG_plotEnrichAll(...))
+    pe <- function(...) expect_no_warning(KYCG_plotEnrichAll(...))
     expect_s3_class(pe(df), "ggplot")
     expect_s3_class(pe(df, short_label = FALSE, n_label = 3), "ggplot")
 
@@ -197,9 +195,6 @@ test_that("bedToCg checks its arguments before running anything", {
 })
 
 test_that("bedToCg turns a BED into a format 0 .cg", {
-    ## KNOWN BUG: system2("sh", c("-c", cmd)) does not quote cmd, so sh runs
-    ## a bare `yame` and the output is empty. Unskip once that is fixed.
-    skip("bedToCg pipeline is not quoted for sh -c (known bug)")
     skip_on_os("windows")
     skip_if(!nzchar(Sys.which("bedtools")), "bedtools not on PATH")
     skip_if(!nzchar(Sys.which("yame")), "yame not on PATH")

@@ -4,17 +4,11 @@
 kb <- system.file("extdata", "chromhmm.cm", package = "knowYourCG")
 qry <- system.file("extdata", "onecell.cg", package = "knowYourCG")
 
-## KNOWN BUG: YAME's counts arrive as integers, and calculate_odds_ratio()
-## multiplies them as integers, so a genome-scale table overflows and the
-## estimate is NA ("NAs produced by integer overflow"). The calls below
-## suppress that warning so the rest of the path is still tested; the
-## estimate itself is checked once the bug is fixed.
-run2 <- function(...) suppressWarnings(testEnrichment2(...))
-
 test_that("testEnrichment2 runs on the shipped .cg and .cm", {
     skip_on_os("windows")
     skip_if(!nzchar(kb) || !nzchar(qry), "extdata not installed")
-    res <- run2(qry, kb)
+    ## no warnings: integer counts once overflowed in the odds ratio
+    expect_silent(res <- testEnrichment2(qry, kb))
     expect_s3_class(res, "tbl_df")
     expect_gt(nrow(res), 1)
     expect_true(all(c("Mask", "N_mask", "N_query", "N_overlap", "N_univ",
@@ -22,19 +16,19 @@ test_that("testEnrichment2 runs on the shipped .cg and .cm", {
                     colnames(res)))
     expect_true(all(diff(res$log10.p.value) >= 0))       # ordered
     expect_true(all(res$N_overlap <= res$N_mask))
+    expect_true(all(is.finite(res$estimate)))
 
     ## the same counts under another alternative, and verbose messages
-    expect_message(r2 <- run2(qry, kb, alternative = "two.sided",
-                              verbose = TRUE), "Reading query")
+    expect_message(r2 <- testEnrichment2(qry, kb, alternative = "two.sided",
+                                         verbose = TRUE), "Reading query")
     expect_setequal(r2$Mask, res$Mask)
-    expect_error(run2(qry, kb, alternative = "bogus"))
+    expect_error(testEnrichment2(qry, kb, alternative = "bogus"))
 
-    ## a minimum overlap nothing meets leaves an empty result, with a
-    ## warning from the filter and another from the empty table after it
+    ## a minimum overlap nothing meets leaves an empty result, one warning
     big <- max(res$N_overlap) + 1
     w <- capture_warnings(r3 <- testEnrichment2(qry, kb, min_overlap = big))
-    expect_true(any(grepl("minimum overlap", w)))
-    expect_true(any(grepl("No valid results", w)))
+    expect_length(w, 1)
+    expect_match(w, "minimum overlap")
     expect_equal(nrow(r3), 0)
 })
 
