@@ -60,7 +60,7 @@ KYCG_plotEnrichAll <- function(
             hjust=0, vjust=1, color="grey60") +
         geom_hline(yintercept = fdr_max, linetype="dotted", color="grey60") +
         geom_segment(aes(x = beg, y = 0, xend = end, yend = 0, color=group),
-            size=3, data=e3) +
+            linewidth=3, data=e3) +
         geom_text(data=e3,aes(middle, -1, label=group, color=group),
             vjust=1, hjust=1, angle=30) + scale_color_discrete(guide="none") +
         ylim(-6, fdr_max*1.2) + xlab("") +

@@ -1,3 +1,14 @@
+VERSION 1.9.4 (unreleased; DESCRIPTION not yet bumped)
+-------------------------
+
+  o bedToCg: the bedtools/yame pipeline reached sh -c unquoted, so sh ran a
+    bare `yame` and the output file was empty. It is now quoted.
+  o testEnrichment2: the odds ratio is computed in double precision. Integer
+    counts from YAME overflowed on genome-scale tables and gave NA estimates.
+  o testEnrichment2: an unmeetable min_overlap returns the empty result
+    without a second warning.
+  o KYCG_plotEnrichAll: geom_segment(linewidth=), not the deprecated size=.
+
 VERSION 1.9.3
 -------------------------
 

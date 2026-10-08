@@ -274,7 +274,10 @@ calculate_fisher_pvalue <- function(nDQ, nQmD, nUmDQ, nDmQ, alternative) {
 
 ## Calculate odds ratio with safeguards for extreme values
 calculate_odds_ratio <- function(nDQ, nQmD, nDmQ, nUmDQ) {
-    odds_ratio <- (nDQ * nUmDQ) / (nQmD * nDmQ)
+    ## as doubles: YAME's counts arrive as integers, and their products
+    ## overflow R's 32-bit integers on a genome-scale table
+    odds_ratio <- (as.numeric(nDQ) * as.numeric(nUmDQ)) /
+        (as.numeric(nQmD) * as.numeric(nDmQ))
     
     ## Handle extreme values
     odds_ratio[is.infinite(odds_ratio)] <- .Machine$double.xmax

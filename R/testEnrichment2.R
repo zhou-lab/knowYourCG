@@ -104,6 +104,7 @@ testEnrichment2 <- function(
     
     ## Perform Fisher's exact test for each mask
     res <- compute_enrichment_stats(df, alternative, min_overlap)
+    if (nrow(res) == 0) return(res)   # already warned: nothing met min_overlap
     
     ## Remove rows with missing mask names
     res <- res[!is.na(res$Mask) & res$Mask != "", ]
