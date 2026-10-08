@@ -36,8 +36,9 @@ A DataFrame with the estimate/statistic, p-value, and name of test
 for the given results.
 }
 \description{
-estimate represent enrichment score and negative estimate indicate a
-test for depletion
+estimate is the enrichment score. A positive estimate means the
+categorical set is enriched at the small values of the continuous
+variable; a negative estimate means it is enriched at the large values.
 }
 \examples{
 sesameData::sesameDataCache(data_titles=

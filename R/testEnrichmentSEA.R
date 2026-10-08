@@ -18,10 +18,15 @@ calcES_Significance <- function(dCont, dDisc, permut=100, precise=FALSE) {
     cs <- cumsum(s)
     es_max <- max(cs)
     es_min <- min(cs)
+    ## Under the null, max(cs) and -min(cs) have the same distribution
+    ## (reverse and negate the walk), so pool them into one null for both
+    ## tails. Separate nulls made the two tails disagree, and the p-value
+    ## depended on the sign of the query (issue #6).
+    es_null <- c(ess$es_max, -ess$es_min)
     res <- list(es_small = es_max,
                 es_large = -es_min,
-                pv_small = 1-ecdf(ess$es_max)(es_max),
-                pv_large = ecdf(ess$es_min)(es_min))
+                pv_small = mean(es_null >= es_max),
+                pv_large = mean(es_null >= -es_min))
 
     ## if significant, try to be more precise
     if (res$pv_small < 0.01 || res$pv_large < 0.01) {
@@ -30,12 +35,12 @@ calcES_Significance <- function(dCont, dDisc, permut=100, precise=FALSE) {
         } else { # approximated by Gaussian (TODO: also report log.p=TRUE)
             if (res$pv_small == 0) {
                 res$pv_small <- pnorm(
-                    es_max, mean=mean(ess$es_max),
-                    sd=sd(ess$es_max), lower.tail=FALSE) }
+                    es_max, mean=mean(es_null),
+                    sd=sd(es_null), lower.tail=FALSE) }
             if (res$pv_large == 0) {
                 res$pv_large <- pnorm(
-                    es_min, mean=mean(ess$es_min),
-                    sd=sd(ess$es_min), lower.tail=TRUE)
+                    -es_min, mean=mean(es_null),
+                    sd=sd(es_null), lower.tail=FALSE)
             }}}
 
     res
@@ -86,8 +91,9 @@ testEnrichmentSEA1 <- function(query, database, precise=FALSE, full=FALSE) {
 #' uses the GSEA-like test to estimate the association of a
 #' categorical variable against a continuous variable.
 #'
-#' estimate represent enrichment score and negative estimate indicate a
-#' test for depletion
+#' estimate is the enrichment score. A positive estimate means the
+#' categorical set is enriched at the small values of the continuous
+#' variable; a negative estimate means it is enriched at the large values.
 #'
 #' @param query query, if numerical, expect categorical database, if
 #' categorical expect numerical database
