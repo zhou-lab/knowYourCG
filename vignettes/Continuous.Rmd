@@ -72,10 +72,10 @@ main_stats <- c("dbname", "test", "estimate", "FDR", "nQ", "nD", "overlap")
 res[,main_stats] 
 ```
 
-As expected, chromatin states `Tss`, `Enh` has negative enrichment score,
-meaning these databases are associated with small values of the query (DNA
-methylation level). On the contrary, `Het` and `Quies` states are associated 
-with high methylation level.
+As expected, chromatin states `Tss` and `Enh` have positive enrichment
+scores, meaning these databases are associated with small values of the query
+(DNA methylation level). On the contrary, `Het` and `Quies` states have
+negative scores, meaning they are associated with high methylation level.
 
 # SESSION INFO
 

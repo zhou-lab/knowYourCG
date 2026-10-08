@@ -1,3 +1,12 @@
+VERSION 1.8.3
+-------------------------
+
+  o testEnrichmentSEA: the two tails now share one pooled permutation
+    null, so the p-value no longer depends on the sign of the query
+    (zhou-lab/knowYourCG#6)
+  o testEnrichmentSEA: document the sign of estimate. Positive means the
+    set is enriched at small values, negative at large values.
+
 VERSION 0.99.0
 -------------------------
 
