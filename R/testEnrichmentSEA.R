@@ -67,14 +67,14 @@ testEnrichmentSEA1 <- function(query, database, precise=FALSE, full=FALSE) {
     res <- calcES_Significance(query, overlap, precise=precise)
 
     if (res$es_large > res$es_small) {
-        df <- data.frame( ## negative sign represent enriching for large values
-            estimate = -res$es_large, p.value = res$pv_large,
+        df <- data.frame( ## positive sign: enriched at large values, as GSEA
+            estimate = res$es_large, p.value = res$pv_large,
             log10.p.value = log10(res$pv_large), test = test,
             nQ = length(database), nD = length(query),
             overlap = length(overlap))
     } else {
-        df <- data.frame(
-            estimate = res$es_small, p.value = res$pv_small,
+        df <- data.frame( ## negative sign: enriched at small values
+            estimate = -res$es_small, p.value = res$pv_small,
             log10.p.value = log10(res$pv_small), test = test,
             nQ = length(database), nD = length(query),
             overlap = length(overlap))
@@ -92,8 +92,9 @@ testEnrichmentSEA1 <- function(query, database, precise=FALSE, full=FALSE) {
 #' categorical variable against a continuous variable.
 #'
 #' estimate is the enrichment score. A positive estimate means the
-#' categorical set is enriched at the small values of the continuous
-#' variable; a negative estimate means it is enriched at the large values.
+#' categorical set is enriched at the large values of the continuous
+#' variable; a negative estimate means it is enriched at the small values.
+#' This matches GSEA. Before version 1.9.3 the sign was the reverse.
 #'
 #' @param query query, if numerical, expect categorical database, if
 #' categorical expect numerical database

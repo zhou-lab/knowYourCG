@@ -18,7 +18,8 @@ KYCG_plotSetEnrichment <- function(
     result, n_sample = 1000, n_presence = 200) {
 
     stopifnot("dDisc" %in% names(result))
-    dCont <- sort(result$dCont)
+    ## largest first, as GSEA: a peak above zero is a positive estimate
+    dCont <- sort(result$dCont, decreasing = TRUE)
     dDisc <- result$dDisc
     presence <- names(dCont) %in% dDisc
     cs <- cumsum(ifelse(presence, 1/sum(presence), -1/sum(!presence)))

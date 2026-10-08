@@ -37,8 +37,9 @@ for the given results.
 }
 \description{
 estimate is the enrichment score. A positive estimate means the
-categorical set is enriched at the small values of the continuous
-variable; a negative estimate means it is enriched at the large values.
+categorical set is enriched at the large values of the continuous
+variable; a negative estimate means it is enriched at the small values.
+This matches GSEA. Before version 1.9.3 the sign was the reverse.
 }
 \examples{
 sesameData::sesameDataCache(data_titles=
