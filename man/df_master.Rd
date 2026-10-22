@@ -15,13 +15,7 @@ A data.frame with columns:
 master sheet of knowYourCG objects
 }
 \description{
-This is an internal object which will be updated on every new release
-library(ExperimentHub)
-eh <- query(ExperimentHub(localHub=FALSE), "knowYourCG")
-eh <- query(ExperimentHub(localHub=FALSE), "sesameData") # older data
-data.frame(name=eh$title, eh=names(eh))
+This is an internal object, updated on every release from the
+knowYourCG records on ExperimentHub.
 }
-\details{
-Cache location is default to
-/Users/zhouw3/Library/Caches/org.R-project.R/R/ExperimentHub/
-}
+\keyword{internal}

@@ -11,6 +11,15 @@ vignette: >
   %\VignetteEncoding{UTF-8}
 ---
 
+To run every example in this vignette, install knowYourCG with the packages
+the examples load:
+
+```{r install, eval=FALSE}
+if (!require("BiocManager", quietly = TRUE)) install.packages("BiocManager")
+BiocManager::install(c("knowYourCG", "SummarizedExperiment", "sesame",
+                       "gprofiler2"))
+```
+
 KnowYourCG (KYCG) is a supervised learning framework designed for the
 functional analysis of DNA methylation data. Unlike existing tools that
 focus on genes or genomic intervals, KnowYourCG directly targets CpG
@@ -42,27 +51,23 @@ For sequencing data at scale, KnowYourCG v2
 command line, natively over YAME `.cg` stores and fetching its own
 knowledgebases.
 
-The chunk below is **shown but not run**: it downloads roughly 12 MB from
-Zenodo, and a vignette that reaches the network at build time fails whenever
-the transfer is slower than R's download timeout, which has no bearing on
-whether the package works. Copy it to run it.
+The package ships one mouse single cell (`onecell.cg`) and the mm10 chromHMM
+knowledgebase (`chromhmm.cm`), so the quick start needs no download and no
+command-line tools: the overlap counting is compiled into the package.
 
-```{r seq1, fig.width=5, fig.height=5, message=FALSE, eval=FALSE}
+```{r seq1, fig.width=5, fig.height=5, message=FALSE, warning=FALSE}
 library(knowYourCG)
 
-# Download query and knowledgebase datasets:
-temp_dir <- tempdir()
-knowledgebase <- file.path(temp_dir, "ChromHMM.20220414.cm")
-query <- file.path(temp_dir, "mm10_f3_10cells.cg")
-knowledgebase_url <- "https://zenodo.org/records/18175656/files/ChromHMM.20220414.cm"
-query_url <- "https://zenodo.org/records/18176004/files/mm10_f3_10cells.cg"
-download.file(knowledgebase_url, destfile = knowledgebase)
-download.file(query_url, destfile = query)
+query <- system.file("extdata", "onecell.cg", package = "knowYourCG")
+knowledgebase <- system.file("extdata", "chromhmm.cm", package = "knowYourCG")
 
-# test enrichment (require YAME installed in shell)
 res = testEnrichment(query, knowledgebase)
+head(res[, c("Mask", "N_mask", "N_query", "N_overlap", "estimate", "FDR")])
 KYCG_plotDot(res, short_label=TRUE)
 ```
+
+A `.cg` holding several cells gives one row per cell and state; plot one cell
+at a time, or facet by the `Query` column.
 
 # KNOWLEDGEBASES
 
@@ -113,10 +118,24 @@ As a convenience, you can do the same conversion with the `bedToCg()` wrapper,
 which validates inputs and checks for required tools before running the
 pipeline:
 
-```R
-bed_file <- "input_cpgs.bed"
-ref_cr <- "cpg_nocontig.cr"
-out_file <- "input_cpgs.cg"
+The chunk below is self-contained, but it is not run when this vignette is
+built: it needs `yame` and `bedtools` on your PATH, and downloads a 22 MB
+chr16 reference from Zenodo.
+
+```{r seq2, eval=FALSE}
+## a mm10 chr16 reference coordinate file
+ref_cr <- tempfile(fileext = ".cr")
+download.file(
+    "https://zenodo.org/records/18176270/files/mm10chr16_f7_cpg.cr",
+    destfile = ref_cr, quiet = TRUE, mode = "wb")
+
+## a BED of three CpGs on chr16
+bed_file <- tempfile(fileext = ".bed")
+writeLines(c("chr16\t3003648\t3003650",
+             "chr16\t3003766\t3003768",
+             "chr16\t3004036\t3004038"), bed_file)
+
+out_file <- tempfile(fileext = ".cg")
 bedToCg(bed_file, ref_cr, out_file)
 ```
 
@@ -142,16 +161,15 @@ log2 odds ratio is typically considered to be around 2 or greater, with
 values between 1 and 2 often being viewed as potentially important and
 worthy of further investigation, while values around 0.5 might be
 considered a small effect size. For significance testing,
-[sesame](https://www.bioconductor.org/packages/release/bioc/html/sesame.html)
-R package provides the testEnrichmentFisherN function, which is also
-provided in the yame github R page. The four input parameters correspond
-to the four columns from yame summary output.
+`testEnrichment()` runs the one-sided Fisher's exact test on these counts for
+you when given a `.cg` query and a `.cm` knowledgebase. The four counts
+correspond to four columns of the yame summary output.
 
 ```
 ND = N_mask
 NQ = N_query
 NDQ = N_overlap
-NU = N_universe
+NU = N_univ
 ```
 
 We can create a coarse differential methylation dataset the following way

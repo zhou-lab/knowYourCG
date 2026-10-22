@@ -11,17 +11,26 @@ vignette: >
   %\VignetteEncoding{UTF-8}
 ---
 
+To run every example in this vignette, install knowYourCG with the packages
+the examples load:
+
+```{r install, eval=FALSE}
+if (!require("BiocManager", quietly = TRUE)) install.packages("BiocManager")
+BiocManager::install(c("knowYourCG", "SummarizedExperiment", "sesame",
+                       "gprofiler2"))
+```
+
 # Visualize Enrichment Results
 
 There are many ways one can visualize enrichment results. Here we
-demonstrate a few popular ones supported in sesame. Dot plot:
+demonstrate a few popular ones supported in knowYourCG. Dot plot:
 
 ```{r ky14, echo=TRUE, message=FALSE}
 library(SummarizedExperiment)
 library(sesame)
 library(knowYourCG)
 sesameDataCache("MM285.tissueSignature")
-kycgDataCache()
+kycgDataCache("KYCG.MM285.TFBSconsensus.20220116")
 df <- rowData(sesameDataGet('MM285.tissueSignature'))
 query <- df$Probe_ID[df$branch == "fetal_liver" & df$type == "Hypo"]
 results <- testEnrichment(query, "TFBS")
@@ -71,6 +80,10 @@ res <- lapply(queries, function(q) {
 KYCG_plotPointRange(res)
 ```
 
+Here we picked some transcription factor binding sites-overlapping CpGs and
+tested against chromHMM states. These CGs are enriched at promoters (the Tss
+states) and depleted at heterochromatic regions; the enhancer states are mixed.
+
 plot enrichment over metagene:
 
 KnowYourCG builds in several metagene/meta-feature coordinates. One can test
@@ -81,10 +94,6 @@ sesameDataCache("EPIC.1.SigDF")
 sdf <- sesameDataGet("EPIC.1.SigDF")
 KYCG_plotMeta(getBetas(sdf))
 ```
-
-Here we picked some transcription factor binding sites-overlapping CpGs and
-tested against chromHMM states. As expected, most of these CGs are enriched at
-promoters and enhancers but depleted at heterchromatic regions.
 
 ## Manhattan plot
 
@@ -106,6 +115,7 @@ significant probes on the plot can also be specified:
 
 ```{r ky21, fig.width=6, fig.height=4, message=FALSE}
 library(ggrepel)
+sesameDataCache("HM450.address")   # the probe coordinates the plot needs
 smry_pvals = readRDS(url(paste0("https://zenodo.org/records/",
     "18176501/files/20220413_testManhattan.rds")))
 KYCG_plotManhattan(-log10(smry_pvals), platform="HM450",
@@ -126,6 +136,7 @@ model, we will extract the most relevant prevalent features.
 
 ``` {r ky22, echo=TRUE, message=FALSE}
 library(SummarizedExperiment)
+sesameDataCache("MM285.467.SE.tissue20Kprobes")
 betas = assay(sesameDataGet('MM285.467.SE.tissue20Kprobes'))
 ```
 
@@ -139,11 +150,11 @@ using a list of database sets. The default is to calculate the mean.
 
 ```{r ky25}
 stats <- dbStats(betas, 'MM285.chromHMM')
-head(stats[, 1:5])
+head(stats[, c("Tss", "TssBiv", "Enh", "Het", "Quies")])
 ```
 
-Just from the few database set means above, we can see that TSS are
-consistently hypomethylated, which is consistent with known biology.
+From these database set means, we can see that TSS are consistently
+hypomethylated, which is consistent with known biology.
 
 ```{r ky26, fig.width=6, fig.height=6}
 library(wheatmap)
@@ -154,7 +165,7 @@ WHeatmap(both.cluster(stats)$mat, xticklabels=TRUE,
 ## Feature Annotation
 
 We can also use KYCG database to annotate an arbitrary probe set. This can be
-done using the `KYCG_annoProbes` function:
+done using the `annoProbes` function:
 
 ```{r ky30}
 query <- names(sesameData_getManifestGRanges("MM285"))

@@ -1,3 +1,16 @@
+VERSION 1.9.5 (unreleased; DESCRIPTION not yet bumped)
+-------------------------
+
+  o testEnrichment: no "Unknown or uninitialised column" warnings on
+    sequencing results; the estimate's 1024 / -1022 sentinels are documented.
+  o Vignettes: an install chunk for the Suggests the examples load; the
+    Manhattan and feature-aggregation chunks cache their own data; MM285
+    examples use the MM285 TFBS database; the HM450 Zenodo example uses an
+    HM450 query; the sequencing quick start runs on the shipped single cell;
+    the bedToCg example is self-contained; permutation chunks are seeded.
+  o Manual: loadDBs, testEnrichmentSpearman and df_master are internal; no
+    developer notes or local paths in examples.
+
 VERSION 1.9.4
 -------------------------
 
