@@ -1,13 +1,7 @@
 #' Master data frame for all object to cache
 #'
-#' This is an internal object which will be updated on every new release
-#' library(ExperimentHub)
-#' eh <- query(ExperimentHub(localHub=FALSE), "knowYourCG")
-#' eh <- query(ExperimentHub(localHub=FALSE), "sesameData") # older data
-#' data.frame(name=eh$title, eh=names(eh))
-#'
-#' Cache location is default to
-#' /Users/zhouw3/Library/Caches/org.R-project.R/R/ExperimentHub/
+#' This is an internal object, updated on every release from the
+#' knowYourCG records on ExperimentHub.
 #'
 #' @format A data.frame with columns:
 #' \describe{
@@ -17,6 +11,7 @@
 #' 
 #' @name df_master
 #' @docType data
+#' @keywords internal
 #' @return master sheet of knowYourCG objects
 NULL
 

@@ -47,7 +47,9 @@ knowledgebase groups. (Default: TRUE)}
 }
 \value{
 A data frame containing features corresponding to the test estimate,
-p-value, and type of test, ordered by significance.
+p-value, and type of test, ordered by significance. The estimate is the
+log2 odds ratio. Two values are sentinels: 1024 marks an infinite odds
+ratio and -1022 an odds ratio of zero (no overlap).
 }
 \description{
 Test for enrichment of query in knowledgebase sets
@@ -63,8 +65,7 @@ df <- rowData(sesameDataGet("MM285.tissueSignature"))
 probes <- df$Probe_ID[df$branch == "B_cell"]
 res <- testEnrichment(probes, "chromHMM", platform = "MM285")
 
-## Not run: this downloads ~12 MB from Zenodo. \donttest is executed by
-## the Bioconductor builders, so it has to be \dontrun to stay offline.
+## Not run: downloads about 12 MB from Zenodo.
 \dontrun{
 # Define temporary directory and file URLs
 temp_dir <- tempdir()

@@ -20,7 +20,9 @@
 #' knowledgebase groups. (Default: TRUE)
 #' @param mtc_method Method for multiple test correction. (Default: "fdr")
 #' @return A data frame containing features corresponding to the test estimate,
-#' p-value, and type of test, ordered by significance.
+#' p-value, and type of test, ordered by significance. The estimate is the
+#' log2 odds ratio. Two values are sentinels: 1024 marks an infinite odds
+#' ratio and -1022 an odds ratio of zero (no overlap).
 #' @importFrom dplyr bind_rows
 #' @examples
 #'
@@ -33,8 +35,7 @@
 #' probes <- df$Probe_ID[df$branch == "B_cell"]
 #' res <- testEnrichment(probes, "chromHMM", platform = "MM285")
 #' 
-#' ## Not run: this downloads ~12 MB from Zenodo. \donttest is executed by
-#' ## the Bioconductor builders, so it has to be \dontrun to stay offline.
+#' ## Not run: downloads about 12 MB from Zenodo.
 #' \dontrun{
 #' # Define temporary directory and file URLs
 #' temp_dir <- tempdir()
@@ -194,17 +195,23 @@ set_FDR <- function(res, mtc_by_group = TRUE, mtc_method = "fdr") {
         p.adjust(res$p.value[idx], method = mtc_method)
     })
     
-    ## Assign FDR values back to results
-    res$FDR[unlist(grp_ind)] <- unname(unlist(grp_fdr))
+    ## Assign FDR values back to results. Built as a vector and assigned
+    ## whole: `res$FDR[i] <-` on a tibble without the column warns
+    ## "Unknown or uninitialised column" on every sequencing call.
+    fdr <- rep(NA_real_, nrow(res))
+    fdr[unlist(grp_ind)] <- unname(unlist(grp_fdr))
+    res[["FDR"]] <- fdr
     res
 }
 
 ## Determine grouping variable for FDR correction
 determine_group <- function(res) {
-    if (!is.null(res$group)) {
+    ## `%in% names()` rather than `$`: tibbles warn on reading a column
+    ## they do not have
+    if ("group" %in% names(res)) {
         ## Array data
         res$group
-    } else if (!is.null(res$MFile)) {
+    } else if ("MFile" %in% names(res)) {
         ## Sequencing data
         res$MFile
     } else {

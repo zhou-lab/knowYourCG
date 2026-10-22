@@ -11,6 +11,15 @@ vignette: >
   %\VignetteEncoding{UTF-8}
 ---
 
+To run every example in this vignette, install knowYourCG with the packages
+the examples load:
+
+```{r install, eval=FALSE}
+if (!require("BiocManager", quietly = TRUE)) install.packages("BiocManager")
+BiocManager::install(c("knowYourCG", "SummarizedExperiment", "sesame",
+                       "gprofiler2"))
+```
+
 There are four testing scenarios depending on the type format of the query set
 and database sets. They are shown with the respective testing scenario in the
 table below. `testEnrichment`, `testEnrichmentSEA` are for Fisher's exact test
@@ -32,7 +41,7 @@ kable(df, caption="Four knowYourCG Testing Scenarios")
 The query may be a named continuous vector. In that case, either a gene
 enrichment score will be calculated (if the database is discrete) or a Spearman
 correlation will be calculated (if the database is continuous as well). The
-three other cases are shown below using biologically relevant examples.
+two other cases are shown below using biologically relevant examples.
 
 To display this functionality, let's load two numeric database sets
 individually. One is a database set for CpG density and the other is a database
@@ -55,7 +64,7 @@ The estimate here is enrichment score.
 
 > **NOTE:** Negative enrichment score suggests enrichment of the
 categorical database with the higher values (in the numerical database).
-Positive enrichment score represent enrichment with the smaller values.
+Positive enrichment score represents enrichment with the smaller values.
 As expected, the designed TSS CpGs are significantly enriched in smaller
 TSS distance and higher CpG density.
 
@@ -63,8 +72,12 @@ Alternatively one can test the enrichment of a continuous query with discrete
 databases. Here we will use the methylation level from a sample as the query
 and test it against the chromHMM chromatin states.
 
+The p-values come from permutation: each set is compared with random sets of
+the same size. Seed the generator to reproduce them.
+
 ```{r ky23, warning=FALSE, eval=TRUE,message=FALSE}
 library(sesame)
+set.seed(1)
 sesameDataCache(data_titles = c("MM285.1.SigDF"))
 beta_values <- getBetas(sesameDataGet("MM285.1.SigDF"))
 res <- testEnrichmentSEA(beta_values, "MM285.chromHMM")
@@ -74,8 +87,10 @@ res[,main_stats]
 
 As expected, chromatin states `Tss` and `Enh` have positive enrichment
 scores, meaning these databases are associated with small values of the query
-(DNA methylation level). On the contrary, `Het` and `Quies` states have
-negative scores, meaning they are associated with high methylation level.
+(DNA methylation level). On the contrary, `Het` and most quiescent states
+(`Quies`, `QuiesG`, `Quies2`, `Quies3`) have negative scores, meaning they are
+associated with high methylation level; `Quies4` is the exception. Here `nD`
+is the number of CpGs with a value and `nQ` the size of each state.
 
 # SESSION INFO
 

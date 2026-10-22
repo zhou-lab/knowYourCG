@@ -48,6 +48,13 @@ Development version can be installed from github.
 BiocManager::install('zhou-lab/knowYourCG')
 ```
 
+The vignettes also load SummarizedExperiment, sesame and gprofiler2, which
+`BiocManager::install("knowYourCG")` does not fetch. To run every example:
+```r
+BiocManager::install(c("knowYourCG", "SummarizedExperiment", "sesame",
+                       "gprofiler2"))
+```
+
 ## Main Functions
 
 ### Enrichment Testing

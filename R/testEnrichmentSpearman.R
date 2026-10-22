@@ -10,6 +10,7 @@
 #'
 #' @return A DataFrame with the estimate/statistic, p-value, and name
 #' of test for the given results.
+#' @keywords internal
 testEnrichmentSpearman <- function(num_query, num_db) {
     test <- "Spearman's rho"
     if (length(intersect(names(num_query), names(num_db))) == 0) {

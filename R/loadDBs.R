@@ -28,6 +28,7 @@
 #'   \item \code{Knowledgebase} - Knowledgebase/database name
 #' }
 #' @importFrom readr read_tsv
+#' @keywords internal
 loadDBs <- function(in_paths) {
     # Detect URLs for naming purposes
     is_url <- grepl("^https?://", in_paths)

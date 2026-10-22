@@ -27,8 +27,7 @@ the YAME reference coordinate and command-line tools.
 }
 \examples{
 ## Not run: fetches a ~22 MB reference from Zenodo and needs bedtools
-## and yame on PATH. The download was previously OUTSIDE the guard, so
-## it ran on every check while only the bedToCg() call was skipped.
+## and yame on PATH.
 \dontrun{
 # Download YAME reference coordinate file for mm10
 ref_cr <- tempfile(fileext = ".cr")

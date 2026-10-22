@@ -22,3 +22,4 @@ of test for the given results.
 testEnrichmentSpearman uses the Spearman statistical test to estimate
 the association between two continuous variables.
 }
+\keyword{internal}
