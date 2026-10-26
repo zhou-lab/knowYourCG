@@ -21,7 +21,7 @@ jobs:
       - uses: actions/checkout@v4
       - name: Install dependencies
         run: |
-          Rscript -e 'BiocManager::install(c("covr", "jsonlite", "testthat"), ask = FALSE, update = FALSE)'
+          Rscript -e 'BiocManager::install(c("covr", "jsonlite", "remotes", "testthat"), ask = FALSE, update = FALSE)'
           Rscript -e 'BiocManager::install(remotes::local_package_deps(dependencies = TRUE), ask = FALSE, update = FALSE)'
       - name: Check the coverage badge
         run: Rscript scripts/coverage.R --check
