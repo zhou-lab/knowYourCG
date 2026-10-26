@@ -23,5 +23,10 @@ jobs:
         run: |
           Rscript -e 'BiocManager::install(c("covr", "jsonlite", "remotes", "testthat"), ask = FALSE, update = FALSE)'
           Rscript -e 'BiocManager::install(remotes::local_package_deps(dependencies = TRUE), ask = FALSE, update = FALSE)'
+      ## plain test run first: covr hides which test failed
+      - name: Run the tests
+        run: |
+          R CMD INSTALL .
+          Rscript -e 'testthat::test_dir("tests/testthat", package = "knowYourCG", load_package = "installed", reporter = "summary", stop_on_failure = TRUE)'
       - name: Check the coverage badge
         run: Rscript scripts/coverage.R --check
