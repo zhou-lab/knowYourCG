@@ -23,10 +23,15 @@ jobs:
         run: |
           Rscript -e 'BiocManager::install(c("covr", "jsonlite", "remotes", "testthat"), ask = FALSE, update = FALSE)'
           Rscript -e 'BiocManager::install(remotes::local_package_deps(dependencies = TRUE), ask = FALSE, update = FALSE)'
-      ## plain test run first: covr hides which test failed
-      - name: Run the tests
+      ## sesameDataGet reads only the cache; the Bioconductor builders have
+      ## one, a fresh container does not
+      - name: Cache the hub records the tests read
         run: |
           R CMD INSTALL .
-          Rscript -e 'testthat::test_dir("tests/testthat", package = "knowYourCG", load_package = "installed", reporter = "summary", stop_on_failure = TRUE)'
+          Rscript -e 'sesameData::sesameDataCache(c("MM285.tissueSignature", "genomeInfo.mm10", "MM285.address", "probeIDSignature"))'
+          Rscript -e 'knowYourCG::kycgDataCache(c("KYCG.MM285.chromHMM.20210210", "KYCG.MM285.metagene.20220126"))'
+      ## plain test run first: covr hides which test failed
+      - name: Run the tests
+        run: Rscript -e 'testthat::test_dir("tests/testthat", package = "knowYourCG", load_package = "installed", reporter = "summary", stop_on_failure = TRUE)'
       - name: Check the coverage badge
         run: Rscript scripts/coverage.R --check
