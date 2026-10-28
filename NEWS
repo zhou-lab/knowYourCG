@@ -1,3 +1,16 @@
+VERSION 1.9.6
+-------------------------
+
+  o BEHAVIOUR CHANGE: testEnrichmentSEA reports nQ as the size of the query
+    and nD as the size of the database. For a numeric query the two were the
+    other way round (nQ was the set, nD the CpGs with a value).
+  o testEnrichment warns when no query probe is in the universe, instead of
+    returning all-zero overlaps silently.
+  o Databases dropped while loading are named in a warning: a requested group
+    with no version for the query's platform, an unknown group, an empty set.
+  o Vignettes: no sesameDataCache("HM450.address"); sesameData 1.31.2 lists
+    that record with no ExperimentHub id yet, which stopped the devel build.
+
 VERSION 1.9.5
 -------------------------
 
