@@ -206,7 +206,6 @@ str(dbs_multiple)
 # Use these databases in enrichment testing, with an HM450 query: these are
 # HM450 databases, so a query from another platform shares no probe with them
 library(sesame)
-sesameDataCache("HM450.address")
 hm450_query <- names(sesameData_getProbesByGene("DNMT3A", "HM450"))
 results <- testEnrichment(hm450_query, dbs_multiple, platform="HM450")
 ```

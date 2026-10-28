@@ -115,7 +115,6 @@ significant probes on the plot can also be specified:
 
 ```{r ky21, fig.width=6, fig.height=4, message=FALSE}
 library(ggrepel)
-sesameDataCache("HM450.address")   # the probe coordinates the plot needs
 smry_pvals = readRDS(url(paste0("https://zenodo.org/records/",
     "18176501/files/20220413_testManhattan.rds")))
 KYCG_plotManhattan(-log10(smry_pvals), platform="HM450",
