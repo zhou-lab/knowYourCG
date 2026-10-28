@@ -64,7 +64,16 @@ guess_dbnames <- function(
         return(nm)
     }))
     if (!is.null(platform)) {
-        nms <- grep(platform, nms, value = TRUE)
+        ## A name usually matches its group on several platforms and the
+        ## platform picks one; warn only when none of them is for this
+        ## platform, since the request is then dropped outright.
+        keep <- grepl(platform, nms)
+        if (any(!keep) && !any(keep)) {
+            warning(sprintf(paste0("No database group for platform %s; ",
+                "dropped: %s"), platform, paste(nms, collapse = ", ")),
+                call. = FALSE)
+        }
+        nms <- nms[keep]
     }
     if (!silent) {
         if (length(nms) == 0) {

@@ -26,6 +26,11 @@ getDBs <- function(
 
     group_nms <- guess_dbnames(group_nms, platform = platform,
                                allow_multi = TRUE, silent = silent)
+    unknown <- group_nms[!(group_nms %in% df_master$Title)]
+    if (length(unknown) > 0) {
+        warning(sprintf("Unknown database group(s), dropped: %s",
+                        paste(unknown, collapse = ", ")), call. = FALSE)
+    }
     group_nms <- group_nms[group_nms %in% df_master$Title]
     if (length(group_nms) == 0) {
         return(NULL)

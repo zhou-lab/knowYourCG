@@ -41,6 +41,11 @@ categorical set is enriched at the large values of the continuous
 variable; a negative estimate means it is enriched at the small values.
 This matches GSEA. Before version 1.9.3 the sign was the reverse.
 }
+\details{
+nQ is the size of the query and nD the size of the database: for a
+numeric query, nQ counts the CpGs with a value and nD the set. Before
+version 1.9.6 the two were the other way round for a numeric query.
+}
 \examples{
 sesameData::sesameDataCache(data_titles=
 c("KYCG.MM285.designGroup.20210210","KYCG.MM285.seqContextN.20210630",

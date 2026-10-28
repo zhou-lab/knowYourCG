@@ -47,6 +47,15 @@ calcES_Significance <- function(dCont, dDisc, permut=100, precise=FALSE) {
 }
 
 
+## testEnrichmentSEA1() takes the continuous vector as `query` and the set as
+## `database`, and reports nQ and nD that way. When the user's query is the
+## set, swap them back so nQ is always the user's query and nD the database.
+swapNQnD <- function(r) {
+    df <- if (is.data.frame(r)) r else r$res
+    df[c("nQ", "nD")] <- df[c("nD", "nQ")]
+    if (is.data.frame(r)) df else { r$res <- df; r }
+}
+
 testEnrichmentSEA1 <- function(query, database, precise=FALSE, full=FALSE) {
 
     test <- "Set Enrichment Score"
@@ -61,7 +70,7 @@ testEnrichmentSEA1 <- function(query, database, precise=FALSE, full=FALSE) {
         return(data.frame(
             estimate = 0, p.value = 1,
             log10.p.value = 0, test = test,
-            nQ = length(database), nD = length(query),
+            nQ = length(query), nD = length(database),
             overlap = length(overlap))) }
 
     res <- calcES_Significance(query, overlap, precise=precise)
@@ -70,13 +79,13 @@ testEnrichmentSEA1 <- function(query, database, precise=FALSE, full=FALSE) {
         df <- data.frame( ## positive sign: enriched at large values, as GSEA
             estimate = res$es_large, p.value = res$pv_large,
             log10.p.value = log10(res$pv_large), test = test,
-            nQ = length(database), nD = length(query),
+            nQ = length(query), nD = length(database),
             overlap = length(overlap))
     } else {
         df <- data.frame( ## negative sign: enriched at small values
             estimate = -res$es_small, p.value = res$pv_small,
             log10.p.value = log10(res$pv_small), test = test,
-            nQ = length(database), nD = length(query),
+            nQ = length(query), nD = length(database),
             overlap = length(overlap))
     }
 
@@ -95,6 +104,10 @@ testEnrichmentSEA1 <- function(query, database, precise=FALSE, full=FALSE) {
 #' categorical set is enriched at the large values of the continuous
 #' variable; a negative estimate means it is enriched at the small values.
 #' This matches GSEA. Before version 1.9.3 the sign was the reverse.
+#'
+#' nQ is the size of the query and nD the size of the database: for a
+#' numeric query, nQ counts the CpGs with a value and nD the set. Before
+#' version 1.9.6 the two were the other way round for a numeric query.
 #'
 #' @param query query, if numerical, expect categorical database, if
 #' categorical expect numerical database
@@ -132,8 +145,8 @@ testEnrichmentSEA <- function(query, databases,
 
     if (is.character(query) && all(vapply(dbs, is.numeric, logical(1)))) {
         res <- lapply(dbs, function(db) {
-            testEnrichmentSEA1(query = db, database = query,
-                               precise = precise, full=prepPlot)})
+            swapNQnD(testEnrichmentSEA1(query = db, database = query,
+                                        precise = precise, full=prepPlot))})
     } else if (
         is.numeric(query) && all(vapply(dbs, is.character, logical(1)))) {
         res <- lapply(dbs, function(db) {

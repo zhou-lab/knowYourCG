@@ -125,8 +125,15 @@ perform_array_enrichment <- function(
         dbs <- c(dbs, gene_dbs)
     }
     
-    ## Remove empty databases
-    dbs <- Filter(function(x) length(x) > 0, dbs)
+    ## Remove empty databases, naming them
+    empty <- vapply(dbs, length, integer(1)) == 0
+    if (any(empty)) {
+        warning(sprintf("Empty database(s), dropped: %s", paste(
+            vapply(dbs[empty], function(x) {
+                nm <- attr(x, "dbname"); if (is.null(nm)) "(unnamed)" else nm
+            }, character(1)), collapse = ", ")), call. = FALSE)
+    }
+    dbs <- dbs[!empty]
     
     if (!silent) {
         message(sprintf("Testing against %d database(s)...", length(dbs)))
@@ -134,6 +141,12 @@ perform_array_enrichment <- function(
     
     ## Get or validate universe
     universe <- get_universe(universe, platform, dbs)
+    if (!any(query %in% universe)) {
+        warning(sprintf(paste0("None of the %d query probes is in the ",
+            "universe (%d probes, platform %s); every overlap is 0. Check ",
+            "that the query, platform and universe match."),
+            length(query), length(universe), platform), call. = FALSE)
+    }
     
     ## Perform enrichment tests
     res_list <- lapply(dbs, function(db) {

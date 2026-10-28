@@ -90,8 +90,8 @@ As expected, chromatin states `Tss` and `Enh` have negative enrichment
 scores, meaning these databases are associated with small values of the query
 (DNA methylation level). On the contrary, `Het` and most quiescent states
 (`Quies`, `QuiesG`, `Quies2`, `Quies3`) have positive scores, meaning they are
-associated with high methylation level; `Quies4` is the exception. Here `nD`
-is the number of CpGs with a value and `nQ` the size of each state.
+associated with high methylation level; `Quies4` is the exception. Here `nQ`
+is the number of CpGs with a value and `nD` the size of each state.
 
 # SESSION INFO
 
