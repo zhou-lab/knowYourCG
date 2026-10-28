@@ -1,3 +1,9 @@
+VERSION 1.9.7
+-------------------------
+
+  o library(knowYourCG) prints a one-line description and how to cite the
+    paper (suppressPackageStartupMessages() silences it).
+
 VERSION 1.9.6
 -------------------------
 
