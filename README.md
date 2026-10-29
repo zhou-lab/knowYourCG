@@ -28,6 +28,8 @@ conda install -c zhou-lab -c conda-forge kycg yame
 
 Documentation: <https://zhou-lab.github.io/kycg/>
 
+Try it online, no install: <https://zhouserver.research.chop.edu/knowyourcg/>
+
 v2 fetches and verifies its own knowledgebases and screens genome-wide sets
 without R; its statistics are validated against this package. Use whichever
 fits your pipeline — v1 if your analysis lives in R and Bioconductor, v2 for

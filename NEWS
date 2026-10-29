@@ -3,6 +3,8 @@ VERSION 1.9.7
 
   o library(knowYourCG) prints a one-line description and how to cite the
     paper (suppressPackageStartupMessages() silences it).
+  o Array and Sequencing vignettes point to the kycg command-line tool and
+    the web app (try it online, no install).
 
 VERSION 1.9.6
 -------------------------

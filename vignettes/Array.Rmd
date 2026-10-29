@@ -37,7 +37,13 @@ The input to KYCG is a CpG set (query). The CpG sets can represent differential
 methylation, results from an epigenome-wide association studies, or any sets
 that may be derived from analysis. If **array experiment**, the preferred
 format of the query sets is a character vector of cg-numbers, following the
-standard Infinium array naming nomenclature. 
+standard Infinium array naming nomenclature.
+
+Two other ways to run the same tests:
+[kycg](https://github.com/zhou-lab/kycg), a command-line implementation
+(KnowYourCG v2) for large or sequencing work, and a web app for queries
+without installing anything
+([try it online](https://zhouserver.research.chop.edu/knowyourcg/)).
 
 # QUICK START
 
